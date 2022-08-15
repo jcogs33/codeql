@@ -26,7 +26,7 @@ import semmle.code.xml.AndroidManifest
 //   compElement.getAnIntentFilterElement().getAChild("data").hasAttribute("scheme") // make sure to check for 'android' prefix in real query
 // select compElement, "A deeplink is used here."
 //selects just the intent-filter -- Note: this causes a LOT of results since there may be multiple intent
-// filters that are deeplinks in the same component, prbly better to just select the component as a result.
+// filters that are deeplinks in the same component, prbly better to just select the component instead as a result.
 from AndroidIntentFilterXmlElement intentFilterElement
 where
   intentFilterElement.getAnActionElement().getActionName() = "android.intent.action.VIEW" and
