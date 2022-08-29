@@ -13,15 +13,21 @@
 import java
 import semmle.code.xml.AndroidManifest
 
-from AndroidComponentXmlElement compElement
+// from AndroidComponentXmlElement compXmlElement
+// where
+//   //exists(compElement.getAnIntentFilterElement()) and // has an intent filter - below all show that it has an intent-filter, duplicates work
+//   compXmlElement.getAnIntentFilterElement().getAnActionElement().getActionName() =
+//     "android.intent.action.VIEW" and
+//   compXmlElement.getAnIntentFilterElement().getACategoryElement().getCategoryName() =
+//     "android.intent.category.BROWSABLE" and
+//   compXmlElement.getAnIntentFilterElement().getACategoryElement().getCategoryName() =
+//     "android.intent.category.DEFAULT" and
+//   compXmlElement.getAnIntentFilterElement().getAChild("data").hasAttribute("scheme") and // make sure to check for 'android' prefix in real query
+//   not compXmlElement.getFile().(AndroidManifestXmlFile).isInBuildDirectory()
+// select compXmlElement, "A deeplink is used here."
+// * with AndroidManifest.qll predicate instead
+from AndroidActivityXmlElement actXmlElement
 where
-  //exists(compElement.getAnIntentFilterElement()) and // has an intent filter - below all show that it has an intent-filter, duplicates work
-  compElement.getAnIntentFilterElement().getAnActionElement().getActionName() =
-    "android.intent.action.VIEW" and
-  compElement.getAnIntentFilterElement().getACategoryElement().getCategoryName() =
-    "android.intent.category.BROWSABLE" and
-  compElement.getAnIntentFilterElement().getACategoryElement().getCategoryName() =
-    "android.intent.category.DEFAULT" and
-  compElement.getAnIntentFilterElement().getAChild("data").hasAttribute("scheme") and // make sure to check for 'android' prefix in real query
-  not compElement.getFile().(AndroidManifestXmlFile).isInBuildDirectory()
-select compElement, "A deeplink is used here."
+  actXmlElement.hasDeepLink() and
+  not actXmlElement.getFile().(AndroidManifestXmlFile).isInBuildDirectory()
+select actXmlElement, "A deeplink is used here."

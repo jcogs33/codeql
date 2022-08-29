@@ -79,6 +79,25 @@ class AndroidApplicationXmlElement extends XmlElement {
  */
 class AndroidActivityXmlElement extends AndroidComponentXmlElement {
   AndroidActivityXmlElement() { this.getName() = "activity" }
+
+  // ! Double-check that no other components can have deep links
+  // ! and consider moving this to its own .qll file like for Implicit Export Query
+  /**
+   * Holds if this `<activity>` element has a deep link.
+   */
+  predicate hasDeepLink() {
+    this.getAnIntentFilterElement().getAnActionElement().getActionName() =
+      "android.intent.action.VIEW" and
+    this.getAnIntentFilterElement().getACategoryElement().getCategoryName() =
+      "android.intent.category.BROWSABLE" and
+    this.getAnIntentFilterElement().getACategoryElement().getCategoryName() =
+      "android.intent.category.DEFAULT" and
+    //this.getAnIntentFilterElement().getAChild("data").hasAttribute("scheme")
+    exists(AndroidXmlAttribute attr |
+      this.getAnIntentFilterElement().getAChild("data").getAnAttribute() = attr and
+      attr.getName() = "scheme"
+    )
+  }
 }
 
 /**
