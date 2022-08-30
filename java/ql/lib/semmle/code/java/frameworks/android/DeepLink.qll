@@ -3,10 +3,12 @@
 import java
 private import semmle.code.java.frameworks.android.Intent
 private import semmle.code.java.frameworks.android.AsyncTask
+private import semmle.code.java.frameworks.android.Android
 private import semmle.code.java.dataflow.DataFlow
 private import semmle.code.java.dataflow.FlowSteps
 private import semmle.code.java.dataflow.ExternalFlow
 
+// ! Remember to add 'private' annotation as needed to all new classes/predicates below.
 /**
  * The method `Intent.getSerializableExtra`
  */
@@ -26,28 +28,42 @@ class ContextStartServiceMethod extends Method {
   }
 }
 
-// /**
-//  * A value-preserving step from the Intent argument of a `startService` call to
-//  * a `getSerializableExtra` call in the Service the Intent pointed to in its constructor.
-//  */
-// class StartServiceIntentStep extends AdditionalValueStep {
-//   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-//     exists(
-//       MethodAccess startService, MethodAccess getSerializableExtra, ClassInstanceExpr newIntent
-//     |
-//       startService.getMethod().overrides*(any(ContextStartServiceMethod m)) and
-//       getSerializableExtra.getMethod().overrides*(any(AndroidGetSerializableExtraMethod m)) and
-//       newIntent.getConstructedType() instanceof TypeIntent and
-//       DataFlow::localExprFlow(newIntent, startService.getArgument(0)) and
-//       //newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-//       // getSerializableExtra.getReceiverType() and
-//       newIntent.getArgument(1).toString() = "FetcherService.class" and // BAD
-//       getSerializableExtra.getFile().getBaseName() = "RouterActivity.java" and // BAD
-//       n1.asExpr() = startService.getArgument(0) and
-//       n2.asExpr() = getSerializableExtra
-//     )
-//   }
-// }
+/**
+ * The method `Context.sendBroadcast`.
+ */
+class ContextSendBroadcastMethod extends Method {
+  ContextSendBroadcastMethod() {
+    this.hasName("sendBroadcast") and
+    this.getDeclaringType() instanceof TypeContext
+  }
+}
+
+/**
+ * A value-preserving step from the Intent argument of a `startService` call to
+ * a `getSerializableExtra` call in the Service the Intent pointed to in its constructor.
+ */
+class StartServiceSerializableIntentStep extends AdditionalValueStep {
+  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+    exists(
+      MethodAccess startService, MethodAccess getSerializableExtra, ClassInstanceExpr newIntent
+    |
+      startService.getMethod().overrides*(any(ContextStartServiceMethod m)) and
+      getSerializableExtra.getMethod().overrides*(any(AndroidGetSerializableExtraMethod m)) and
+      newIntent.getConstructedType() instanceof TypeIntent and
+      DataFlow::localExprFlow(newIntent, startService.getArgument(0)) and
+      //newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+      // getSerializableExtra.getReceiverType() and
+      //   newIntent.getArgument(1).toString() = "FetcherService.class" and // BAD
+      //   getSerializableExtra.getFile().getBaseName() = "RouterActivity.java" and // BAD
+      newIntent.getArgument(1).toString() = "FileDownloader.class" and // BAD
+      newIntent.getFile().getBaseName() = "FileDisplayActivity.java" and // BAD
+      getSerializableExtra.getFile().getBaseName() = "FileDownloader.java" and // BAD
+      n1.asExpr() = startService.getArgument(0) and
+      n2.asExpr() = getSerializableExtra
+    )
+  }
+}
+
 /**
  * A value-preserving step from the Intent argument of a `startService` call to
  * an `Intent` TypeAccess in the Service the Intent pointed to in its constructor.
@@ -64,110 +80,127 @@ class StartServiceIntentStep extends AdditionalValueStep {
       //     intentVar.getBasicBlock().getBasicBlock() and
       //   newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
       //     intent.getType().(ParameterizedType).getATypeArgument() and
-      newIntent.getArgument(1).toString() = "FetcherService.class" and // BAD
-      intentVar.getFile().getBaseName() = "RouterActivity.java" and // BAD
+      //   newIntent.getArgument(1).toString() = "FetcherService.class" and // BAD
+      //   intentVar.getFile().getBaseName() = "RouterActivity.java" and // BAD
+      newIntent.getArgument(1).toString() = "FileDownloader.class" and // BAD
+      newIntent.getFile().getBaseName() = "FileDisplayActivity.java" and // BAD
+      intentVar.getFile().getBaseName() = "FileDownloader.java" and // BAD
       n1.asExpr() = startService.getArgument(0) and
       n2.asExpr() = intentVar
     )
   }
 }
 
-// *************************************************************************************************
-/*
- * The following flow steps aim to model the life-cycle of `AsyncTask`s described here:
- * https://developer.android.com/reference/android/os/AsyncTask#the-4-steps
- */
-
 /**
- * A taint step from the vararg arguments of `AsyncTask::execute` and `AsyncTask::executeOnExecutor`
- * to the parameter of `AsyncTask::doInBackground`.
+ * A value-preserving step from the Intent argument of a `sendBroadcast` call to
+ * an `Intent` TypeAccess in the Receiver the Intent pointed to in its constructor.
  */
-private class AsyncTaskExecuteAdditionalValueStep extends AdditionalTaintStep {
-  override predicate step(DataFlow::Node node1, DataFlow::Node node2) {
-    exists(ExecuteAsyncTaskMethodAccess ma, AsyncTaskRunInBackgroundMethod m |
-      DataFlow::getInstanceArgument(ma).getType() = m.getDeclaringType()
-    |
-      node1.asExpr() = ma.getParamsArgument() and
-      node2.asParameter() = m.getParameter(0)
-    )
-  }
-}
-
-/**
- * A value-preserving step from the return value of `AsyncTask::doInBackground`
- * to the parameter of `AsyncTask::onPostExecute`.
- */
-private class AsyncTaskOnPostExecuteAdditionalValueStep extends AdditionalValueStep {
-  override predicate step(DataFlow::Node node1, DataFlow::Node node2) {
-    exists(
-      AsyncTaskRunInBackgroundMethod runInBackground, AsyncTaskOnPostExecuteMethod onPostExecute
-    |
-      onPostExecute.getDeclaringType() = runInBackground.getDeclaringType()
-    |
-      node1.asExpr() = any(ReturnStmt r | r.getEnclosingCallable() = runInBackground).getResult() and
-      node2.asParameter() = onPostExecute.getParameter(0)
-    )
-  }
-}
-
-/**
- * A value-preserving step from field initializers in `AsyncTask`'s constructor or initializer method
- * to the instance parameter of `AsyncTask::runInBackground` and `AsyncTask::onPostExecute`.
- */
-private class AsyncTaskFieldInitQualifierToInstanceParameterStep extends AdditionalValueStep {
+class SendBroadcastIntentStep extends AdditionalValueStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(AsyncTaskInit init, Callable receiver |
-      n1.(DataFlow::PostUpdateNode).getPreUpdateNode() =
-        DataFlow::getFieldQualifier(any(FieldWrite f | f.getEnclosingCallable() = init)) and
-      n2.(DataFlow::InstanceParameterNode).getCallable() = receiver and
-      receiver.getDeclaringType() = init.getDeclaringType() and
-      (
-        receiver instanceof AsyncTaskRunInBackgroundMethod or
-        receiver instanceof AsyncTaskOnPostExecuteMethod
-      )
+    exists(MethodAccess sendBroadcast, VarAccess intentVar, ClassInstanceExpr newIntent |
+      sendBroadcast.getMethod().overrides*(any(ContextSendBroadcastMethod m)) and
+      //getSerializableExtra.getMethod().overrides*(any(AndroidGetSerializableExtraMethod m)) and
+      intentVar.getType() instanceof TypeIntent and
+      newIntent.getConstructedType() instanceof TypeIntent and
+      DataFlow::localExprFlow(newIntent, sendBroadcast.getArgument(0)) and
+      //   newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+      //     intentVar.getBasicBlock().getBasicBlock() and
+      //   newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+      //     intent.getType().(ParameterizedType).getATypeArgument() and
+      //   newIntent.getArgument(1).toString() = "FetcherService.class" and // BAD
+      //   intentVar.getFile().getBaseName() = "RouterActivity.java" and // BAD
+      newIntent.getArgument(1).toString() = "FileDownloader.class" and // BAD
+      newIntent.getFile().getBaseName() = "FileDisplayActivity.java" and // BAD
+      intentVar.getFile().getBaseName() = "FileDownloader.java" and // BAD
+      n1.asExpr() = sendBroadcast.getArgument(0) and
+      n2.asExpr() = intentVar
+    )
+  }
+}
+
+// ! Check if can use pre-existing Synthetic Field instead of the below.
+/**
+ * The method `Intent.get%Extra` or `Intent.getExtras`.
+ */
+class AndroidGetExtrasMethod extends Method {
+  AndroidGetExtrasMethod() {
+    (this.hasName("getExtras") or this.getName().matches("get%Extra")) and // ! switch to get%Extra% instead, I think wildcard holds for nothing there
+    this.getDeclaringType() instanceof TypeIntent
+  }
+}
+
+/**
+ * The method `Intent.getData`
+ */
+class AndroidGetDataMethod extends Method {
+  AndroidGetDataMethod() {
+    this.hasName("getData") and this.getDeclaringType() instanceof TypeIntent
+  }
+}
+
+/**
+ * The method `Intent.parseUri`
+ */
+class AndroidParseUriMethod extends Method {
+  AndroidParseUriMethod() {
+    (this.hasName("parseUri") or this.hasName("getIntent")) and // getIntent for older versions before deprecation to parseUri
+    this.getDeclaringType() instanceof TypeIntent
+  }
+}
+
+/**
+ * A taint step from the Intent argument of a `startActivity` call to
+ * a `Intent.parseUri` call in the Activity the Intent pointed to in its constructor.
+ */
+private class StartActivityParseUriStep extends AdditionalTaintStep {
+  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+    exists(MethodAccess startActivity, MethodAccess parseUri, ClassInstanceExpr newIntent |
+      startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
+      parseUri.getMethod().overrides*(any(AndroidParseUriMethod m)) and
+      newIntent.getConstructedType() instanceof TypeIntent and
+      DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
+      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+        parseUri.getReceiverType() and
+      n1.asExpr() = startActivity.getArgument(0) and
+      n2.asExpr() = parseUri
     )
   }
 }
 
 /**
- * The Android class `android.os.AsyncTask`.
+ * A taint step from the Intent argument of a `startActivity` call to
+ * a `Intent.get%Extra%` call in the Activity the Intent pointed to in its constructor.
  */
-private class AsyncTask extends RefType {
-  AsyncTask() { this.hasQualifiedName("android.os", "AsyncTask") }
-}
-
-/** The constructor or initializer method of the `android.os.AsyncTask` class. */
-private class AsyncTaskInit extends Callable {
-  AsyncTaskInit() {
-    this.getDeclaringType().getSourceDeclaration().getASourceSupertype*() instanceof AsyncTask and
-    (this instanceof Constructor or this instanceof InitializerMethod)
+private class StartActivityGetDataStep extends AdditionalTaintStep {
+  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+    exists(MethodAccess startActivity, MethodAccess getData, ClassInstanceExpr newIntent |
+      startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
+      getData.getMethod().overrides*(any(AndroidGetDataMethod m)) and
+      newIntent.getConstructedType() instanceof TypeIntent and
+      DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
+      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+        getData.getReceiverType() and
+      n1.asExpr() = startActivity.getArgument(0) and
+      n2.asExpr() = getData
+    )
   }
 }
 
-/** A call to the `execute` or `executeOnExecutor` methods of the `android.os.AsyncTask` class. */
-private class ExecuteAsyncTaskMethodAccess extends MethodAccess {
-  ExecuteAsyncTaskMethodAccess() {
-    this.getMethod().hasName(["execute", "executeOnExecutor"]) and
-    this.getMethod().getDeclaringType().getSourceDeclaration().getASourceSupertype*() instanceof
-      AsyncTask
-  }
-
-  /** Returns the `params` argument of this call. */
-  Argument getParamsArgument() { result = this.getAnArgument() and result.isVararg() }
-}
-
-/** The `doInBackground` method of the `android.os.AsyncTask` class. */
-private class AsyncTaskRunInBackgroundMethod extends Method {
-  AsyncTaskRunInBackgroundMethod() {
-    this.getDeclaringType().getSourceDeclaration().getASourceSupertype*() instanceof AsyncTask and
-    this.hasName("doInBackground")
-  }
-}
-
-/** The `onPostExecute` method of the `android.os.AsyncTask` class. */
-private class AsyncTaskOnPostExecuteMethod extends Method {
-  AsyncTaskOnPostExecuteMethod() {
-    this.getDeclaringType().getSourceDeclaration().getASourceSupertype*() instanceof AsyncTask and
-    this.hasName("onPostExecute")
+/**
+ * A taint step from the Intent argument of a `startActivity` call to
+ * a `Intent.getData` call in the Activity the Intent pointed to in its constructor.
+ */
+private class StartActivityGetExtrasStep extends AdditionalTaintStep {
+  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+    exists(MethodAccess startActivity, MethodAccess getExtras, ClassInstanceExpr newIntent |
+      startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
+      getExtras.getMethod().overrides*(any(AndroidGetExtrasMethod m)) and
+      newIntent.getConstructedType() instanceof TypeIntent and
+      DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
+      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+        getExtras.getReceiverType() and
+      n1.asExpr() = startActivity.getArgument(0) and
+      n2.asExpr() = getExtras
+    )
   }
 }
