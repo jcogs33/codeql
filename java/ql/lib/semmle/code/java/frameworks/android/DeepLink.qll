@@ -9,6 +9,7 @@ private import semmle.code.java.dataflow.FlowSteps
 private import semmle.code.java.dataflow.ExternalFlow
 
 // ! Remember to add 'private' annotation as needed to all new classes/predicates below.
+/* *********  OTHER COMPONENTS (SERVICE, RECEIVER) *********** */
 /**
  * The method `Intent.getSerializableExtra`
  */
@@ -19,12 +20,29 @@ class AndroidGetSerializableExtraMethod extends Method {
 }
 
 /**
- * The method `Context.startService`.
+ * The method `Context.startService` or `Context.startForegroundService`.
  */
 class ContextStartServiceMethod extends Method {
   ContextStartServiceMethod() {
-    this.hasName("startService") and
+    (this.hasName("startService") or this.hasName("startForegroundService")) and
     this.getDeclaringType() instanceof TypeContext
+  }
+}
+
+/**
+ * The class `android.app.Service`.
+ */
+class TypeService extends Class {
+  TypeService() { this.hasQualifiedName("android.app", "Service") }
+}
+
+/**
+ * The method `Service.onStart` or `Service.onStartCommand`.
+ */
+class ServiceOnStartMethod extends Method {
+  ServiceOnStartMethod() {
+    (this.hasName("onStart") or this.hasName("onStartCommand")) and
+    this.getDeclaringType() instanceof TypeService
   }
 }
 
@@ -66,27 +84,21 @@ class StartServiceSerializableIntentStep extends AdditionalValueStep {
 
 /**
  * A value-preserving step from the Intent argument of a `startService` call to
- * an `Intent` TypeAccess in the Service the Intent pointed to in its constructor.
+ * an `Intent` Parameter in the `onStart` method of the Service the Intent pointed
+ * to in its constructor.
  */
 class StartServiceIntentStep extends AdditionalValueStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(MethodAccess startService, VarAccess intentVar, ClassInstanceExpr newIntent |
+    exists(MethodAccess startService, Method onStart, ClassInstanceExpr newIntent |
       startService.getMethod().overrides*(any(ContextStartServiceMethod m)) and
-      //getSerializableExtra.getMethod().overrides*(any(AndroidGetSerializableExtraMethod m)) and
-      intentVar.getType() instanceof TypeIntent and
+      //intentParam.getType() instanceof TypeIntent and // ! remove?
+      onStart.overrides*(any(ServiceOnStartMethod m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
       DataFlow::localExprFlow(newIntent, startService.getArgument(0)) and
-      //   newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-      //     intentVar.getBasicBlock().getBasicBlock() and
-      //   newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-      //     intent.getType().(ParameterizedType).getATypeArgument() and
-      //   newIntent.getArgument(1).toString() = "FetcherService.class" and // BAD
-      //   intentVar.getFile().getBaseName() = "RouterActivity.java" and // BAD
-      newIntent.getArgument(1).toString() = "FileDownloader.class" and // BAD
-      newIntent.getFile().getBaseName() = "FileDisplayActivity.java" and // BAD
-      intentVar.getFile().getBaseName() = "FileDownloader.java" and // BAD
+      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+        onStart.getDeclaringType() and
       n1.asExpr() = startService.getArgument(0) and
-      n2.asExpr() = intentVar
+      n2.asParameter() = onStart.getParameter(0)
     )
   }
 }
@@ -118,6 +130,7 @@ class SendBroadcastIntentStep extends AdditionalValueStep {
   }
 }
 
+/* *********  INTENT METHODS, E.G. parseUri, getData, getExtras, etc. *********** */
 // ! Check if can use pre-existing Synthetic Field instead of the below.
 /**
  * The method `Intent.get%Extra` or `Intent.getExtras`.
