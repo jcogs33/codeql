@@ -57,39 +57,46 @@ class StartServiceIntentStep extends AdditionalValueStep {
   }
 }
 
+// /**
+//  * The class `android.content.BroadcastReceiver`.
+//  */
+// class TypeBroadcastReceiver extends Class {
+//     TypeBroadcastReceiver() { this.hasQualifiedName("android.content", "BroadcastReceiver") }
+//   }
 /**
  * The method `Context.sendBroadcast`.
  */
 class ContextSendBroadcastMethod extends Method {
   ContextSendBroadcastMethod() {
-    this.hasName("sendBroadcast") and
+    this.getName().matches("send%Broadcast%") and // ! double-check this
     this.getDeclaringType() instanceof TypeContext
   }
 }
 
+// /**
+//  * The method `BroadcastReceiver.onReceive`.
+//  */
+// class AndroidReceiveIntentMethod extends Method {
+//     AndroidReceiveIntentMethod() {
+//       this.hasName("onReceive") and this.getDeclaringType() instanceof TypeBroadcastReceiver
+//     }
+//   }
 /**
  * A value-preserving step from the Intent argument of a `sendBroadcast` call to
- * an `Intent` TypeAccess in the Receiver the Intent pointed to in its constructor.
+ * the `Intent` Parameter in the `onStart` method of the BroadcastReceiver the
+ * Intent pointed to in its constructor.
  */
-class SendBroadcastIntentStep extends AdditionalValueStep {
+class SendBroadcastReceiverIntentStep extends AdditionalValueStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(MethodAccess sendBroadcast, VarAccess intentVar, ClassInstanceExpr newIntent |
+    exists(MethodAccess sendBroadcast, Method onReceive, ClassInstanceExpr newIntent |
       sendBroadcast.getMethod().overrides*(any(ContextSendBroadcastMethod m)) and
-      //getSerializableExtra.getMethod().overrides*(any(AndroidGetSerializableExtraMethod m)) and
-      intentVar.getType() instanceof TypeIntent and
+      onReceive.overrides*(any(ServiceOnStartMethod m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
       DataFlow::localExprFlow(newIntent, sendBroadcast.getArgument(0)) and
-      //   newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-      //     intentVar.getBasicBlock().getBasicBlock() and
-      //   newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-      //     intent.getType().(ParameterizedType).getATypeArgument() and
-      //   newIntent.getArgument(1).toString() = "FetcherService.class" and // BAD
-      //   intentVar.getFile().getBaseName() = "RouterActivity.java" and // BAD
-      newIntent.getArgument(1).toString() = "FileDownloader.class" and // BAD
-      newIntent.getFile().getBaseName() = "FileDisplayActivity.java" and // BAD
-      intentVar.getFile().getBaseName() = "FileDownloader.java" and // BAD
+      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+        onReceive.getDeclaringType() and
       n1.asExpr() = sendBroadcast.getArgument(0) and
-      n2.asExpr() = intentVar
+      n2.asParameter() = onReceive.getParameter(1)
     )
   }
 }
