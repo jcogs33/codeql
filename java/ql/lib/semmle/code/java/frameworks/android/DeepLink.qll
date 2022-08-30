@@ -11,12 +11,10 @@ private import semmle.code.java.dataflow.ExternalFlow
 // ! Remember to add 'private' annotation as needed to all new classes/predicates below.
 /* *********  OTHER COMPONENTS (SERVICE, RECEIVER) *********** */
 /**
- * The method `Intent.getSerializableExtra`
+ * The class `android.app.Service`.
  */
-class AndroidGetSerializableExtraMethod extends Method {
-  AndroidGetSerializableExtraMethod() {
-    this.hasName("getSerializableExtra") and this.getDeclaringType() instanceof TypeIntent
-  }
+class TypeService extends Class {
+  TypeService() { this.hasQualifiedName("android.app", "Service") }
 }
 
 /**
@@ -30,13 +28,6 @@ class ContextStartServiceMethod extends Method {
 }
 
 /**
- * The class `android.app.Service`.
- */
-class TypeService extends Class {
-  TypeService() { this.hasQualifiedName("android.app", "Service") }
-}
-
-/**
  * The method `Service.onStart` or `Service.onStartCommand`.
  */
 class ServiceOnStartMethod extends Method {
@@ -47,51 +38,14 @@ class ServiceOnStartMethod extends Method {
 }
 
 /**
- * The method `Context.sendBroadcast`.
- */
-class ContextSendBroadcastMethod extends Method {
-  ContextSendBroadcastMethod() {
-    this.hasName("sendBroadcast") and
-    this.getDeclaringType() instanceof TypeContext
-  }
-}
-
-/**
  * A value-preserving step from the Intent argument of a `startService` call to
- * a `getSerializableExtra` call in the Service the Intent pointed to in its constructor.
- */
-class StartServiceSerializableIntentStep extends AdditionalValueStep {
-  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(
-      MethodAccess startService, MethodAccess getSerializableExtra, ClassInstanceExpr newIntent
-    |
-      startService.getMethod().overrides*(any(ContextStartServiceMethod m)) and
-      getSerializableExtra.getMethod().overrides*(any(AndroidGetSerializableExtraMethod m)) and
-      newIntent.getConstructedType() instanceof TypeIntent and
-      DataFlow::localExprFlow(newIntent, startService.getArgument(0)) and
-      //newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-      // getSerializableExtra.getReceiverType() and
-      //   newIntent.getArgument(1).toString() = "FetcherService.class" and // BAD
-      //   getSerializableExtra.getFile().getBaseName() = "RouterActivity.java" and // BAD
-      newIntent.getArgument(1).toString() = "FileDownloader.class" and // BAD
-      newIntent.getFile().getBaseName() = "FileDisplayActivity.java" and // BAD
-      getSerializableExtra.getFile().getBaseName() = "FileDownloader.java" and // BAD
-      n1.asExpr() = startService.getArgument(0) and
-      n2.asExpr() = getSerializableExtra
-    )
-  }
-}
-
-/**
- * A value-preserving step from the Intent argument of a `startService` call to
- * an `Intent` Parameter in the `onStart` method of the Service the Intent pointed
+ * the `Intent` Parameter in the `onStart` method of the Service the Intent pointed
  * to in its constructor.
  */
 class StartServiceIntentStep extends AdditionalValueStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
     exists(MethodAccess startService, Method onStart, ClassInstanceExpr newIntent |
       startService.getMethod().overrides*(any(ContextStartServiceMethod m)) and
-      //intentParam.getType() instanceof TypeIntent and // ! remove?
       onStart.overrides*(any(ServiceOnStartMethod m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
       DataFlow::localExprFlow(newIntent, startService.getArgument(0)) and
@@ -100,6 +54,16 @@ class StartServiceIntentStep extends AdditionalValueStep {
       n1.asExpr() = startService.getArgument(0) and
       n2.asParameter() = onStart.getParameter(0)
     )
+  }
+}
+
+/**
+ * The method `Context.sendBroadcast`.
+ */
+class ContextSendBroadcastMethod extends Method {
+  ContextSendBroadcastMethod() {
+    this.hasName("sendBroadcast") and
+    this.getDeclaringType() instanceof TypeContext
   }
 }
 
