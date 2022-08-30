@@ -101,6 +101,38 @@ class SendBroadcastReceiverIntentStep extends AdditionalValueStep {
   }
 }
 
+/**
+ * The method `Activity.startActivity`.
+ */
+class ActivityStartActivityMethod extends Method {
+  ActivityStartActivityMethod() {
+    // should capture all `startAct` methods in the Activity class
+    // except for `startNextMatchingActivity`, which I'm leaving out for now since seems potentially more complicated
+    this.getName().matches("startActivit%") and
+    this.getDeclaringType() instanceof TypeActivity
+  }
+}
+
+/**
+ * A value-preserving step from the Intent argument of a `startActivity` call from
+ * the Activity classs (not Context like the original StartActivityIntentStep in Intent.qll)
+ * to a `getIntent` call in the Activity the Intent pointed to in its constructor.
+ */
+private class StartActivityIntentStep_ActivityClass extends AdditionalValueStep {
+  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+    exists(MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent |
+      startActivity.getMethod().overrides*(any(ActivityStartActivityMethod m)) and
+      getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
+      newIntent.getConstructedType() instanceof TypeIntent and
+      DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1)...
+      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+        getIntent.getReceiverType() and
+      n1.asExpr() = startActivity.getArgument(0) and // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1)...
+      n2.asExpr() = getIntent
+    )
+  }
+}
+
 /* *********  INTENT METHODS, E.G. parseUri, getData, getExtras, etc. *********** */
 // ! Check if can use pre-existing Synthetic Field instead of the below.
 /**
