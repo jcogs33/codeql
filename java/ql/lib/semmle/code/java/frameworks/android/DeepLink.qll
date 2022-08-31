@@ -19,10 +19,20 @@ class TypeService extends Class {
 
 /**
  * The method `Context.startService` or `Context.startForegroundService`.
+ * or `bindIsolatedService`
+ * or `bindService` or `bindServiceAsUser`
+ * from https://developer.android.com/reference/android/app/Service:
+ * "Services can be started with Context.startService() and Context.bindService()."
  */
 class ContextStartServiceMethod extends Method {
   ContextStartServiceMethod() {
-    (this.hasName("startService") or this.hasName("startForegroundService")) and
+    (
+      this.hasName("startService") or
+      this.hasName("startForegroundService") or
+      this.hasName("bindIsolatedService") or
+      this.hasName("bindService") or
+      this.hasName("bindServiceAsUser")
+    ) and
     this.getDeclaringType() instanceof TypeContext
   }
 }
