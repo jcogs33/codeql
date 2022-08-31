@@ -28,11 +28,80 @@ class ContextStartServiceMethod extends Method {
 }
 
 /**
+ * A method of type Service that receives an Intent as a parameter.
+ * Namely: `Service.onStart`, `Service.onStartCommand`,
+ * `Service.onBind`, `Service.onRebind`
+ * `Service.onUnbind`, or
+ * `Service.onTaskRemoved`
+ */
+class AndroidServeIntentMethod extends Method {
+  AndroidServeIntentMethod() {
+    (
+      this.hasName("onStart") or
+      this.hasName("onStartCommand") or
+      this.hasName("onBind") or
+      this.hasName("onRebind") or
+      this.hasName("onUnbind") or
+      this.hasName("onTaskRemoved")
+    ) and
+    this.getDeclaringType() instanceof TypeService
+  }
+}
+
+/**
+ * The method `Service.onStart`, `Service.onStartCommand`,
+ * `Service.onBind`, `Service.onRebind`
+ * `Service.onUnbind`, or
+ * `Service.onTaskRemoved`
+ */
+class AndroidServeIntentMethod2 extends Method {
+  AndroidServeIntentMethod2() {
+    (
+      this instanceof ServiceOnStartMethod or
+      this instanceof ServiceOnBindMethod or
+      this instanceof ServiceOnUnbindMethod or
+      this instanceof ServiceOnTaskRemovedMethod
+    ) and
+    this.getDeclaringType() instanceof TypeService
+  }
+}
+
+/**
  * The method `Service.onStart` or `Service.onStartCommand`.
  */
 class ServiceOnStartMethod extends Method {
   ServiceOnStartMethod() {
     (this.hasName("onStart") or this.hasName("onStartCommand")) and
+    this.getDeclaringType() instanceof TypeService
+  }
+}
+
+/**
+ * The method `Service.onBind` or `Service.onRebind`.
+ */
+class ServiceOnBindMethod extends Method {
+  ServiceOnBindMethod() {
+    (this.hasName("onBind") or this.hasName("onRebind")) and
+    this.getDeclaringType() instanceof TypeService
+  }
+}
+
+/**
+ * The method `Service.onUnbind`.
+ */
+class ServiceOnUnbindMethod extends Method {
+  ServiceOnUnbindMethod() {
+    this.hasName("onUnbind") and
+    this.getDeclaringType() instanceof TypeService
+  }
+}
+
+/**
+ * The method `Service.onTaskRemoved`.
+ */
+class ServiceOnTaskRemovedMethod extends Method {
+  ServiceOnTaskRemovedMethod() {
+    this.hasName("onTaskRemoved") and
     this.getDeclaringType() instanceof TypeService
   }
 }
@@ -46,7 +115,9 @@ class StartServiceIntentStep extends AdditionalValueStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
     exists(MethodAccess startService, Method onStart, ClassInstanceExpr newIntent |
       startService.getMethod().overrides*(any(ContextStartServiceMethod m)) and
-      onStart.overrides*(any(ServiceOnStartMethod m)) and
+      //onStart.overrides*(any(ServiceOnStartMethod m)) and
+      //onStart.overrides*(any(AndroidServeIntentMethod m)) and
+      onStart.overrides*(any(AndroidServeIntentMethod2 m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
       DataFlow::localExprFlow(newIntent, startService.getArgument(0)) and
       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
@@ -68,7 +139,7 @@ class StartServiceIntentStep extends AdditionalValueStep {
  */
 class ContextSendBroadcastMethod extends Method {
   ContextSendBroadcastMethod() {
-    this.getName().matches("send%Broadcast%") and // ! double-check this
+    this.getName().matches("send%Broadcast%") and // ! double-check this - seems to work based on quick-eval
     this.getDeclaringType() instanceof TypeContext
   }
 }
