@@ -39,9 +39,11 @@ class AndroidServeIntentMethod extends Method {
     (
       this.hasName("onStart") or
       this.hasName("onStartCommand") or
+      // this.getName.matches("onStart%") or // could maybe switch with the above
       this.hasName("onBind") or
       this.hasName("onRebind") or
       this.hasName("onUnbind") or
+      // this.getName.matches("on%bind") or // could maybe switch with the above
       this.hasName("onTaskRemoved")
     ) and
     this.getDeclaringType() instanceof TypeService
@@ -106,6 +108,7 @@ class ServiceOnTaskRemovedMethod extends Method {
   }
 }
 
+// ! update QLDoc more if needed (e.g. remove `onStart` reference)
 /**
  * A value-preserving step from the Intent argument of a `startService` call to
  * the `Intent` Parameter in the `onStart` method of the Service the Intent pointed
@@ -144,6 +147,16 @@ class ContextSendBroadcastMethod extends Method {
   }
 }
 
+// ! do I need to model this as well?
+/**
+ * The method `BroadcastReceiver.peekService`.
+ */
+class BroadcastReceiverPeekServiceIntentMethod extends Method {
+  BroadcastReceiverPeekServiceIntentMethod() {
+    this.hasName("peekService") and this.getDeclaringType() instanceof TypeBroadcastReceiver
+  }
+}
+
 // /**
 //  * The method `BroadcastReceiver.onReceive`.
 //  */
@@ -161,7 +174,7 @@ class SendBroadcastReceiverIntentStep extends AdditionalValueStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
     exists(MethodAccess sendBroadcast, Method onReceive, ClassInstanceExpr newIntent |
       sendBroadcast.getMethod().overrides*(any(ContextSendBroadcastMethod m)) and
-      onReceive.overrides*(any(ServiceOnStartMethod m)) and
+      onReceive.overrides*(any(AndroidReceiveIntentMethod m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
       DataFlow::localExprFlow(newIntent, sendBroadcast.getArgument(0)) and
       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
