@@ -9,6 +9,7 @@ private import semmle.code.java.dataflow.FlowSteps
 private import semmle.code.java.dataflow.ExternalFlow
 
 // ! Remember to add 'private' annotation as needed to all new classes/predicates below.
+// ! and clean-up in general...
 /* *********  OTHER COMPONENTS (SERVICE, RECEIVER) *********** */
 /**
  * The class `android.app.Service`.
@@ -29,9 +30,11 @@ class ContextStartServiceMethod extends Method {
     (
       this.hasName("startService") or
       this.hasName("startForegroundService") or
+      // this.getName.matches("start%Service") or // could maybe switch with the above
       this.hasName("bindIsolatedService") or
       this.hasName("bindService") or
       this.hasName("bindServiceAsUser")
+      // this.getName.matches("bind%Service%") or // could maybe switch with the above
     ) and
     this.getDeclaringType() instanceof TypeContext
   }
@@ -60,6 +63,8 @@ class AndroidServeIntentMethod extends Method {
   }
 }
 
+// ! consider using the below instead of above AndroidServeIntentMethod
+// ! remove below if use above instead
 /**
  * The method `Service.onStart`, `Service.onStartCommand`,
  * `Service.onBind`, `Service.onRebind`
@@ -126,17 +131,17 @@ class ServiceOnTaskRemovedMethod extends Method {
  */
 class StartServiceIntentStep extends AdditionalValueStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(MethodAccess startService, Method onStart, ClassInstanceExpr newIntent |
+    exists(MethodAccess startService, Method serveIntent, ClassInstanceExpr newIntent |
       startService.getMethod().overrides*(any(ContextStartServiceMethod m)) and
       //onStart.overrides*(any(ServiceOnStartMethod m)) and
-      //onStart.overrides*(any(AndroidServeIntentMethod m)) and
-      onStart.overrides*(any(AndroidServeIntentMethod2 m)) and
+      serveIntent.overrides*(any(AndroidServeIntentMethod m)) and
+      //serveIntent.overrides*(any(AndroidServeIntentMethod2 m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
       DataFlow::localExprFlow(newIntent, startService.getArgument(0)) and
       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-        onStart.getDeclaringType() and
+        serveIntent.getDeclaringType() and
       n1.asExpr() = startService.getArgument(0) and
-      n2.asParameter() = onStart.getParameter(0)
+      n2.asParameter() = serveIntent.getParameter(0)
     )
   }
 }
@@ -152,7 +157,7 @@ class StartServiceIntentStep extends AdditionalValueStep {
  */
 class ContextSendBroadcastMethod extends Method {
   ContextSendBroadcastMethod() {
-    this.getName().matches("send%Broadcast%") and // ! double-check this - seems to work based on quick-eval
+    this.getName().matches("send%Broadcast%") and // ! double-check this matching - seems to work based on quick-eval
     this.getDeclaringType() instanceof TypeContext
   }
 }
@@ -196,14 +201,16 @@ class SendBroadcastReceiverIntentStep extends AdditionalValueStep {
 }
 
 /**
- * The method `Activity.startActivity`.
+ * The method `Activity.startActivity` or `Context.startActivity`.
  */
-class ActivityStartActivityMethod extends Method {
-  ActivityStartActivityMethod() {
-    // should capture all `startAct` methods in the Activity class
-    // except for `startNextMatchingActivity`, which I'm leaving out for now since seems potentially more complicated
-    this.getName().matches("startActivit%") and
-    this.getDeclaringType() instanceof TypeActivity
+class ContextOrActivityStartActivityMethod extends Method {
+  ContextOrActivityStartActivityMethod() {
+    // should capture all `startAct` methods in the Activity and Context classes (9)
+    this.getName().matches("start%Activit%") and
+    (
+      this.getDeclaringType() instanceof TypeContext or
+      this.getDeclaringType() instanceof TypeActivity
+    )
   }
 }
 
@@ -212,16 +219,26 @@ class ActivityStartActivityMethod extends Method {
  * the Activity classs (not Context like the original StartActivityIntentStep in Intent.qll)
  * to a `getIntent` call in the Activity the Intent pointed to in its constructor.
  */
-private class StartActivityIntentStep_ActivityClass extends AdditionalValueStep {
+private class StartActivityIntentStep_updateForActivityMethods extends AdditionalValueStep {
+  private Argument getStartActivityIntentArg(MethodAccess startActMethodAccess) {
+    if
+      startActMethodAccess.getMethod().hasName("startActivityFromChild") or
+      startActMethodAccess.getMethod().hasName("startActivityFromFragment")
+    then result = startActMethodAccess.getArgument(1)
+    else result = startActMethodAccess.getArgument(0)
+  }
+
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
     exists(MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent |
-      startActivity.getMethod().overrides*(any(ActivityStartActivityMethod m)) and
+      startActivity.getMethod().overrides*(any(ContextOrActivityStartActivityMethod m)) and
       getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
-      DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1)...
+      //DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1)...
+      DataFlow::localExprFlow(newIntent, getStartActivityIntentArg(startActivity)) and
       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
         getIntent.getReceiverType() and
-      n1.asExpr() = startActivity.getArgument(0) and // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1)...
+      //n1.asExpr() = startActivity.getArgument(0) and // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1)...
+      n1.asExpr() = getStartActivityIntentArg(startActivity) and
       n2.asExpr() = getIntent
     )
   }
