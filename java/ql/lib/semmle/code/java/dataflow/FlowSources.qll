@@ -250,13 +250,6 @@ class AndroidIntentInput extends DataFlow::Node {
       this.asParameter() = m.getParameter(1) and
       receiverType = m.getDeclaringType()
     )
-    // ! Below is all that's needed for issue #221 in codeql-java-team?
-    // or
-    // exists(Method m, AndroidServeIntentMethod sI |
-    //   m.overrides*(sI) and
-    //   this.asParameter() = m.getParameter(0) and
-    //   receiverType = m.getDeclaringType()
-    // )
   }
 }
 
