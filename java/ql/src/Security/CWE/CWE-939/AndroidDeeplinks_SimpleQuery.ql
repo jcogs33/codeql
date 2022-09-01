@@ -13,11 +13,13 @@
 import java
 import semmle.code.xml.AndroidManifest
 
-// from AndroidActivityXmlElement actXmlElement
-// where
-//   actXmlElement.hasDeepLink() and
-//   not actXmlElement.getFile().(AndroidManifestXmlFile).isInBuildDirectory()
-// select actXmlElement, "A deeplink is used here."
-from MethodAccess ma
-where ma.getMethod().hasName("parseUri")
-select ma, "parseUri access"
+from AndroidActivityXmlElement actXmlElement
+where
+  actXmlElement.hasDeepLink() and
+  not actXmlElement.getFile().(AndroidManifestXmlFile).isInBuildDirectory()
+// find deeplinks with implicit intents?
+select actXmlElement, "A deeplink is used here."
+// * looking for example usage of Intent.parseUri()
+// from MethodAccess ma
+// where ma.getMethod().hasName("parseUri")
+// select ma, "parseUri access"
