@@ -8,205 +8,21 @@ private import semmle.code.java.dataflow.DataFlow
 private import semmle.code.java.dataflow.FlowSteps
 private import semmle.code.java.dataflow.ExternalFlow
 
-// ! make a DeepLink step that combine Activity, Service, Receiver, etc?
 // ! Remember to add 'private' annotation as needed to all new classes/predicates below.
 // ! and clean-up in general...
-/* *********  OTHER COMPONENTS (SERVICE, RECEIVER) *********** */
-/**
- * The class `android.app.Service`.
+// ! make a DeepLink step that combine Activity, Service, Receiver, etc?
+/*
+ * Below is a Draft/Test of modelling `Activity.startActivity` methods along
+ * with the `Context.startActivity` methods.
+ * Move to Intent.qll when finalized.
  */
-class TypeService extends Class {
-  TypeService() { this.hasQualifiedName("android.app", "Service") }
-}
-
-/**
- * The method `Context.startService` or `Context.startForegroundService`.
- * or `bindIsolatedService`
- * or `bindService` or `bindServiceAsUser`
- * from https://developer.android.com/reference/android/app/Service:
- * "Services can be started with Context.startService() and Context.bindService()."
- */
-class ContextStartServiceMethod extends Method {
-  ContextStartServiceMethod() {
-    (
-      this.hasName("startService") or
-      this.hasName("startForegroundService") or
-      // this.getName.matches("start%Service") or // could maybe switch with the above
-      this.hasName("bindIsolatedService") or
-      this.hasName("bindService") or
-      this.hasName("bindServiceAsUser")
-      // this.getName.matches("bind%Service%") or // could maybe switch with the above
-    ) and
-    this.getDeclaringType() instanceof TypeContext
-  }
-}
-
-/**
- * A method of type Service that receives an Intent as a parameter.
- * Namely: `Service.onStart`, `Service.onStartCommand`,
- * `Service.onBind`, `Service.onRebind`
- * `Service.onUnbind`, or
- * `Service.onTaskRemoved`
- */
-class AndroidServeIntentMethod extends Method {
-  AndroidServeIntentMethod() {
-    (
-      this.hasName("onStart") or
-      this.hasName("onStartCommand") or
-      // this.getName.matches("onStart%") or // could maybe switch with the above
-      this.hasName("onBind") or
-      this.hasName("onRebind") or
-      this.hasName("onUnbind") or
-      // this.getName.matches("on%bind") or // could maybe switch with the above
-      this.hasName("onTaskRemoved")
-    ) and
-    this.getDeclaringType() instanceof TypeService
-  }
-}
-
-// ! consider using the below instead of above AndroidServeIntentMethod
-// ! remove below if use above instead
-/**
- * The method `Service.onStart`, `Service.onStartCommand`,
- * `Service.onBind`, `Service.onRebind`
- * `Service.onUnbind`, or
- * `Service.onTaskRemoved`
- */
-class AndroidServeIntentMethod2 extends Method {
-  AndroidServeIntentMethod2() {
-    (
-      this instanceof ServiceOnStartMethod or
-      this instanceof ServiceOnBindMethod or
-      this instanceof ServiceOnUnbindMethod or
-      this instanceof ServiceOnTaskRemovedMethod
-    ) and
-    this.getDeclaringType() instanceof TypeService
-  }
-}
-
-/**
- * The method `Service.onStart` or `Service.onStartCommand`.
- */
-class ServiceOnStartMethod extends Method {
-  ServiceOnStartMethod() {
-    (this.hasName("onStart") or this.hasName("onStartCommand")) and
-    this.getDeclaringType() instanceof TypeService
-  }
-}
-
-/**
- * The method `Service.onBind` or `Service.onRebind`.
- */
-class ServiceOnBindMethod extends Method {
-  ServiceOnBindMethod() {
-    (this.hasName("onBind") or this.hasName("onRebind")) and
-    this.getDeclaringType() instanceof TypeService
-  }
-}
-
-/**
- * The method `Service.onUnbind`.
- */
-class ServiceOnUnbindMethod extends Method {
-  ServiceOnUnbindMethod() {
-    this.hasName("onUnbind") and
-    this.getDeclaringType() instanceof TypeService
-  }
-}
-
-/**
- * The method `Service.onTaskRemoved`.
- */
-class ServiceOnTaskRemovedMethod extends Method {
-  ServiceOnTaskRemovedMethod() {
-    this.hasName("onTaskRemoved") and
-    this.getDeclaringType() instanceof TypeService
-  }
-}
-
-// ! update QLDoc more if needed (e.g. remove `onStart` reference)
-/**
- * A value-preserving step from the Intent argument of a `startService` call to
- * the `Intent` Parameter in the `onStart` method of the Service the Intent pointed
- * to in its constructor.
- */
-class StartServiceIntentStep extends AdditionalValueStep {
-  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(MethodAccess startService, Method serveIntent, ClassInstanceExpr newIntent |
-      startService.getMethod().overrides*(any(ContextStartServiceMethod m)) and
-      //onStart.overrides*(any(ServiceOnStartMethod m)) and
-      serveIntent.overrides*(any(AndroidServeIntentMethod m)) and
-      //serveIntent.overrides*(any(AndroidServeIntentMethod2 m)) and
-      newIntent.getConstructedType() instanceof TypeIntent and
-      DataFlow::localExprFlow(newIntent, startService.getArgument(0)) and
-      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-        serveIntent.getDeclaringType() and
-      n1.asExpr() = startService.getArgument(0) and
-      n2.asParameter() = serveIntent.getParameter(0)
-    )
-  }
-}
-
-// /**
-//  * The class `android.content.BroadcastReceiver`.
-//  */
-// class TypeBroadcastReceiver extends Class {
-//     TypeBroadcastReceiver() { this.hasQualifiedName("android.content", "BroadcastReceiver") }
-//   }
-/**
- * The method `Context.sendBroadcast`.
- */
-class ContextSendBroadcastMethod extends Method {
-  ContextSendBroadcastMethod() {
-    this.getName().matches("send%Broadcast%") and // ! double-check this matching - seems to work based on quick-eval
-    this.getDeclaringType() instanceof TypeContext
-  }
-}
-
-// ! do I need to model this as well?
-/**
- * The method `BroadcastReceiver.peekService`.
- */
-class BroadcastReceiverPeekServiceIntentMethod extends Method {
-  BroadcastReceiverPeekServiceIntentMethod() {
-    this.hasName("peekService") and this.getDeclaringType() instanceof TypeBroadcastReceiver
-  }
-}
-
-// /**
-//  * The method `BroadcastReceiver.onReceive`.
-//  */
-// class AndroidReceiveIntentMethod extends Method {
-//     AndroidReceiveIntentMethod() {
-//       this.hasName("onReceive") and this.getDeclaringType() instanceof TypeBroadcastReceiver
-//     }
-//   }
-/**
- * A value-preserving step from the Intent argument of a `sendBroadcast` call to
- * the `Intent` Parameter in the `onStart` method of the BroadcastReceiver the
- * Intent pointed to in its constructor.
- */
-class SendBroadcastReceiverIntentStep extends AdditionalValueStep {
-  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(MethodAccess sendBroadcast, Method onReceive, ClassInstanceExpr newIntent |
-      sendBroadcast.getMethod().overrides*(any(ContextSendBroadcastMethod m)) and
-      onReceive.overrides*(any(AndroidReceiveIntentMethod m)) and
-      newIntent.getConstructedType() instanceof TypeIntent and
-      DataFlow::localExprFlow(newIntent, sendBroadcast.getArgument(0)) and
-      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-        onReceive.getDeclaringType() and
-      n1.asExpr() = sendBroadcast.getArgument(0) and
-      n2.asParameter() = onReceive.getParameter(1)
-    )
-  }
-}
 
 /**
  * The method `Activity.startActivity` or `Context.startActivity`.
  */
 class ContextOrActivityStartActivityMethod extends Method {
   ContextOrActivityStartActivityMethod() {
-    // should capture all `startAct` methods in the Activity and Context classes (9)
+    // captures all `startAct` methods in both the Activity and the Context classes (9 total)
     this.getName().matches("start%Activit%") and
     (
       this.getDeclaringType() instanceof TypeContext or
@@ -216,11 +32,14 @@ class ContextOrActivityStartActivityMethod extends Method {
 }
 
 /**
- * A value-preserving step from the Intent argument of a `startActivity` call from
- * the Activity classs (not Context like the original StartActivityIntentStep in Intent.qll)
- * to a `getIntent` call in the Activity the Intent pointed to in its constructor.
+ * A value-preserving step from the Intent argument of a `startActivity` call to
+ * a `getIntent` call in the Activity the Intent pointed to in its constructor.
  */
-private class StartActivityIntentStep_updateForActivityMethods extends AdditionalValueStep {
+private class StartActivityIntentStep_ContextAndActivity extends AdditionalValueStep {
+  // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1),
+  // ! but rest have Intent as argument(0)...
+  // ! startActivityFromChild and startActivityFromFragment are also deprecated and
+  // ! may need to look into modelling androidx.fragment.app.Fragment.startActivity() as well
   private Argument getStartActivityIntentArg(MethodAccess startActMethodAccess) {
     if
       startActMethodAccess.getMethod().hasName("startActivityFromChild") or
@@ -234,11 +53,11 @@ private class StartActivityIntentStep_updateForActivityMethods extends Additiona
       startActivity.getMethod().overrides*(any(ContextOrActivityStartActivityMethod m)) and
       getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
-      //DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1)...
+      //DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
       DataFlow::localExprFlow(newIntent, getStartActivityIntentArg(startActivity)) and
       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
         getIntent.getReceiverType() and
-      //n1.asExpr() = startActivity.getArgument(0) and // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1)...
+      //n1.asExpr() = startActivity.getArgument(0) and
       n1.asExpr() = getStartActivityIntentArg(startActivity) and
       n2.asExpr() = getIntent
     )
@@ -246,13 +65,18 @@ private class StartActivityIntentStep_updateForActivityMethods extends Additiona
 }
 
 /* *********  INTENT METHODS, E.G. parseUri, getData, getExtras, etc. *********** */
-// ! Check if can use pre-existing Synthetic Field instead of the below.
+/*
+ * Below is a Draft/Test of modelling `Intent.parseUri`, `Intent.getData`,
+ * and `Intent.getExtras` methods
+ */
+
+// ! Check if can use pre-existing Synthetic Field.
 /**
  * The method `Intent.get%Extra` or `Intent.getExtras`.
  */
 class AndroidGetExtrasMethod extends Method {
   AndroidGetExtrasMethod() {
-    (this.hasName("getExtras") or this.getName().matches("get%Extra")) and // ! switch to get%Extra% instead, I think wildcard holds for nothing there
+    this.getName().matches("get%Extra%") and
     this.getDeclaringType() instanceof TypeIntent
   }
 }
@@ -271,64 +95,61 @@ class AndroidGetDataMethod extends Method {
  */
 class AndroidParseUriMethod extends Method {
   AndroidParseUriMethod() {
-    (this.hasName("parseUri") or this.hasName("getIntent")) and // getIntent for older versions before deprecation to parseUri
+    (this.hasName("parseUri") or this.hasName("getIntent")) and // ! Note to self: getIntent for older versions before deprecation to parseUri
     this.getDeclaringType() instanceof TypeIntent
   }
 }
-
-/**
- * A taint step from the Intent argument of a `startActivity` call to
- * a `Intent.parseUri` call in the Activity the Intent pointed to in its constructor.
- */
-private class StartActivityParseUriStep extends AdditionalTaintStep {
-  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(MethodAccess startActivity, MethodAccess parseUri, ClassInstanceExpr newIntent |
-      startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
-      parseUri.getMethod().overrides*(any(AndroidParseUriMethod m)) and
-      newIntent.getConstructedType() instanceof TypeIntent and
-      DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
-      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-        parseUri.getReceiverType() and
-      n1.asExpr() = startActivity.getArgument(0) and
-      n2.asExpr() = parseUri
-    )
-  }
-}
-
-/**
- * A taint step from the Intent argument of a `startActivity` call to
- * a `Intent.get%Extra%` call in the Activity the Intent pointed to in its constructor.
- */
-private class StartActivityGetDataStep extends AdditionalTaintStep {
-  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(MethodAccess startActivity, MethodAccess getData, ClassInstanceExpr newIntent |
-      startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
-      getData.getMethod().overrides*(any(AndroidGetDataMethod m)) and
-      newIntent.getConstructedType() instanceof TypeIntent and
-      DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
-      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-        getData.getReceiverType() and
-      n1.asExpr() = startActivity.getArgument(0) and
-      n2.asExpr() = getData
-    )
-  }
-}
-
-/**
- * A taint step from the Intent argument of a `startActivity` call to
- * a `Intent.getData` call in the Activity the Intent pointed to in its constructor.
- */
-private class StartActivityGetExtrasStep extends AdditionalTaintStep {
-  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(MethodAccess startActivity, MethodAccess getExtras, ClassInstanceExpr newIntent |
-      startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
-      getExtras.getMethod().overrides*(any(AndroidGetExtrasMethod m)) and
-      newIntent.getConstructedType() instanceof TypeIntent and
-      DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
-      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-        getExtras.getReceiverType() and
-      n1.asExpr() = startActivity.getArgument(0) and
-      n2.asExpr() = getExtras
-    )
-  }
-}
+// /**
+//  * A taint step from the Intent argument of a `startActivity` call to
+//  * a `Intent.parseUri` call in the Activity the Intent pointed to in its constructor.
+//  */
+// private class StartActivityParseUriStep extends AdditionalTaintStep {
+//   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+//     exists(MethodAccess startActivity, MethodAccess parseUri, ClassInstanceExpr newIntent |
+//       startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
+//       parseUri.getMethod().overrides*(any(AndroidParseUriMethod m)) and
+//       newIntent.getConstructedType() instanceof TypeIntent and
+//       DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
+//       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+//         parseUri.getReceiverType() and
+//       n1.asExpr() = startActivity.getArgument(0) and
+//       n2.asExpr() = parseUri
+//     )
+//   }
+// }
+// /**
+//  * A taint step from the Intent argument of a `startActivity` call to
+//  * a `Intent.get%Extra%` call in the Activity the Intent pointed to in its constructor.
+//  */
+// private class StartActivityGetDataStep extends AdditionalTaintStep {
+//   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+//     exists(MethodAccess startActivity, MethodAccess getData, ClassInstanceExpr newIntent |
+//       startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
+//       getData.getMethod().overrides*(any(AndroidGetDataMethod m)) and
+//       newIntent.getConstructedType() instanceof TypeIntent and
+//       DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
+//       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+//         getData.getReceiverType() and
+//       n1.asExpr() = startActivity.getArgument(0) and
+//       n2.asExpr() = getData
+//     )
+//   }
+// }
+// /**
+//  * A taint step from the Intent argument of a `startActivity` call to
+//  * a `Intent.getData` call in the Activity the Intent pointed to in its constructor.
+//  */
+// private class StartActivityGetExtrasStep extends AdditionalTaintStep {
+//   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+//     exists(MethodAccess startActivity, MethodAccess getExtras, ClassInstanceExpr newIntent |
+//       startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
+//       getExtras.getMethod().overrides*(any(AndroidGetExtrasMethod m)) and
+//       newIntent.getConstructedType() instanceof TypeIntent and
+//       DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
+//       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+//         getExtras.getReceiverType() and
+//       n1.asExpr() = startActivity.getArgument(0) and
+//       n2.asExpr() = getExtras
+//     )
+//   }
+// }

@@ -3,6 +3,8 @@ private import semmle.code.java.dataflow.DataFlow
 private import semmle.code.java.dataflow.ExternalFlow
 private import semmle.code.java.dataflow.FlowSteps
 
+// ! Remember to add 'private' annotation as needed to all new classes/predicates below.
+// ! and clean-up comments, etc. in below in general...
 /**
  * The class `android.content.Intent`.
  */
@@ -20,6 +22,13 @@ class TypeComponentName extends Class {
  */
 class TypeActivity extends Class {
   TypeActivity() { this.hasQualifiedName("android.app", "Activity") }
+}
+
+/**
+ * The class `android.app.Service`.
+ */
+class TypeService extends Class {
+  TypeService() { this.hasQualifiedName("android.app", "Service") }
 }
 
 /**
@@ -57,12 +66,129 @@ class AndroidReceiveIntentMethod extends Method {
   }
 }
 
+// ! confirm if peekService should be modelled since it takes an Intent as a parameter
+/**
+ * The method `BroadcastReceiver.peekService`.
+ */
+class BroadcastReceiverPeekServiceIntentMethod extends Method {
+  BroadcastReceiverPeekServiceIntentMethod() {
+    this.hasName("peekService") and this.getDeclaringType() instanceof TypeBroadcastReceiver
+  }
+}
+
+// ! potentially reword the below QLDoc
+/**
+ * A method of type Service that receives an Intent as a parameter.
+ * Namely, `Service.onStart`, `onStartCommand`, `onBind`, `onRebind`
+ * `onUnbind`, or `onTaskRemoved`
+ */
+class AndroidServiceIntentMethod extends Method {
+  AndroidServiceIntentMethod() {
+    (
+      this.hasName("onStart") or
+      this.hasName("onStartCommand") or
+      // this.getName.matches("onStart%") or // could maybe switch with the above
+      this.hasName("onBind") or
+      this.hasName("onRebind") or
+      this.hasName("onUnbind") or
+      // this.getName.matches("on%bind") or // could maybe switch with the above
+      this.hasName("onTaskRemoved")
+    ) and
+    this.getDeclaringType() instanceof TypeService
+  }
+}
+
+// ! remove below if use above instead
+// /**
+//  * The method `Service.onStart`, `Service.onStartCommand`,
+//  * `Service.onBind`, `Service.onRebind`
+//  * `Service.onUnbind`, or
+//  * `Service.onTaskRemoved`
+//  */
+// class AndroidServiceIntentMethod2 extends Method {
+//   AndroidServiceIntentMethod2() {
+//     (
+//       this instanceof ServiceOnStartMethod or
+//       this instanceof ServiceOnBindMethod or
+//       this instanceof ServiceOnUnbindMethod or
+//       this instanceof ServiceOnTaskRemovedMethod
+//     ) and
+//     this.getDeclaringType() instanceof TypeService
+//   }
+// }
+// /**
+//  * The method `Service.onStart` or `Service.onStartCommand`.
+//  */
+// class ServiceOnStartMethod extends Method {
+//   ServiceOnStartMethod() {
+//     (this.hasName("onStart") or this.hasName("onStartCommand")) and
+//     this.getDeclaringType() instanceof TypeService
+//   }
+// }
+// /**
+//  * The method `Service.onBind` or `Service.onRebind`.
+//  */
+// class ServiceOnBindMethod extends Method {
+//   ServiceOnBindMethod() {
+//     (this.hasName("onBind") or this.hasName("onRebind")) and
+//     this.getDeclaringType() instanceof TypeService
+//   }
+// }
+// /**
+//  * The method `Service.onUnbind`.
+//  */
+// class ServiceOnUnbindMethod extends Method {
+//   ServiceOnUnbindMethod() {
+//     this.hasName("onUnbind") and
+//     this.getDeclaringType() instanceof TypeService
+//   }
+// }
+// /**
+//  * The method `Service.onTaskRemoved`.
+//  */
+// class ServiceOnTaskRemovedMethod extends Method {
+//   ServiceOnTaskRemovedMethod() {
+//     this.hasName("onTaskRemoved") and
+//     this.getDeclaringType() instanceof TypeService
+//   }
+// }
 /**
  * The method `Context.startActivity` or `startActivities`.
  */
 class ContextStartActivityMethod extends Method {
   ContextStartActivityMethod() {
     (this.hasName("startActivity") or this.hasName("startActivities")) and
+    this.getDeclaringType() instanceof TypeContext
+  }
+}
+
+/**
+ * The method `Context.sendBroadcast`.
+ */
+class ContextSendBroadcastMethod extends Method {
+  ContextSendBroadcastMethod() {
+    this.getName().matches("send%Broadcast%") and // ! Note to self: matches the 9 sendBroadcast methods
+    this.getDeclaringType() instanceof TypeContext
+  }
+}
+
+/**
+ * The method `Context.startService`, `startForegroundService`,
+ * `bindIsolatedService`, `bindService`, or `bindServiceAsUser`.
+ * From https://developer.android.com/reference/android/app/Service:
+ * "Services can be started with Context.startService() and Context.bindService()."
+ */
+class ContextStartServiceMethod extends Method {
+  ContextStartServiceMethod() {
+    (
+      this.hasName("startService") or
+      this.hasName("startForegroundService") or
+      // this.getName.matches("start%Service") or // could maybe switch with the above
+      this.hasName("bindIsolatedService") or
+      this.hasName("bindService") or
+      this.hasName("bindServiceAsUser")
+      // this.getName.matches("bind%Service%") or // could maybe switch with the above
+    ) and
     this.getDeclaringType() instanceof TypeContext
   }
 }
@@ -191,6 +317,49 @@ private class StartActivityIntentStep extends AdditionalValueStep {
         getIntent.getReceiverType() and
       n1.asExpr() = startActivity.getArgument(0) and
       n2.asExpr() = getIntent
+    )
+  }
+}
+
+/**
+ * A value-preserving step from the Intent argument of a `sendBroadcast` call to
+ * the `Intent` Parameter in the `onStart` method of the BroadcastReceiver the
+ * Intent pointed to in its constructor.
+ */
+class SendBroadcastReceiverIntentStep extends AdditionalValueStep {
+  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+    exists(MethodAccess sendBroadcast, Method onReceive, ClassInstanceExpr newIntent |
+      sendBroadcast.getMethod().overrides*(any(ContextSendBroadcastMethod m)) and
+      onReceive.overrides*(any(AndroidReceiveIntentMethod m)) and
+      newIntent.getConstructedType() instanceof TypeIntent and
+      DataFlow::localExprFlow(newIntent, sendBroadcast.getArgument(0)) and
+      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+        onReceive.getDeclaringType() and
+      n1.asExpr() = sendBroadcast.getArgument(0) and
+      n2.asParameter() = onReceive.getParameter(1)
+    )
+  }
+}
+
+// ! potentially update QLDoc (e.g. remove `onStart` reference)
+/**
+ * A value-preserving step from the Intent argument of a `startService` call to
+ * the `Intent` Parameter in the `onStart` method of the Service the Intent pointed
+ * to in its constructor.
+ */
+class StartServiceIntentStep extends AdditionalValueStep {
+  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+    exists(MethodAccess startService, Method serviceIntent, ClassInstanceExpr newIntent |
+      startService.getMethod().overrides*(any(ContextStartServiceMethod m)) and
+      //onStart.overrides*(any(ServiceOnStartMethod m)) and
+      serviceIntent.overrides*(any(AndroidServiceIntentMethod m)) and
+      //serveIntent.overrides*(any(AndroidServeIntentMethod2 m)) and
+      newIntent.getConstructedType() instanceof TypeIntent and
+      DataFlow::localExprFlow(newIntent, startService.getArgument(0)) and
+      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+        serviceIntent.getDeclaringType() and
+      n1.asExpr() = startService.getArgument(0) and
+      n2.asParameter() = serviceIntent.getParameter(0)
     )
   }
 }
