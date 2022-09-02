@@ -31,6 +31,8 @@ class TypeService extends Class {
   TypeService() { this.hasQualifiedName("android.app", "Service") }
 }
 
+// ! Why is Context of RefType instead of Class like the above?
+// ! https://codeql.github.com/docs/codeql-language-guides/types-in-java/
 /**
  * The class `android.content.Context`.
  */
@@ -315,6 +317,8 @@ private class StartActivityIntentStep extends AdditionalValueStep {
       DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
         getIntent.getReceiverType() and
+      // newIntent.getATypeArgument().getType().(ParameterizedType).getATypeArgument() =
+      //   getIntent.getReceiverType() and
       n1.asExpr() = startActivity.getArgument(0) and
       n2.asExpr() = getIntent
     )

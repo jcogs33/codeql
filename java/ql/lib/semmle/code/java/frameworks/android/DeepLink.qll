@@ -7,10 +7,42 @@ private import semmle.code.java.frameworks.android.Android
 private import semmle.code.java.dataflow.DataFlow
 private import semmle.code.java.dataflow.FlowSteps
 private import semmle.code.java.dataflow.ExternalFlow
+private import semmle.code.xml.AndroidManifest
 
 // ! Remember to add 'private' annotation as needed to all new classes/predicates below.
 // ! and clean-up in general...
 // ! make a DeepLink step that combine Activity, Service, Receiver, etc?
+/**
+ * A value-preserving step from the Intent argument of a method call that starts a component to
+ * a `getIntent` call or `Intent` parameter in the component that the Intent pointed to in its constructor.
+ */
+private class DeepLinkIntentStep extends AdditionalValueStep {
+  // DeepLinkIntentStep() {
+  //   this instanceof StartActivityIntentStep_ContextAndActivity or
+  //   this instanceof SendBroadcastReceiverIntentStep or
+  //   this instanceof StartServiceIntentStep
+  // }
+  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+    // ! simplify below
+    (
+      exists(StartServiceIntentStep startServiceIntentStep | startServiceIntentStep.step(n1, n2))
+      or
+      exists(SendBroadcastReceiverIntentStep sendBroadcastIntentStep |
+        sendBroadcastIntentStep.step(n1, n2)
+      )
+      or
+      exists(StartActivityIntentStep_ContextAndActivity startActivityIntentStep |
+        startActivityIntentStep.step(n1, n2)
+      )
+    ) and
+    exists(AndroidComponent andComp |
+      andComp.getAndroidComponentXmlElement().(AndroidActivityXmlElement).hasDeepLink() and
+      //n1.asExpr().getLocation() = andComp.getLocation() // ! look into why location doesn't work
+      n1.asExpr().getFile().getBaseName() = andComp.getFile().getBaseName() // ! ugly, see if better way to do this
+    )
+  }
+}
+
 /*
  * Below is a Draft/Test of modelling `Activity.startActivity` methods along
  * with the `Context.startActivity` methods.
@@ -35,7 +67,7 @@ class ContextOrActivityStartActivityMethod extends Method {
  * A value-preserving step from the Intent argument of a `startActivity` call to
  * a `getIntent` call in the Activity the Intent pointed to in its constructor.
  */
-private class StartActivityIntentStep_ContextAndActivity extends AdditionalValueStep {
+class StartActivityIntentStep_ContextAndActivity extends AdditionalValueStep {
   // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1),
   // ! but rest have Intent as argument(0)...
   // ! startActivityFromChild and startActivityFromFragment are also deprecated and
@@ -48,15 +80,53 @@ private class StartActivityIntentStep_ContextAndActivity extends AdditionalValue
     else result = startActMethodAccess.getArgument(0)
   }
 
+  // ! Intent has two constructors with Class<?> parameter, only the first one with argument
+  // ! at position 1 was modelled before leading to lost flow. The second constructor with
+  // ! argument at position 3 needs to be modelled as well.
+  // ! See https://developer.android.com/reference/android/content/Intent#public-constructors
+  private Argument getIntentConstructorClassArg(ClassInstanceExpr intent) {
+    if intent.getNumArgument() = 2
+    then result = intent.getArgument(1)
+    else result = intent.getArgument(3)
+  }
+
+  // ! should be more general than ClassInstanceExpr?
+  // ! rename to overriden getArgument in Expr.qll file?
+  // ! newIntent becomes `this` if moved to Expr.qll file.
+  private Expr getArgumentOfType(Type type, ClassInstanceExpr newIntent) {
+    exists(Argument arg |
+      arg = newIntent.getAnArgument() and
+      arg.getType() = type and
+      result = arg and
+      newIntent.getFile().getBaseName().toString() = "MainActivity.java" and
+      //type.toString() = "Class<ManageReposActivity>"
+      type.getName().matches("Class<%>")
+    )
+    // newIntent.getAnArgument().getType() = type and
+    // result = newIntent.getAnArgument() and
+    // newIntent.getFile().getBaseName().toString() = "MainActivity.java" and
+    // type.toString() = "String"
+  }
+
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent |
+    exists(
+      MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent, Type argType
+    |
       startActivity.getMethod().overrides*(any(ContextOrActivityStartActivityMethod m)) and
       getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
       //DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
       DataFlow::localExprFlow(newIntent, getStartActivityIntentArg(startActivity)) and
-      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
-        getIntent.getReceiverType() and
+      // newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+      //   getIntent.getReceiverType() and
+      // getIntentConstructorClassArg(newIntent).getType().(ParameterizedType).getATypeArgument() =
+      //   getIntent.getReceiverType() and
+      argType.getName().matches("Class<%>") and
+      newIntent
+          .getArgumentOfType_ExprClass(argType)
+          .getType()
+          .(ParameterizedType)
+          .getATypeArgument() = getIntent.getReceiverType() and
       //n1.asExpr() = startActivity.getArgument(0) and
       n1.asExpr() = getStartActivityIntentArg(startActivity) and
       n2.asExpr() = getIntent

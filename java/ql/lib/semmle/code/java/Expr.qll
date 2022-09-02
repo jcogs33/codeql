@@ -1316,6 +1316,22 @@ class ClassInstanceExpr extends Expr, ConstructorCall, @classinstancexpr {
     result = this.getAnArgument()
   }
 
+  // ! remove below predicate after experimentation
+  /**
+   * Gets the argument provided to the constructor of this class instance creation expression
+   * of the specified Type.
+   */
+  Expr getArgumentOfType_ExprClass(Type type) {
+    exists(Argument arg |
+      arg = this.getAnArgument() and
+      arg.getType() = type and
+      result = arg //and
+      //this.getFile().getBaseName().toString() = "MainActivity.java" //and
+      //type.toString() = "Class<ManageReposActivity>"
+      //type.getName().matches("Class<%>")
+    )
+  }
+
   /**
    * Gets a type argument provided to the constructor of this class instance creation expression.
    *
