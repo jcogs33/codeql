@@ -87,13 +87,13 @@ class BroadcastReceiverPeekServiceIntentMethod extends Method {
 class AndroidServiceIntentMethod extends Method {
   AndroidServiceIntentMethod() {
     (
-      this.hasName("onStart") or
-      this.hasName("onStartCommand") or
-      // this.getName.matches("onStart%") or // could maybe switch with the above
-      this.hasName("onBind") or
-      this.hasName("onRebind") or
-      this.hasName("onUnbind") or
-      // this.getName.matches("on%bind") or // could maybe switch with the above
+      // this.hasName("onStart") or
+      // this.hasName("onStartCommand") or
+      this.getName().matches("onStart%") or
+      // this.hasName("onBind") or
+      // this.hasName("onRebind") or
+      // this.hasName("onUnbind") or
+      this.getName().matches("on%ind") or
       this.hasName("onTaskRemoved")
     ) and
     this.getDeclaringType() instanceof TypeService
@@ -170,7 +170,7 @@ class ContextStartActivityMethod extends Method {
  */
 class ActivityStartActivityMethod extends Method {
   ActivityStartActivityMethod() {
-    // captures all `startAct` methods in the Activity class
+    // ! captures all `startAct` methods in the Activity class
     this.getName().matches("start%Activit%") and // ! better to list all instead for any reason?
     this.getDeclaringType() instanceof TypeActivity
   }
@@ -186,6 +186,7 @@ class ContextSendBroadcastMethod extends Method {
   }
 }
 
+// ! update below QLDoc
 /**
  * The method `Context.startService`, `startForegroundService`,
  * `bindIsolatedService`, `bindService`, or `bindServiceAsUser`.
@@ -195,13 +196,14 @@ class ContextSendBroadcastMethod extends Method {
 class ContextStartServiceMethod extends Method {
   ContextStartServiceMethod() {
     (
-      this.hasName("startService") or
-      this.hasName("startForegroundService") or
-      // this.getName.matches("start%Service") or // could maybe switch with the above
-      this.hasName("bindIsolatedService") or
-      this.hasName("bindService") or
-      this.hasName("bindServiceAsUser")
-      // this.getName.matches("bind%Service%") or // could maybe switch with the above
+      // this.hasName("startService") or
+      // this.hasName("startForegroundService") or
+      this.getName().matches("start%Service")
+      or
+      // this.hasName("bindIsolatedService") or
+      // this.hasName("bindService") or
+      // this.hasName("bindServiceAsUser")
+      this.getName().matches("bind%Service%")
     ) and
     this.getDeclaringType() instanceof TypeContext
   }
@@ -363,9 +365,7 @@ class StartActivityIntentStep extends AdditionalValueStep {
   }
 
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(
-      MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent, Type argType
-    |
+    exists(MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent |
       (
         // ! is there a better way to do this?
         startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) or

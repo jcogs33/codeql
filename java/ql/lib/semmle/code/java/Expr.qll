@@ -1325,10 +1325,7 @@ class ClassInstanceExpr extends Expr, ConstructorCall, @classinstancexpr {
     exists(Argument arg |
       arg = this.getAnArgument() and
       arg.getType() = type and
-      result = arg //and
-      //this.getFile().getBaseName().toString() = "MainActivity.java" //and
-      //type.toString() = "Class<ManageReposActivity>"
-      //type.getName().matches("Class<%>")
+      result = arg
     )
   }
 

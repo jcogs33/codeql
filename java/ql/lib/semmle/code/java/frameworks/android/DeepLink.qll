@@ -17,7 +17,7 @@ private import semmle.code.xml.AndroidManifest
  * A value-preserving step from the Intent argument of a method call that starts a component to
  * a `getIntent` call or `Intent` parameter in the component that the Intent pointed to in its constructor.
  */
-// ! experimental - make a DeepLink step that combine Activity, Service, Receiver, etc?
+// ! experimental - make a DeepLink step that combine Activity, Service, Receiver, etc.
 private class DeepLinkIntentStep extends AdditionalValueStep {
   // DeepLinkIntentStep() {
   //   this instanceof StartActivityIntentStep_ContextAndActivity or
