@@ -144,7 +144,11 @@ class MyTaintTrackingConfiguration extends TaintTracking::Configuration {
     //   andActXmlElem.hasDeepLink() and
     //   source.asExpr() instanceof TypeActivity
     //   )
-    source instanceof AndroidIntentInput //RemoteFlowSource
+    source instanceof RemoteFlowSource and //AndroidIntentInput
+    exists(AndroidComponent andComp |
+      andComp.getAndroidComponentXmlElement().(AndroidActivityXmlElement).hasDeepLink() and
+      source.asExpr().getFile() = andComp.getFile() // ! ugly, see if better way to do this
+    )
   }
 
   override predicate isSink(DataFlow::Node sink) {

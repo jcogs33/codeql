@@ -2,13 +2,15 @@
 
 import java
 private import semmle.code.java.frameworks.android.Intent
-private import semmle.code.java.frameworks.android.AsyncTask
+//private import semmle.code.java.frameworks.android.AsyncTask
 private import semmle.code.java.frameworks.android.Android
 private import semmle.code.java.dataflow.DataFlow
 private import semmle.code.java.dataflow.FlowSteps
-private import semmle.code.java.dataflow.ExternalFlow
+//private import semmle.code.java.dataflow.ExternalFlow
 private import semmle.code.xml.AndroidManifest
 
+//private import semmle.code.java.dataflow.TaintTracking
+// ! if keeping this class, should prbly move to security folder.
 // ! Remember to add 'private' annotation as needed to all new classes/predicates below.
 // ! and clean-up in general...
 // ! make a DeepLink step that combine Activity, Service, Receiver, etc?
@@ -31,14 +33,17 @@ private class DeepLinkIntentStep extends AdditionalValueStep {
         sendBroadcastIntentStep.step(n1, n2)
       )
       or
-      exists(StartActivityIntentStep_ContextAndActivity startActivityIntentStep |
+      exists(
+        StartActivityIntentStep_ContextAndActivity startActivityIntentStep,
+        IntentVariableToStartActivityStep intVarStartActStep
+      |
+        intVarStartActStep.step(n1, n2) and
         startActivityIntentStep.step(n1, n2)
       )
     ) and
     exists(AndroidComponent andComp |
       andComp.getAndroidComponentXmlElement().(AndroidActivityXmlElement).hasDeepLink() and
-      //n1.asExpr().getLocation() = andComp.getLocation() // ! look into why location doesn't work
-      n1.asExpr().getFile().getBaseName() = andComp.getFile().getBaseName() // ! ugly, see if better way to do this
+      n1.asExpr().getFile() = andComp.getFile() // ! ugly, see if better way to do this
     )
   }
 }
@@ -130,6 +135,23 @@ class StartActivityIntentStep_ContextAndActivity extends AdditionalValueStep {
       //n1.asExpr() = startActivity.getArgument(0) and
       n1.asExpr() = getStartActivityIntentArg(startActivity) and
       n2.asExpr() = getIntent
+    )
+  }
+}
+
+/**
+ * A value-preserving step from the Intent variable
+ * the `Intent` Parameter in the `startActivity`.
+ */
+class IntentVariableToStartActivityStep extends AdditionalValueStep {
+  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+    exists(MethodAccess startActivity, Variable intentTypeTest |
+      startActivity.getMethod().overrides*(any(ContextOrActivityStartActivityMethod m)) and
+      intentTypeTest.getType() instanceof TypeIntent and
+      //startActivity.getFile().getBaseName() = "MainActivity.java" and // ! REMOVE
+      DataFlow::localExprFlow(intentTypeTest.getInitializer(), startActivity.getArgument(0)) and
+      n1.asExpr() = intentTypeTest.getInitializer() and
+      n2.asExpr() = startActivity.getArgument(0) // ! switch to getStartActivityIntentArg(startActivity)
     )
   }
 }
