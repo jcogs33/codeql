@@ -31,8 +31,6 @@ class TypeService extends Class {
   TypeService() { this.hasQualifiedName("android.app", "Service") }
 }
 
-// ! Why is Context of RefType instead of Class like the above?
-// ! A: See https://codeql.github.com/docs/codeql-language-guides/types-in-java/
 /**
  * The class `android.content.Context`.
  */
@@ -100,60 +98,6 @@ class AndroidServiceIntentMethod extends Method {
   }
 }
 
-// ! remove below if use above instead
-// /**
-//  * The method `Service.onStart`, `Service.onStartCommand`,
-//  * `Service.onBind`, `Service.onRebind`
-//  * `Service.onUnbind`, or
-//  * `Service.onTaskRemoved`
-//  */
-// class AndroidServiceIntentMethod2 extends Method {
-//   AndroidServiceIntentMethod2() {
-//     (
-//       this instanceof ServiceOnStartMethod or
-//       this instanceof ServiceOnBindMethod or
-//       this instanceof ServiceOnUnbindMethod or
-//       this instanceof ServiceOnTaskRemovedMethod
-//     ) and
-//     this.getDeclaringType() instanceof TypeService
-//   }
-// }
-// /**
-//  * The method `Service.onStart` or `Service.onStartCommand`.
-//  */
-// class ServiceOnStartMethod extends Method {
-//   ServiceOnStartMethod() {
-//     (this.hasName("onStart") or this.hasName("onStartCommand")) and
-//     this.getDeclaringType() instanceof TypeService
-//   }
-// }
-// /**
-//  * The method `Service.onBind` or `Service.onRebind`.
-//  */
-// class ServiceOnBindMethod extends Method {
-//   ServiceOnBindMethod() {
-//     (this.hasName("onBind") or this.hasName("onRebind")) and
-//     this.getDeclaringType() instanceof TypeService
-//   }
-// }
-// /**
-//  * The method `Service.onUnbind`.
-//  */
-// class ServiceOnUnbindMethod extends Method {
-//   ServiceOnUnbindMethod() {
-//     this.hasName("onUnbind") and
-//     this.getDeclaringType() instanceof TypeService
-//   }
-// }
-// /**
-//  * The method `Service.onTaskRemoved`.
-//  */
-// class ServiceOnTaskRemovedMethod extends Method {
-//   ServiceOnTaskRemovedMethod() {
-//     this.hasName("onTaskRemoved") and
-//     this.getDeclaringType() instanceof TypeService
-//   }
-// }
 /**
  * The method `Context.startActivity` or `startActivities`.
  */
@@ -171,7 +115,7 @@ class ContextStartActivityMethod extends Method {
 class ActivityStartActivityMethod extends Method {
   ActivityStartActivityMethod() {
     // ! captures all `startAct` methods in the Activity class
-    this.getName().matches("start%Activit%") and // ! better to list all instead for any reason?
+    this.getName().matches("start%Activit%") and // ! better to list all instead of using matches for any reason?
     this.getDeclaringType() instanceof TypeActivity
   }
 }
@@ -416,9 +360,7 @@ class StartServiceIntentStep extends AdditionalValueStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
     exists(MethodAccess startService, Method serviceIntent, ClassInstanceExpr newIntent |
       startService.getMethod().overrides*(any(ContextStartServiceMethod m)) and
-      //onStart.overrides*(any(ServiceOnStartMethod m)) and
       serviceIntent.overrides*(any(AndroidServiceIntentMethod m)) and
-      //serveIntent.overrides*(any(AndroidServeIntentMethod2 m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
       DataFlow::localExprFlow(newIntent, startService.getArgument(0)) and
       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
