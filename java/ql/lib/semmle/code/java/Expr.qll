@@ -1321,7 +1321,7 @@ class ClassInstanceExpr extends Expr, ConstructorCall, @classinstancexpr {
    * Gets the argument provided to the constructor of this class instance creation expression
    * of the specified Type.
    */
-  Expr getArgumentOfType_ExprClass(Type type) {
+  Expr getArgumentByType(Type type) {
     exists(Argument arg |
       arg = this.getAnArgument() and
       arg.getType() = type and

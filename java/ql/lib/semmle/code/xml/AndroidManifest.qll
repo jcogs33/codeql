@@ -80,7 +80,7 @@ class AndroidApplicationXmlElement extends XmlElement {
 class AndroidActivityXmlElement extends AndroidComponentXmlElement {
   AndroidActivityXmlElement() { this.getName() = "activity" }
 
-  // ! Consider moving this to its own .qll file like for Implicit Export Query.
+  // ! Consider moving this to its own .qll file under `security` like for Implicit Export Query.
   // ! Double-check that the below actions and categories are REQUIRED for it to
   // !   count as a deep link versus just recommended (e.g. should I just look at the
   // !   data element instead?).

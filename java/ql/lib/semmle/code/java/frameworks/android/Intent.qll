@@ -32,7 +32,7 @@ class TypeService extends Class {
 }
 
 // ! Why is Context of RefType instead of Class like the above?
-// ! https://codeql.github.com/docs/codeql-language-guides/types-in-java/
+// ! A: See https://codeql.github.com/docs/codeql-language-guides/types-in-java/
 /**
  * The class `android.content.Context`.
  */
@@ -161,6 +161,18 @@ class ContextStartActivityMethod extends Method {
   ContextStartActivityMethod() {
     (this.hasName("startActivity") or this.hasName("startActivities")) and
     this.getDeclaringType() instanceof TypeContext
+  }
+}
+
+// ! finish QLDoc
+/**
+ * The method `Activity.startActivity` or ...
+ */
+class ActivityStartActivityMethod extends Method {
+  ActivityStartActivityMethod() {
+    // captures all `startAct` methods in the Activity class
+    this.getName().matches("start%Activit%") and // ! better to list all instead for any reason?
+    this.getDeclaringType() instanceof TypeActivity
   }
 }
 
@@ -304,22 +316,71 @@ class GrantWriteUriPermissionFlag extends GrantUriPermissionFlag {
   GrantWriteUriPermissionFlag() { this.hasName("FLAG_GRANT_WRITE_URI_PERMISSION") }
 }
 
+// ! OLD VERSION
+// /**
+//  * A value-preserving step from the Intent argument of a `startActivity` call to
+//  * a `getIntent` call in the Activity the Intent pointed to in its constructor.
+//  */
+// private class StartActivityIntentStep extends AdditionalValueStep {
+//   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+//     exists(MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent |
+//       startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
+//       getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
+//       newIntent.getConstructedType() instanceof TypeIntent and
+//       DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
+//       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+//         getIntent.getReceiverType() and
+//       n1.asExpr() = startActivity.getArgument(0) and
+//       n2.asExpr() = getIntent
+//     )
+//   }
+// }
 /**
  * A value-preserving step from the Intent argument of a `startActivity` call to
  * a `getIntent` call in the Activity the Intent pointed to in its constructor.
  */
-private class StartActivityIntentStep extends AdditionalValueStep {
+class StartActivityIntentStep extends AdditionalValueStep {
+  // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1),
+  // ! but rest have Intent as argument(0)...
+  // ! startActivityFromChild and startActivityFromFragment are also deprecated and
+  // ! may need to look into modelling androidx.fragment.app.Fragment.startActivity() as well
+  private Argument getStartActivityIntentArg(MethodAccess startActMethodAccess) {
+    if
+      startActMethodAccess.getMethod().hasName("startActivityFromChild") or
+      startActMethodAccess.getMethod().hasName("startActivityFromFragment")
+    then result = startActMethodAccess.getArgument(1)
+    else result = startActMethodAccess.getArgument(0)
+  }
+
+  // ! Intent has two constructors with Class<?> parameter, only the first one with argument
+  // ! at position 1 was modelled before leading to lost flow. The second constructor with
+  // ! argument at position 3 needs to be modelled as well.
+  // ! See https://developer.android.com/reference/android/content/Intent#public-constructors
+  private Argument getIntentConstructorClassArg(ClassInstanceExpr intent) {
+    if intent.getNumArgument() = 2
+    then result = intent.getArgument(1)
+    else result = intent.getArgument(3)
+  }
+
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent |
-      startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
+    exists(
+      MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent, Type argType
+    |
+      (
+        // ! is there a better way to do this?
+        startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) or
+        startActivity.getMethod().overrides*(any(ActivityStartActivityMethod m))
+      ) and
       getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
-      DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
-      newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+      DataFlow::localExprFlow(newIntent, getStartActivityIntentArg(startActivity)) and
+      getIntentConstructorClassArg(newIntent).getType().(ParameterizedType).getATypeArgument() =
         getIntent.getReceiverType() and
-      // newIntent.getATypeArgument().getType().(ParameterizedType).getATypeArgument() =
+      // ! below uses predicate `getArgumentByType` that I added to the Expr.qll lib, prbly should not add new predicate there.
+      // argType.getName().matches("Class<%>") and
+      // newIntent.getArgumentByType(argType).getType().(ParameterizedType).getATypeArgument() =
       //   getIntent.getReceiverType() and
-      n1.asExpr() = startActivity.getArgument(0) and
+      n1.asExpr() = getStartActivityIntentArg(startActivity) and
       n2.asExpr() = getIntent
     )
   }
