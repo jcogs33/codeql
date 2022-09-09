@@ -68,31 +68,15 @@ class AndroidReceiveIntentMethod extends Method {
   }
 }
 
-// ! confirm if peekService should be modelled since it takes an Intent as a parameter
 /**
- * The method `BroadcastReceiver.peekService`.
- */
-class BroadcastReceiverPeekServiceIntentMethod extends Method {
-  BroadcastReceiverPeekServiceIntentMethod() {
-    this.hasName("peekService") and this.getDeclaringType() instanceof TypeBroadcastReceiver
-  }
-}
-
-// ! potentially reword the below QLDoc
-/**
- * A method of type Service that receives an Intent as a parameter.
- * Namely, `Service.onStart`, `onStartCommand`, `onBind`, `onRebind`
- * `onUnbind`, or `onTaskRemoved`
+ * A method of type Service that receives an Intent.
+ * Namely, `Service.onStart`, `onStartCommand`, `onBind`,
+ * `onRebind`, `onUnbind`, or `onTaskRemoved`
  */
 class AndroidServiceIntentMethod extends Method {
   AndroidServiceIntentMethod() {
     (
-      // this.hasName("onStart") or
-      // this.hasName("onStartCommand") or
       this.getName().matches("onStart%") or
-      // this.hasName("onBind") or
-      // this.hasName("onRebind") or
-      // this.hasName("onUnbind") or
       this.getName().matches("on%ind") or
       this.hasName("onTaskRemoved")
     ) and
@@ -110,6 +94,7 @@ class ContextStartActivityMethod extends Method {
   }
 }
 
+// ! condense with above
 // ! maybe reword below QLDoc?
 /**
  * The method `Activity.startActivity`,`startActivities`,
@@ -139,23 +124,18 @@ class ContextSendBroadcastMethod extends Method {
   }
 }
 
-// ! update below QLDoc
+// ! remove reference from below QLDoc?
 /**
  * The method `Context.startService`, `startForegroundService`,
  * `bindIsolatedService`, `bindService`, or `bindServiceAsUser`.
+ *
  * From https://developer.android.com/reference/android/app/Service:
  * "Services can be started with Context.startService() and Context.bindService()."
  */
 class ContextStartServiceMethod extends Method {
   ContextStartServiceMethod() {
     (
-      // this.hasName("startService") or
-      // this.hasName("startForegroundService") or
-      this.getName().matches("start%Service")
-      or
-      // this.hasName("bindIsolatedService") or
-      // this.hasName("bindService") or
-      // this.hasName("bindServiceAsUser")
+      this.getName().matches("start%Service") or
       this.getName().matches("bind%Service%")
     ) and
     this.getDeclaringType() instanceof TypeContext
@@ -271,7 +251,7 @@ class GrantWriteUriPermissionFlag extends GrantUriPermissionFlag {
   GrantWriteUriPermissionFlag() { this.hasName("FLAG_GRANT_WRITE_URI_PERMISSION") }
 }
 
-// ! OLD VERSION
+// ! OLD VERSION - need to delete - keeping for now for reference
 // /**
 //  * A value-preserving step from the Intent argument of a `startActivity` call to
 //  * a `getIntent` call in the Activity the Intent pointed to in its constructor.
@@ -303,6 +283,8 @@ class StartActivityIntentStep extends AdditionalValueStep {
   // ! startActivityFromChild and startActivityFromFragment are also deprecated and
   // ! may need to look into modelling androidx.fragment.app.Fragment.startActivity() as well
   private Argument getStartActivityIntentArg(MethodAccess startActMethodAccess) {
+    // ! similar to below
+    // ! can also do without if-else?
     if
       startActMethodAccess.getMethod().hasName("startActivityFromChild") or
       startActMethodAccess.getMethod().hasName("startActivityFromFragment")
@@ -315,9 +297,10 @@ class StartActivityIntentStep extends AdditionalValueStep {
   // ! argument at position 3 needs to be modelled as well.
   // ! See https://developer.android.com/reference/android/content/Intent#public-constructors
   private Argument getIntentConstructorClassArg(ClassInstanceExpr intent) {
+    // ! make sure intent arg
     if intent.getNumArgument() = 2
     then result = intent.getArgument(1)
-    else result = intent.getArgument(3)
+    else result = intent.getArgument(3) // ! numArg -1, but more readable as 3.
   }
 
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {

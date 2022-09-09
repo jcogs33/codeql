@@ -89,7 +89,7 @@ private class DeepLinkIntentStep extends AdditionalValueStep {
 // }
 // ! rename?
 // ! below works as intended when run by itself (see latest query in AndroidDeeplinks_RemoteSources.ql),
-// ! but not when combined with existing flow steps (non-monotonic recursion)
+// ! but not when combined with existing flow steps (non-monotonic recursion issue)
 // ! need to figure out how to combine, or wrap all in global flow?
 class StartComponentConfiguration extends DataFlow::Configuration {
   StartComponentConfiguration() { this = "StartComponentConfiguration" }
