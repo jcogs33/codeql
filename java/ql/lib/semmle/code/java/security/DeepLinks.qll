@@ -9,67 +9,41 @@ private import semmle.code.java.dataflow.FlowSteps
 private import semmle.code.xml.AndroidManifest
 
 // ! Experimentation file
-/**
- * A value-preserving step from the Intent argument of a method call that starts a component to
- * a `getIntent` call or `Intent` parameter in the component that the Intent pointed to in its constructor.
- */
-// ! experimental - make a DeepLink step that combine Activity, Service, Receiver, etc.
-private class DeepLinkIntentStep extends AdditionalValueStep {
-  // DeepLinkIntentStep() {
-  //   this instanceof StartActivityIntentStep or
-  //   this instanceof SendBroadcastReceiverIntentStep or
-  //   this instanceof StartServiceIntentStep
-  // }
-  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    // ! simplify below
-    (
-      exists(StartServiceIntentStep startServiceIntentStep | startServiceIntentStep.step(n1, n2))
-      or
-      exists(SendBroadcastReceiverIntentStep sendBroadcastIntentStep |
-        sendBroadcastIntentStep.step(n1, n2)
-      )
-      or
-      exists(StartActivityIntentStep startActivityIntentStep | startActivityIntentStep.step(n1, n2))
-    ) and
-    exists(AndroidComponent andComp |
-      andComp.getAndroidComponentXmlElement().(AndroidActivityXmlElement).hasDeepLink() and
-      n1.asExpr().getFile() = andComp.getFile() // ! see if better way to do this
-    )
-  }
-}
-
-/* *********************  INTENT METHODS, E.G. parseUri, getData, getExtras, etc. ********************* */
-/*
- * Below is a Draft/Test of modelling `Intent.parseUri`, `Intent.getData`,
- * and `Intent.getExtras` methods
- */
-
-// ! Check if can use pre-existing Synthetic Field.
-/**
- * The method `Intent.get%Extra` or `Intent.getExtras`.
- */
-class AndroidGetExtrasMethod extends Method {
-  AndroidGetExtrasMethod() {
-    this.getName().matches("get%Extra%") and
-    this.getDeclaringType() instanceof TypeIntent
-  }
-}
-
-/**
- * The method `Intent.getData`
- */
-class AndroidGetDataMethod extends Method {
-  AndroidGetDataMethod() {
-    this.hasName("getData") and this.getDeclaringType() instanceof TypeIntent
-  }
-}
-
+// /**
+//  * A value-preserving step from the Intent argument of a method call that starts a component to
+//  * a `getIntent` call or `Intent` parameter in the component that the Intent pointed to in its constructor.
+//  */
+// // ! experimental - make a DeepLink step that combine Activity, Service, Receiver, etc.
+// private class DeepLinkIntentStep extends AdditionalValueStep {
+//   // DeepLinkIntentStep() {
+//   //   this instanceof StartActivityIntentStep or
+//   //   this instanceof SendBroadcastReceiverIntentStep or
+//   //   this instanceof StartServiceIntentStep
+//   // }
+//   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+//     // ! simplify below
+//     (
+//       exists(StartServiceIntentStep startServiceIntentStep | startServiceIntentStep.step(n1, n2))
+//       or
+//       exists(SendBroadcastReceiverIntentStep sendBroadcastIntentStep |
+//         sendBroadcastIntentStep.step(n1, n2)
+//       )
+//       or
+//       exists(StartActivityIntentStep startActivityIntentStep | startActivityIntentStep.step(n1, n2))
+//     ) and
+//     exists(AndroidComponent andComp |
+//       andComp.getAndroidComponentXmlElement().(AndroidActivityXmlElement).hasDeepLink() and
+//       n1.asExpr().getFile() = andComp.getFile() // ! see if better way to do this
+//     )
+//   }
+// }
+// ! experimental modelling of `parseUri`
 /**
  * The method `Intent.parseUri`
  */
 class AndroidParseUriMethod extends Method {
   AndroidParseUriMethod() {
-    // ! Note to self: getIntent for older versions before deprecation to parseUri
+    // ! Note: getIntent for older versions before deprecation to parseUri
     (this.hasName("parseUri") or this.hasName("getIntent")) and
     this.getDeclaringType() instanceof TypeIntent
   }
