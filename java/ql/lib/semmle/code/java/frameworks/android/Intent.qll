@@ -290,6 +290,9 @@ class GrantWriteUriPermissionFlag extends GrantUriPermissionFlag {
 //     )
 //   }
 // }
+// ! parent class for the below three steps?
+abstract class StartComponentIntentStep extends AdditionalValueStep { }
+
 /**
  * A value-preserving step from the Intent argument of a `startActivity` call to
  * a `getIntent` call in the Activity the Intent pointed to in its constructor.
@@ -318,7 +321,10 @@ class StartActivityIntentStep extends AdditionalValueStep {
   }
 
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent |
+    exists(
+      MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent,
+      IntentArg intentArg
+    |
       (
         // ! look for better way to handle the below
         startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) or
@@ -327,6 +333,7 @@ class StartActivityIntentStep extends AdditionalValueStep {
       getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
       DataFlow::localExprFlow(newIntent, getStartActivityIntentArg(startActivity)) and
+      //intentArg.isSentTo(startActivity) and
       getIntentConstructorClassArg(newIntent).getType().(ParameterizedType).getATypeArgument() =
         getIntent.getReceiverType() and
       n1.asExpr() = getStartActivityIntentArg(startActivity) and

@@ -1,15 +1,13 @@
 /** Provides classes and predicates to reason about deep links in Android. */
 
+// ! experimentation file
 import java
 private import semmle.code.java.frameworks.android.Intent
-//private import semmle.code.java.frameworks.android.AsyncTask
 private import semmle.code.java.frameworks.android.Android
 private import semmle.code.java.dataflow.DataFlow
+private import semmle.code.java.dataflow.TaintTracking
 //private import semmle.code.java.dataflow.DataFlow2
 private import semmle.code.java.dataflow.FlowSteps
-//private import semmle.code.java.dataflow.FlowSources
-//private import semmle.code.java.dataflow.ExternalFlow
-//private import semmle.code.java.dataflow.TaintTracking
 private import semmle.code.xml.AndroidManifest
 
 // ! if keeping this class, should prbly move to security folder.
@@ -51,23 +49,41 @@ private class DeepLinkIntentStep extends AdditionalValueStep {
 //  */
 // class IntentVariableToStartActivityStep extends AdditionalValueStep {
 //   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-//     exists(
-//       MethodAccess startActivity, Variable intentTypeTest, DataFlow2::Node source,
-//       DataFlow2::Node sink //ClassInstanceExpr intentTypeTest  |
-//     |
-//       (
-//         startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) or
-//         startActivity.getMethod().overrides*(any(ActivityStartActivityMethod m))
-//       ) and
-//       intentTypeTest.getType() instanceof TypeIntent and // Variable
-//       //intentTypeTest.getConstructedType() instanceof TypeIntent and // ClassInstanceExpr
-//       startActivity.getFile().getBaseName() = "MainActivity.java" and // ! REMOVE - for testing only
-//       //exists(StartComponentConfiguration cfg | cfg.hasFlow(source, sink)) and // GLOBAL FLOW ATTEMPT
-//       DataFlow::localExprFlow(intentTypeTest.getInitializer(), startActivity.getArgument(0)) and // Variable - gives 5 results - misses the 1st ProfileActivity result since no variable with that one
-//       //DataFlow::localExprFlow(intentTypeTest, startActivity.getArgument(0)) and // ClassInstanceExpr
-//       n1.asExpr() = intentTypeTest.getInitializer() and // Variable
-//       //n1.asExpr() = intentTypeTest and // ClassInstanceExpr
-//       n2.asExpr() = startActivity.getArgument(0) // ! switch to getStartActivityIntentArg(startActivity)
+//     // exists(
+//     //   MethodAccess startActivity, ClassInstanceExpr intentTypeTest //, DataFlow2::Node source,
+//     // |
+//     //   //DataFlow2::Node sink, StartComponentConfiguration cfg //Variable intentTypeTest  |
+//     //   (
+//     //     startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) or
+//     //     startActivity.getMethod().overrides*(any(ActivityStartActivityMethod m))
+//     //   ) and
+//     //   //intentTypeTest.getType() instanceof TypeIntent and // Variable
+//     //   intentTypeTest.getConstructedType() instanceof TypeIntent and // ClassInstanceExpr
+//     //   startActivity.getFile().getBaseName() = "MainActivity.java" and // ! REMOVE - for testing only
+//     //   //DataFlow2::flowsTo(source, sink, cfg) and // GLOBAL FLOW ATTEMPT
+//     //   exists(StartComponentConfiguration cfg |
+//     //     cfg.hasFlow(DataFlow::exprNode(intentTypeTest),
+//     //       DataFlow::exprNode(startActivity.getArgument(0)))
+//     //   ) and // GLOBAL FLOW ATTEMPT
+//     //   //DataFlow::localExprFlow(intentTypeTest.getInitializer(), startActivity.getArgument(0)) and // Variable - gives 5 results - misses the 1st ProfileActivity result since no variable with that one
+//     //   //DataFlow::localExprFlow(intentTypeTest, startActivity.getArgument(0)) and // ClassInstanceExpr
+//     //   //n1.asExpr() = intentTypeTest.getInitializer() and // Variable
+//     //   n1.asExpr() = intentTypeTest and // ClassInstanceExpr
+//     //   n2.asExpr() = startActivity.getArgument(0) // ! switch to getStartActivityIntentArg(startActivity)
+//     // )
+//     // ! below is based on original, just update local to global flow
+//     exists(MethodAccess startActivity, MethodAccess getIntent, ClassInstanceExpr newIntent |
+//       startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
+//       getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
+//       newIntent.getConstructedType() instanceof TypeIntent and
+//       //DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
+//       exists(StartComponentConfiguration cfg |
+//         cfg.hasFlow(DataFlow::exprNode(newIntent), DataFlow::exprNode(startActivity.getArgument(0)))
+//       ) and // GLOBAL FLOW ATTEMPT
+//       newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+//         getIntent.getReceiverType() and
+//       n1.asExpr() = startActivity.getArgument(0) and
+//       n2.asExpr() = getIntent
 //     )
 //   }
 // }
@@ -104,6 +120,65 @@ class StartComponentConfiguration extends DataFlow::Configuration {
   //  ```ql
   //  exists(MyAnalysisConfiguration cfg | cfg.hasFlow(source, sink))
   //  ```
+}
+
+class StartComponentToIntentConfiguration extends DataFlow::Configuration {
+  StartComponentToIntentConfiguration() { this = "StartComponentToIntentConfiguration" }
+
+  // Override `isSource` and `isSink`.
+  override predicate isSource(DataFlow::Node source) {
+    exists(
+      MethodAccess startActivity //, ClassInstanceExpr newIntent
+    |
+      (
+        startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) or
+        startActivity.getMethod().overrides*(any(ActivityStartActivityMethod m))
+      ) and
+      //newIntent.getConstructedType() instanceof TypeIntent and
+      //DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
+      source.asExpr() = startActivity.getArgument(0)
+    )
+  }
+
+  override predicate isSink(DataFlow::Node sink) {
+    exists(MethodAccess getIntent, ClassInstanceExpr newIntent |
+      getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
+      //newIntent.getConstructedType() instanceof TypeIntent and
+      //newIntent.getArgument(1).getType().(ParameterizedType).getATypeArgument() =
+      //  getIntent.getReceiverType() and
+      sink.asExpr() = getIntent
+    )
+  }
+
+  // Optionally override `isBarrier`.
+  // Optionally override `isAdditionalFlowStep`.
+  //   Then, to query whether there is flow between some `source` and `sink`,
+  //  write
+  //
+  //  ```ql
+  //  exists(MyAnalysisConfiguration cfg | cfg.hasFlow(source, sink))
+  //  ```
+  override predicate isAdditionalFlowStep(DataFlow::Node node1, DataFlow::Node node2) {
+    exists(MethodAccess startActivity, ClassInstanceExpr newIntent |
+      startActivity.getMethod().overrides*(any(ContextStartActivityMethod m)) and
+      newIntent.getConstructedType() instanceof TypeIntent and
+      DataFlow::localExprFlow(newIntent, startActivity.getArgument(0)) and
+      node2.asExpr() = startActivity.getArgument(0) and
+      node1.asExpr() = newIntent
+    )
+  }
+}
+
+class IntentArg extends ClassInstanceExpr {
+  IntentArg() { this.getConstructedType() instanceof TypeIntent }
+
+  predicate isSentTo(MethodAccess ma) {
+    exists(StartComponentConfiguration config |
+      config.hasFlow(DataFlow::exprNode(this), DataFlow::exprNode(ma))
+    )
+  }
+
+  predicate isSent() { exists(MethodAccess ma | this.isSentTo(ma)) }
 }
 
 /* *********************  INTENT METHODS, E.G. parseUri, getData, getExtras, etc. ********************* */
