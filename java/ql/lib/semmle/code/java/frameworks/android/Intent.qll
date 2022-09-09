@@ -268,13 +268,11 @@ abstract class StartComponentIntentStep extends AdditionalValueStep { }
  * a `getIntent` call in the Activity the Intent pointed to in its constructor.
  */
 private class StartActivityIntentStep extends AdditionalValueStep {
-  // ! startActivityFromChild and startActivityFromFragment have Intent as argument(1),
-  // ! but rest have Intent as argument(0)...
-  // ! startActivityFromChild and startActivityFromFragment are also deprecated and
-  // ! may need to look into modelling androidx.fragment.app.Fragment.startActivity() as well
-  private Argument getStartActivityIntentArg(MethodAccess startActMethodAccess) {
-    // ! similar to below
-    // ! can also do without if-else?
+  // The `startActivityFromChild` and `startActivityFromFragment` methods have
+  // an argument of type `Intent` at position 1, but the rest of the methods of
+  // type `StartActivityMethod` have an argument of type `Intent` at position 0.
+  private Argument getIntentArgOfStartActMethod(MethodAccess startActMethodAccess) {
+    startActMethodAccess.getMethod().overrides*(any(StartActivityMethod m)) and
     if
       startActMethodAccess.getMethod().hasName("startActivityFromChild") or
       startActMethodAccess.getMethod().hasName("startActivityFromFragment")
@@ -282,15 +280,14 @@ private class StartActivityIntentStep extends AdditionalValueStep {
     else result = startActMethodAccess.getArgument(0)
   }
 
-  // ! Intent has two constructors with Class<?> parameter, only the first one with argument
-  // ! at position 1 was modelled before leading to lost flow. The second constructor with
-  // ! argument at position 3 needs to be modelled as well.
-  // ! See https://developer.android.com/reference/android/content/Intent#public-constructors
-  private Argument getIntentConstructorClassArg(ClassInstanceExpr intent) {
-    // ! make sure intent arg
+  // The `android.Content.Intent` class has two constructors with an argument of type
+  // `Class<?>`. One has the argument at position 1 and the other at position 3.
+  // https://developer.android.com/reference/android/content/Intent#public-constructors
+  private Argument getClassArgOfIntentConstructor(ClassInstanceExpr intent) {
+    intent.getConstructedType() instanceof TypeIntent and
     if intent.getNumArgument() = 2
     then result = intent.getArgument(1)
-    else result = intent.getArgument(3) // ! numArg -1, but more readable as 3.
+    else result = intent.getArgument(3)
   }
 
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
@@ -298,10 +295,10 @@ private class StartActivityIntentStep extends AdditionalValueStep {
       startActivity.getMethod().overrides*(any(StartActivityMethod m)) and
       getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
       newIntent.getConstructedType() instanceof TypeIntent and
-      DataFlow::localExprFlow(newIntent, getStartActivityIntentArg(startActivity)) and
-      getIntentConstructorClassArg(newIntent).getType().(ParameterizedType).getATypeArgument() =
+      DataFlow::localExprFlow(newIntent, getIntentArgOfStartActMethod(startActivity)) and
+      getClassArgOfIntentConstructor(newIntent).getType().(ParameterizedType).getATypeArgument() =
         getIntent.getReceiverType() and
-      n1.asExpr() = getStartActivityIntentArg(startActivity) and
+      n1.asExpr() = getIntentArgOfStartActMethod(startActivity) and
       n2.asExpr() = getIntent
     )
   }
