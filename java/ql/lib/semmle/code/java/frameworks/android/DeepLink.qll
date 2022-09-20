@@ -8,6 +8,7 @@ private import semmle.code.java.dataflow.DataFlow
 private import semmle.code.java.dataflow.FlowSteps
 private import semmle.code.java.dataflow.ExternalFlow
 
+// TEST
 // ! Remember to add 'private' annotation as needed to all new classes/predicates below.
 // ! and clean-up in general...
 /* *********  OTHER COMPONENTS (SERVICE, RECEIVER) *********** */
