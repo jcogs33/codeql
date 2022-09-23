@@ -3,14 +3,11 @@
 package android.app;
 
 import android.app.PendingIntent;
-import android.app.Person;
 import android.app.RemoteInput;
-import android.content.Context;
 import android.content.LocusId;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
-import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -21,17 +18,6 @@ import java.util.List;
 
 public class Notification implements Parcelable
 {
-    abstract static public class Style
-    {
-        protected Notification.Builder mBuilder = null;
-        protected RemoteViews getStandardView(int p0){ return null; }
-        protected void checkBuilder(){}
-        protected void internalSetBigContentTitle(CharSequence p0){}
-        protected void internalSetSummaryText(CharSequence p0){}
-        public Notification build(){ return null; }
-        public Style(){}
-        public void setBuilder(Notification.Builder p0){}
-    }
     public AudioAttributes audioAttributes = null;
     public Bitmap largeIcon = null;
     public Bundle extras = null;
@@ -221,47 +207,6 @@ public class Notification implements Parcelable
         public static int SEMANTIC_ACTION_THUMBS_UP = 0;
         public static int SEMANTIC_ACTION_UNMUTE = 0;
         public void writeToParcel(Parcel p0, int p1){}
-        static public class Builder
-        {
-            protected Builder() {}
-            public Builder(Icon p0, CharSequence p1, PendingIntent p2){}
-            public Builder(Notification.Action p0){}
-            public Builder(int p0, CharSequence p1, PendingIntent p2){}
-            public Bundle getExtras(){ return null; }
-            public Notification.Action build(){ return null; }
-            public Notification.Action.Builder addExtras(Bundle p0){ return null; }
-            public Notification.Action.Builder addRemoteInput(RemoteInput p0){ return null; }
-            public Notification.Action.Builder extend(Notification.Action.Extender p0){ return null; }
-            public Notification.Action.Builder setAllowGeneratedReplies(boolean p0){ return null; }
-            public Notification.Action.Builder setAuthenticationRequired(boolean p0){ return null; }
-            public Notification.Action.Builder setContextual(boolean p0){ return null; }
-            public Notification.Action.Builder setSemanticAction(int p0){ return null; }
-        }
-        static public interface Extender
-        {
-            Notification.Action.Builder extend(Notification.Action.Builder p0);
-        }
-    }
-    static public class BigPictureStyle extends Notification.Style
-    {
-        public BigPictureStyle(){}
-        public BigPictureStyle(Notification.Builder p0){}
-        public Notification.BigPictureStyle bigLargeIcon(Bitmap p0){ return null; }
-        public Notification.BigPictureStyle bigLargeIcon(Icon p0){ return null; }
-        public Notification.BigPictureStyle bigPicture(Bitmap p0){ return null; }
-        public Notification.BigPictureStyle bigPicture(Icon p0){ return null; }
-        public Notification.BigPictureStyle setBigContentTitle(CharSequence p0){ return null; }
-        public Notification.BigPictureStyle setContentDescription(CharSequence p0){ return null; }
-        public Notification.BigPictureStyle setSummaryText(CharSequence p0){ return null; }
-        public Notification.BigPictureStyle showBigPictureWhenCollapsed(boolean p0){ return null; }
-    }
-    static public class BigTextStyle extends Notification.Style
-    {
-        public BigTextStyle(){}
-        public BigTextStyle(Notification.Builder p0){}
-        public Notification.BigTextStyle bigText(CharSequence p0){ return null; }
-        public Notification.BigTextStyle setBigContentTitle(CharSequence p0){ return null; }
-        public Notification.BigTextStyle setSummaryText(CharSequence p0){ return null; }
     }
     static public class BubbleMetadata implements Parcelable
     {
@@ -279,102 +224,5 @@ public class Notification implements Parcelable
         public int getDesiredHeightResId(){ return 0; }
         public static Parcelable.Creator<Notification.BubbleMetadata> CREATOR = null;
         public void writeToParcel(Parcel p0, int p1){}
-    }
-    static public class Builder
-    {
-        protected Builder() {}
-        public Builder(Context p0){}
-        public Builder(Context p0, String p1){}
-        public Bundle getExtras(){ return null; }
-        public Notification build(){ return null; }
-        public Notification getNotification(){ return null; }
-        public Notification.Builder addAction(Notification.Action p0){ return null; }
-        public Notification.Builder addAction(int p0, CharSequence p1, PendingIntent p2){ return null; }
-        public Notification.Builder addExtras(Bundle p0){ return null; }
-        public Notification.Builder addPerson(Person p0){ return null; }
-        public Notification.Builder addPerson(String p0){ return null; }
-        public Notification.Builder extend(Notification.Extender p0){ return null; }
-        public Notification.Builder setActions(Notification.Action... p0){ return null; }
-        public Notification.Builder setAllowSystemGeneratedContextualActions(boolean p0){ return null; }
-        public Notification.Builder setAutoCancel(boolean p0){ return null; }
-        public Notification.Builder setBadgeIconType(int p0){ return null; }
-        public Notification.Builder setBubbleMetadata(Notification.BubbleMetadata p0){ return null; }
-        public Notification.Builder setCategory(String p0){ return null; }
-        public Notification.Builder setChannelId(String p0){ return null; }
-        public Notification.Builder setChronometerCountDown(boolean p0){ return null; }
-        public Notification.Builder setColor(int p0){ return null; }
-        public Notification.Builder setColorized(boolean p0){ return null; }
-        public Notification.Builder setContent(RemoteViews p0){ return null; }
-        public Notification.Builder setContentInfo(CharSequence p0){ return null; }
-        public Notification.Builder setContentIntent(PendingIntent p0){ return null; }
-        public Notification.Builder setContentText(CharSequence p0){ return null; }
-        public Notification.Builder setContentTitle(CharSequence p0){ return null; }
-        public Notification.Builder setCustomBigContentView(RemoteViews p0){ return null; }
-        public Notification.Builder setCustomContentView(RemoteViews p0){ return null; }
-        public Notification.Builder setCustomHeadsUpContentView(RemoteViews p0){ return null; }
-        public Notification.Builder setDefaults(int p0){ return null; }
-        public Notification.Builder setDeleteIntent(PendingIntent p0){ return null; }
-        public Notification.Builder setExtras(Bundle p0){ return null; }
-        public Notification.Builder setFlag(int p0, boolean p1){ return null; }
-        public Notification.Builder setForegroundServiceBehavior(int p0){ return null; }
-        public Notification.Builder setFullScreenIntent(PendingIntent p0, boolean p1){ return null; }
-        public Notification.Builder setGroup(String p0){ return null; }
-        public Notification.Builder setGroupAlertBehavior(int p0){ return null; }
-        public Notification.Builder setGroupSummary(boolean p0){ return null; }
-        public Notification.Builder setLargeIcon(Bitmap p0){ return null; }
-        public Notification.Builder setLargeIcon(Icon p0){ return null; }
-        public Notification.Builder setLights(int p0, int p1, int p2){ return null; }
-        public Notification.Builder setLocalOnly(boolean p0){ return null; }
-        public Notification.Builder setLocusId(LocusId p0){ return null; }
-        public Notification.Builder setNumber(int p0){ return null; }
-        public Notification.Builder setOngoing(boolean p0){ return null; }
-        public Notification.Builder setOnlyAlertOnce(boolean p0){ return null; }
-        public Notification.Builder setPriority(int p0){ return null; }
-        public Notification.Builder setProgress(int p0, int p1, boolean p2){ return null; }
-        public Notification.Builder setPublicVersion(Notification p0){ return null; }
-        public Notification.Builder setRemoteInputHistory(CharSequence[] p0){ return null; }
-        public Notification.Builder setSettingsText(CharSequence p0){ return null; }
-        public Notification.Builder setShortcutId(String p0){ return null; }
-        public Notification.Builder setShowWhen(boolean p0){ return null; }
-        public Notification.Builder setSmallIcon(Icon p0){ return null; }
-        public Notification.Builder setSmallIcon(int p0){ return null; }
-        public Notification.Builder setSmallIcon(int p0, int p1){ return null; }
-        public Notification.Builder setSortKey(String p0){ return null; }
-        public Notification.Builder setSound(Uri p0){ return null; }
-        public Notification.Builder setSound(Uri p0, AudioAttributes p1){ return null; }
-        public Notification.Builder setSound(Uri p0, int p1){ return null; }
-        public Notification.Builder setStyle(Notification.Style p0){ return null; }
-        public Notification.Builder setSubText(CharSequence p0){ return null; }
-        public Notification.Builder setTicker(CharSequence p0){ return null; }
-        public Notification.Builder setTicker(CharSequence p0, RemoteViews p1){ return null; }
-        public Notification.Builder setTimeoutAfter(long p0){ return null; }
-        public Notification.Builder setUsesChronometer(boolean p0){ return null; }
-        public Notification.Builder setVibrate(long[] p0){ return null; }
-        public Notification.Builder setVisibility(int p0){ return null; }
-        public Notification.Builder setWhen(long p0){ return null; }
-        public Notification.Style getStyle(){ return null; }
-        public RemoteViews createBigContentView(){ return null; }
-        public RemoteViews createContentView(){ return null; }
-        public RemoteViews createHeadsUpContentView(){ return null; }
-        public static Notification.Builder recoverBuilder(Context p0, Notification p1){ return null; }
-    }
-    static public class InboxStyle extends Notification.Style
-    {
-        public InboxStyle(){}
-        public InboxStyle(Notification.Builder p0){}
-        public Notification.InboxStyle addLine(CharSequence p0){ return null; }
-        public Notification.InboxStyle setBigContentTitle(CharSequence p0){ return null; }
-        public Notification.InboxStyle setSummaryText(CharSequence p0){ return null; }
-    }
-    static public class MediaStyle extends Notification.Style
-    {
-        public MediaStyle(){}
-        public MediaStyle(Notification.Builder p0){}
-        public Notification.MediaStyle setMediaSession(MediaSession.Token p0){ return null; }
-        public Notification.MediaStyle setShowActionsInCompactView(int... p0){ return null; }
-    }
-    static public interface Extender
-    {
-        Notification.Builder extend(Notification.Builder p0);
     }
 }

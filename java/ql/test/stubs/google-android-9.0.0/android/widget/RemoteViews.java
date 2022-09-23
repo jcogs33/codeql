@@ -17,6 +17,7 @@ import android.util.SizeF;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import java.lang.annotation.Annotation;
 import java.util.Map;
 
 public class RemoteViews implements LayoutInflater.Filter, Parcelable
@@ -145,5 +146,8 @@ public class RemoteViews implements LayoutInflater.Filter, Parcelable
         public RemoteViews.RemoteResponse addSharedElement(int p0, String p1){ return null; }
         public static RemoteViews.RemoteResponse fromFillInIntent(Intent p0){ return null; }
         public static RemoteViews.RemoteResponse fromPendingIntent(PendingIntent p0){ return null; }
+    }
+    static public interface RemoteView extends Annotation
+    {
     }
 }

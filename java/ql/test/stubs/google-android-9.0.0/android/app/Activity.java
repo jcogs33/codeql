@@ -1,491 +1,341 @@
-/*
- * Copyright (C) 2006 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
+// Generated automatically from android.app.Activity for testing purposes
 
 package android.app;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-import android.annotation.NonNull;
-import android.annotation.Nullable;
-import android.annotation.RequiresPermission;
+import android.app.ActionBar;
+import android.app.ActivityManager;
+import android.app.Application;
+import android.app.Dialog;
+import android.app.DirectAction;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.LoaderManager;
+import android.app.PendingIntent;
+import android.app.PictureInPictureParams;
+import android.app.PictureInPictureUiState;
+import android.app.SharedElementCallback;
+import android.app.TaskStackBuilder;
+import android.app.VoiceInteractor;
+import android.app.assist.AssistContent;
+import android.content.ComponentCallbacks2;
 import android.content.ComponentName;
-import android.content.ContextWrapper;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.LocusId;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.media.session.MediaController;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.UserHandle;
+import android.os.CancellationSignal;
+import android.os.PersistableBundle;
+import android.transition.Scene;
+import android.transition.TransitionManager;
+import android.util.AttributeSet;
+import android.view.ActionMode;
+import android.view.ContextMenu;
+import android.view.ContextThemeWrapper;
+import android.view.DragAndDropPermissions;
+import android.view.DragEvent;
+import android.view.KeyEvent;
+import android.view.KeyboardShortcutGroup;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.SearchEvent;
 import android.view.View;
-
-public class Activity extends ContextWrapper {
-    public static final int RESULT_OK = -1;
-
-    public void onCreate(Bundle savedInstanceState) {}
-
-    public Intent getIntent() {
-        return null;
-    }
-
-    public void setIntent(Intent newIntent) {}
-
-    public final boolean isChild() {
-        return false;
-    }
-
-    public final Activity getParent() {
-        return null;
-    }
-
-    public View getCurrentFocus() {
-        return null;
-    }
-
-    public void onStateNotSaved() {}
-
-    public boolean isVoiceInteraction() {
-        return false;
-    }
-
-    public boolean isVoiceInteractionRoot() {
-        return false;
-    }
-
-    public boolean isLocalVoiceInteractionSupported() {
-        return false;
-    }
-
-    public void startLocalVoiceInteraction(Bundle privateOptions) {}
-
-    public void onLocalVoiceInteractionStarted() {}
-
-    public void onLocalVoiceInteractionStopped() {}
-
-    public void stopLocalVoiceInteraction() {}
-
-    public CharSequence onCreateDescription() {
-        return null;
-    }
-
-    public void onProvideAssistData(Bundle data) {}
-
-    public final void requestShowKeyboardShortcuts() {}
-
-    public final void dismissKeyboardShortcutsHelper() {}
-
-    public boolean showAssist(Bundle args) {
-        return false;
-    }
-
-    public void reportFullyDrawn() {}
-
-    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {}
-
-    public boolean isInMultiWindowMode() {
-        return false;
-    }
-
-    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {}
-
-    public boolean isInPictureInPictureMode() {
-        return false;
-    }
-
-    public void enterPictureInPictureMode() {}
-
-    public int getMaxNumPictureInPictureActions() {
-        return 0;
-    }
-
-    public int getChangingConfigurations() {
-        return 0;
-    }
-
-    public Object getLastNonConfigurationInstance() {
-        return null;
-    }
-
-    public Object onRetainNonConfigurationInstance() {
-        return null;
-    }
-
-    public void onLowMemory() {}
-
-    public void onTrimMemory(int level) {}
-
-    public void setPersistent(boolean isPersistent) {}
-
-    public void setContentView(View view) {}
-
-    public void setContentView(int layoutResID) {}
-
-    public void setFinishOnTouchOutside(boolean finish) {}
-
-    public void onBackPressed() {}
-
-    public void onUserInteraction() {}
-
-    public void onContentChanged() {}
-
-    public void onWindowFocusChanged(boolean hasFocus) {}
-
-    public void onAttachedToWindow() {}
-
-    public void onDetachedFromWindow() {}
-
-    public boolean hasWindowFocus() {
-        return false;
-    }
-
-    public View onCreatePanelView(int featureId) {
-        return null;
-    }
-
-    public void invalidateOptionsMenu() {}
-
-    public boolean onNavigateUp() {
-        return false;
-    }
-
-    public boolean onNavigateUpFromChild(Activity child) {
-        return false;
-    }
-
-    public void openOptionsMenu() {}
-
-    public void closeOptionsMenu() {}
-
-    public void registerForContextMenu(View view) {}
-
-    public void unregisterForContextMenu(View view) {}
-
-    public void openContextMenu(View view) {}
-
-    public void closeContextMenu() {}
-
-    public final void showDialog(int id) {}
-
-    public final boolean showDialog(int id, Bundle args) {
-        return false;
-    }
-
-    public final void dismissDialog(int id) {}
-
-    public final void removeDialog(int id) {}
-
-    public boolean onSearchRequested() {
-        return false;
-    }
-
-    public void startSearch(@Nullable String initialQuery, boolean selectInitialQuery,
-            @Nullable Bundle appSearchData, boolean globalSearch) {}
-
-    public void triggerSearch(String query, @Nullable Bundle appSearchData) {}
-
-    public void takeKeyEvents(boolean get) {}
-
-    public final boolean requestWindowFeature(int featureId) {
-        return false;
-    }
-
-    public final void setFeatureDrawableUri(int featureId, Uri uri) {}
-
-    public final void setFeatureDrawableAlpha(int featureId, int alpha) {}
-
-    public final void requestPermissions(@NonNull String[] permissions, int requestCode) {}
-
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-            @NonNull int[] grantResults) {}
-
-    public boolean shouldShowRequestPermissionRationale(@NonNull String permission) {
-        return false;
-    }
-
-    public void startActivityForResult(@RequiresPermission Intent intent, int requestCode) {}
-
-    public void startActivityForResult(@RequiresPermission Intent intent, int requestCode,
-            @Nullable Bundle options) {}
-
-    public boolean isActivityTransitionRunning() {
-        return false;
-    }
-
-    public void startActivityForResultAsUser(Intent intent, int requestCode, UserHandle user) {}
-
-    public void startActivityForResultAsUser(Intent intent, int requestCode,
-            @Nullable Bundle options, UserHandle user) {}
-
-    public void startActivityForResultAsUser(Intent intent, String resultWho, int requestCode,
-            @Nullable Bundle options, UserHandle user) {}
-
-    public void startActivityAsUser(Intent intent, UserHandle user) {}
-
-    public void startActivityAsUser(Intent intent, Bundle options, UserHandle user) {}
-
-    public void startActivityAsCaller(Intent intent, @Nullable Bundle options,
-            boolean ignoreTargetSecurity, int userId) {}
-
-    @Override
-    public void startActivity(Intent intent) {}
-
-    @Override
-    public void startActivity(Intent intent, @Nullable Bundle options) {}
-
-    @Override
-    public void startActivities(Intent[] intents) {}
-
-    @Override
-    public void startActivities(Intent[] intents, @Nullable Bundle options) {}
-
-    public boolean startActivityIfNeeded(@RequiresPermission @NonNull Intent intent,
-            int requestCode) {
-        return false;
-    }
-
-    public boolean startActivityIfNeeded(@RequiresPermission @NonNull Intent intent,
-            int requestCode, @Nullable Bundle options) {
-        return false;
-    }
-
-    public boolean startNextMatchingActivity(@RequiresPermission @NonNull Intent intent) {
-        return false;
-    }
-
-    public boolean startNextMatchingActivity(@RequiresPermission @NonNull Intent intent,
-            @Nullable Bundle options) {
-        return false;
-    }
-
-    public void startActivityFromChild(@NonNull Activity child, @RequiresPermission Intent intent,
-            int requestCode) {}
-
-    public void startActivityFromChild(@NonNull Activity child, @RequiresPermission Intent intent,
-            int requestCode, @Nullable Bundle options) {}
-
-    public void startActivityFromFragment(@NonNull Fragment fragment,
-            @RequiresPermission Intent intent, int requestCode) {}
-
-    public void startActivityFromFragment(@NonNull Fragment fragment,
-            @RequiresPermission Intent intent, int requestCode, @Nullable Bundle options) {}
-
-    public void startActivityAsUserFromFragment(@NonNull Fragment fragment,
-            @RequiresPermission Intent intent, int requestCode, @Nullable Bundle options,
-            UserHandle user) {}
-
-    @Override
-    public void startActivityForResult(String who, Intent intent, int requestCode,
-            @Nullable Bundle options) {}
-
-    @Override
-    public boolean canStartActivityForResult() {
-        return false;
-    }
-
-    public void overridePendingTransition(int enterAnim, int exitAnim) {}
-
-    public final void setResult(int resultCode) {}
-
-    public final void setResult(int resultCode, Intent data) {}
-
-    public Uri getReferrer() {
-        return null;
-    }
-
-    public Uri onProvideReferrer() {
-        return null;
-    }
-
-    public String getCallingPackage() {
-        return null;
-    }
-
-    public ComponentName getCallingActivity() {
-        return null;
-    }
-
-    public void setVisible(boolean visible) {}
-
-    public boolean isFinishing() {
-        return false;
-    }
-
-    public boolean isDestroyed() {
-        return false;
-    }
-
-    public boolean isChangingConfigurations() {
-        return false;
-    }
-
-    public void recreate() {}
-
-    public void finish() {}
-
-    public void finishAffinity() {}
-
-    public void finishFromChild(Activity child) {}
-
-    public void finishAfterTransition() {}
-
-    public void finishActivity(int requestCode) {}
-
-    public void finishActivityFromChild(@NonNull Activity child, int requestCode) {}
-
-    public void finishAndRemoveTask() {}
-
-    public boolean releaseInstance() {
-        return false;
-    }
-
-    public void onActivityReenter(int resultCode, Intent data) {}
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {}
-
-    public int getRequestedOrientation() {
-        return 0;
-    }
-
-    public int getTaskId() {
-        return 0;
-    }
-
-    public boolean moveTaskToBack(boolean nonRoot) {
-        return false;
-    }
-
-    public String getLocalClassName() {
-        return null;
-    }
-
-    public ComponentName getComponentName() {
-        return null;
-    }
-
-    @Override
-    public Object getSystemService(@NonNull String name) {
-        return null;
-    }
-
-    public void setTitle(CharSequence title) {}
-
-    public void setTitle(int titleId) {}
-
-    public void setTitleColor(int textColor) {}
-
-    public final CharSequence getTitle() {
-        return null;
-    }
-
-    public final int getTitleColor() {
-        return 0;
-    }
-
-    public final void setProgressBarVisibility(boolean visible) {}
-
-    public final void setProgressBarIndeterminateVisibility(boolean visible) {}
-
-    public final void setProgressBarIndeterminate(boolean indeterminate) {}
-
-    public final void setProgress(int progress) {}
-
-    public final void setSecondaryProgress(int secondaryProgress) {}
-
-    public final void setVolumeControlStream(int streamType) {}
-
-    public final int getVolumeControlStream() {
-        return 0;
-    }
-
-    public final void runOnUiThread(Runnable action) {}
-
-    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {}
-
-    public boolean isImmersive() {
-        return false;
-    }
-
-    public void convertFromTranslucent() {}
-
-    public boolean requestVisibleBehind(boolean visible) {
-        return false;
-    }
-
-    public void onVisibleBehindCanceled() {}
-
-    public boolean isBackgroundVisibleBehind() {
-        return false;
-    }
-
-    public void onBackgroundVisibleBehindChanged(boolean visible) {}
-
-    public void onEnterAnimationComplete() {}
-
-    public void dispatchEnterAnimationComplete() {}
-
-    public void setImmersive(boolean i) {}
-
-    public boolean shouldUpRecreateTask(Intent targetIntent) {
-        return false;
-    }
-
-    public boolean navigateUpTo(Intent upIntent) {
-        return false;
-    }
-
-    public boolean navigateUpToFromChild(Activity child, Intent upIntent) {
-        return false;
-    }
-
-    public Intent getParentActivityIntent() {
-        return null;
-    }
-
-    public void postponeEnterTransition() {}
-
-    public void startPostponedEnterTransition() {}
-
-    public final boolean isResumed() {
-        return false;
-    }
-
-    public void startLockTask() {}
-
-    public void stopLockTask() {}
-
-    public void showLockTaskEscapeMessage() {}
-
-    public boolean isOverlayWithDecorCaptionEnabled() {
-        return false;
-    }
-
-    public void setOverlayWithDecorCaptionEnabled(boolean enabled) {}
-
-    public interface TranslucentConversionListener {
-        public void onTranslucentConversionComplete(boolean drawComplete);
-
-    }
-
-    public final @Nullable View autofillClientFindViewByAccessibilityIdTraversal(int viewId,
-            int windowId) {
-        return null;
-    }
-
-    public void setDisablePreviewScreenshots(boolean disable) {}
-
-    public void setShowWhenLocked(boolean showWhenLocked) {}
-
-    public void setTurnScreenOn(boolean turnScreenOn) {}
-
-    public <T extends View> T findViewById(int id) {
-        return null;
-    }
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.accessibility.AccessibilityEvent;
+import android.widget.Toolbar;
+import android.window.SplashScreen;
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.function.Consumer;
+
+public class Activity extends ContextThemeWrapper implements ComponentCallbacks2, KeyEvent.Callback, LayoutInflater.Factory2, View.OnCreateContextMenuListener, Window.Callback
+{
+    protected Dialog onCreateDialog(int p0){ return null; }
+    protected Dialog onCreateDialog(int p0, Bundle p1){ return null; }
+    protected static int[] FOCUSED_STATE_SET = null;
+    protected void attachBaseContext(Context p0){}
+    protected void onActivityResult(int p0, int p1, Intent p2){}
+    protected void onApplyThemeResource(Resources.Theme p0, int p1, boolean p2){}
+    protected void onChildTitleChanged(Activity p0, CharSequence p1){}
+    protected void onCreate(Bundle p0){}
+    protected void onDestroy(){}
+    protected void onNewIntent(Intent p0){}
+    protected void onPause(){}
+    protected void onPostCreate(Bundle p0){}
+    protected void onPostResume(){}
+    protected void onPrepareDialog(int p0, Dialog p1){}
+    protected void onPrepareDialog(int p0, Dialog p1, Bundle p2){}
+    protected void onRestart(){}
+    protected void onRestoreInstanceState(Bundle p0){}
+    protected void onResume(){}
+    protected void onSaveInstanceState(Bundle p0){}
+    protected void onStart(){}
+    protected void onStop(){}
+    protected void onTitleChanged(CharSequence p0, int p1){}
+    protected void onUserLeaveHint(){}
+    public <T extends View> T findViewById(int p0){ return null; }
+    public ActionBar getActionBar(){ return null; }
+    public ActionMode onWindowStartingActionMode(ActionMode.Callback p0){ return null; }
+    public ActionMode onWindowStartingActionMode(ActionMode.Callback p0, int p1){ return null; }
+    public ActionMode startActionMode(ActionMode.Callback p0){ return null; }
+    public ActionMode startActionMode(ActionMode.Callback p0, int p1){ return null; }
+    public Activity(){}
+    public CharSequence onCreateDescription(){ return null; }
+    public ComponentName getCallingActivity(){ return null; }
+    public ComponentName getComponentName(){ return null; }
+    public DragAndDropPermissions requestDragAndDropPermissions(DragEvent p0){ return null; }
+    public FragmentManager getFragmentManager(){ return null; }
+    public Intent getIntent(){ return null; }
+    public Intent getParentActivityIntent(){ return null; }
+    public LayoutInflater getLayoutInflater(){ return null; }
+    public LoaderManager getLoaderManager(){ return null; }
+    public MenuInflater getMenuInflater(){ return null; }
+    public Object getLastNonConfigurationInstance(){ return null; }
+    public Object getSystemService(String p0){ return null; }
+    public Object onRetainNonConfigurationInstance(){ return null; }
+    public PendingIntent createPendingResult(int p0, Intent p1, int p2){ return null; }
+    public Scene getContentScene(){ return null; }
+    public SharedPreferences getPreferences(int p0){ return null; }
+    public String getCallingPackage(){ return null; }
+    public String getLocalClassName(){ return null; }
+    public TransitionManager getContentTransitionManager(){ return null; }
+    public Uri getReferrer(){ return null; }
+    public Uri onProvideReferrer(){ return null; }
+    public View getCurrentFocus(){ return null; }
+    public View onCreatePanelView(int p0){ return null; }
+    public View onCreateView(String p0, Context p1, AttributeSet p2){ return null; }
+    public View onCreateView(View p0, String p1, Context p2, AttributeSet p3){ return null; }
+    public VoiceInteractor getVoiceInteractor(){ return null; }
+    public Window getWindow(){ return null; }
+    public WindowManager getWindowManager(){ return null; }
+    public boolean dispatchGenericMotionEvent(MotionEvent p0){ return false; }
+    public boolean dispatchKeyEvent(KeyEvent p0){ return false; }
+    public boolean dispatchKeyShortcutEvent(KeyEvent p0){ return false; }
+    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent p0){ return false; }
+    public boolean dispatchTouchEvent(MotionEvent p0){ return false; }
+    public boolean dispatchTrackballEvent(MotionEvent p0){ return false; }
+    public boolean enterPictureInPictureMode(PictureInPictureParams p0){ return false; }
+    public boolean hasWindowFocus(){ return false; }
+    public boolean isActivityTransitionRunning(){ return false; }
+    public boolean isChangingConfigurations(){ return false; }
+    public boolean isDestroyed(){ return false; }
+    public boolean isFinishing(){ return false; }
+    public boolean isImmersive(){ return false; }
+    public boolean isInMultiWindowMode(){ return false; }
+    public boolean isInPictureInPictureMode(){ return false; }
+    public boolean isLaunchedFromBubble(){ return false; }
+    public boolean isLocalVoiceInteractionSupported(){ return false; }
+    public boolean isTaskRoot(){ return false; }
+    public boolean isVoiceInteraction(){ return false; }
+    public boolean isVoiceInteractionRoot(){ return false; }
+    public boolean moveTaskToBack(boolean p0){ return false; }
+    public boolean navigateUpTo(Intent p0){ return false; }
+    public boolean navigateUpToFromChild(Activity p0, Intent p1){ return false; }
+    public boolean onContextItemSelected(MenuItem p0){ return false; }
+    public boolean onCreateOptionsMenu(Menu p0){ return false; }
+    public boolean onCreatePanelMenu(int p0, Menu p1){ return false; }
+    public boolean onCreateThumbnail(Bitmap p0, Canvas p1){ return false; }
+    public boolean onGenericMotionEvent(MotionEvent p0){ return false; }
+    public boolean onKeyDown(int p0, KeyEvent p1){ return false; }
+    public boolean onKeyLongPress(int p0, KeyEvent p1){ return false; }
+    public boolean onKeyMultiple(int p0, int p1, KeyEvent p2){ return false; }
+    public boolean onKeyShortcut(int p0, KeyEvent p1){ return false; }
+    public boolean onKeyUp(int p0, KeyEvent p1){ return false; }
+    public boolean onMenuItemSelected(int p0, MenuItem p1){ return false; }
+    public boolean onMenuOpened(int p0, Menu p1){ return false; }
+    public boolean onNavigateUp(){ return false; }
+    public boolean onNavigateUpFromChild(Activity p0){ return false; }
+    public boolean onOptionsItemSelected(MenuItem p0){ return false; }
+    public boolean onPictureInPictureRequested(){ return false; }
+    public boolean onPrepareOptionsMenu(Menu p0){ return false; }
+    public boolean onPreparePanel(int p0, View p1, Menu p2){ return false; }
+    public boolean onSearchRequested(){ return false; }
+    public boolean onSearchRequested(SearchEvent p0){ return false; }
+    public boolean onTouchEvent(MotionEvent p0){ return false; }
+    public boolean onTrackballEvent(MotionEvent p0){ return false; }
+    public boolean releaseInstance(){ return false; }
+    public boolean requestVisibleBehind(boolean p0){ return false; }
+    public boolean setTranslucent(boolean p0){ return false; }
+    public boolean shouldShowRequestPermissionRationale(String p0){ return false; }
+    public boolean shouldUpRecreateTask(Intent p0){ return false; }
+    public boolean showAssist(Bundle p0){ return false; }
+    public boolean startActivityIfNeeded(Intent p0, int p1){ return false; }
+    public boolean startActivityIfNeeded(Intent p0, int p1, Bundle p2){ return false; }
+    public boolean startNextMatchingActivity(Intent p0){ return false; }
+    public boolean startNextMatchingActivity(Intent p0, Bundle p1){ return false; }
+    public final <T extends View> T requireViewById(int p0){ return null; }
+    public final Activity getParent(){ return null; }
+    public final Application getApplication(){ return null; }
+    public final CharSequence getTitle(){ return null; }
+    public final Cursor managedQuery(Uri p0, String[] p1, String p2, String[] p3, String p4){ return null; }
+    public final MediaController getMediaController(){ return null; }
+    public final SearchEvent getSearchEvent(){ return null; }
+    public final SplashScreen getSplashScreen(){ return null; }
+    public final boolean isChild(){ return false; }
+    public final boolean requestWindowFeature(int p0){ return false; }
+    public final boolean showDialog(int p0, Bundle p1){ return false; }
+    public final int getTitleColor(){ return 0; }
+    public final int getVolumeControlStream(){ return 0; }
+    public final void dismissDialog(int p0){}
+    public final void dismissKeyboardShortcutsHelper(){}
+    public final void removeDialog(int p0){}
+    public final void requestPermissions(String[] p0, int p1){}
+    public final void requestShowKeyboardShortcuts(){}
+    public final void runOnUiThread(Runnable p0){}
+    public final void setDefaultKeyMode(int p0){}
+    public final void setFeatureDrawable(int p0, Drawable p1){}
+    public final void setFeatureDrawableAlpha(int p0, int p1){}
+    public final void setFeatureDrawableResource(int p0, int p1){}
+    public final void setFeatureDrawableUri(int p0, Uri p1){}
+    public final void setMediaController(MediaController p0){}
+    public final void setProgress(int p0){}
+    public final void setProgressBarIndeterminate(boolean p0){}
+    public final void setProgressBarIndeterminateVisibility(boolean p0){}
+    public final void setProgressBarVisibility(boolean p0){}
+    public final void setResult(int p0){}
+    public final void setResult(int p0, Intent p1){}
+    public final void setSecondaryProgress(int p0){}
+    public final void setVolumeControlStream(int p0){}
+    public final void showDialog(int p0){}
+    public int getChangingConfigurations(){ return 0; }
+    public int getMaxNumPictureInPictureActions(){ return 0; }
+    public int getRequestedOrientation(){ return 0; }
+    public int getTaskId(){ return 0; }
+    public static int DEFAULT_KEYS_DIALER = 0;
+    public static int DEFAULT_KEYS_DISABLE = 0;
+    public static int DEFAULT_KEYS_SEARCH_GLOBAL = 0;
+    public static int DEFAULT_KEYS_SEARCH_LOCAL = 0;
+    public static int DEFAULT_KEYS_SHORTCUT = 0;
+    public static int RESULT_CANCELED = 0;
+    public static int RESULT_FIRST_USER = 0;
+    public static int RESULT_OK = 0;
+    public void addContentView(View p0, ViewGroup.LayoutParams p1){}
+    public void closeContextMenu(){}
+    public void closeOptionsMenu(){}
+    public void dump(String p0, FileDescriptor p1, PrintWriter p2, String[] p3){}
+    public void enterPictureInPictureMode(){}
+    public void finish(){}
+    public void finishActivity(int p0){}
+    public void finishActivityFromChild(Activity p0, int p1){}
+    public void finishAffinity(){}
+    public void finishAfterTransition(){}
+    public void finishAndRemoveTask(){}
+    public void finishFromChild(Activity p0){}
+    public void invalidateOptionsMenu(){}
+    public void onActionModeFinished(ActionMode p0){}
+    public void onActionModeStarted(ActionMode p0){}
+    public void onActivityReenter(int p0, Intent p1){}
+    public void onAttachFragment(Fragment p0){}
+    public void onAttachedToWindow(){}
+    public void onBackPressed(){}
+    public void onConfigurationChanged(Configuration p0){}
+    public void onContentChanged(){}
+    public void onContextMenuClosed(Menu p0){}
+    public void onCreate(Bundle p0, PersistableBundle p1){}
+    public void onCreateContextMenu(ContextMenu p0, View p1, ContextMenu.ContextMenuInfo p2){}
+    public void onCreateNavigateUpTaskStack(TaskStackBuilder p0){}
+    public void onDetachedFromWindow(){}
+    public void onEnterAnimationComplete(){}
+    public void onGetDirectActions(CancellationSignal p0, Consumer<List<DirectAction>> p1){}
+    public void onLocalVoiceInteractionStarted(){}
+    public void onLocalVoiceInteractionStopped(){}
+    public void onLowMemory(){}
+    public void onMultiWindowModeChanged(boolean p0){}
+    public void onMultiWindowModeChanged(boolean p0, Configuration p1){}
+    public void onOptionsMenuClosed(Menu p0){}
+    public void onPanelClosed(int p0, Menu p1){}
+    public void onPerformDirectAction(String p0, Bundle p1, CancellationSignal p2, Consumer<Bundle> p3){}
+    public void onPictureInPictureModeChanged(boolean p0){}
+    public void onPictureInPictureModeChanged(boolean p0, Configuration p1){}
+    public void onPictureInPictureUiStateChanged(PictureInPictureUiState p0){}
+    public void onPostCreate(Bundle p0, PersistableBundle p1){}
+    public void onPrepareNavigateUpTaskStack(TaskStackBuilder p0){}
+    public void onProvideAssistContent(AssistContent p0){}
+    public void onProvideAssistData(Bundle p0){}
+    public void onProvideKeyboardShortcuts(List<KeyboardShortcutGroup> p0, Menu p1, int p2){}
+    public void onRequestPermissionsResult(int p0, String[] p1, int[] p2){}
+    public void onRestoreInstanceState(Bundle p0, PersistableBundle p1){}
+    public void onSaveInstanceState(Bundle p0, PersistableBundle p1){}
+    public void onStateNotSaved(){}
+    public void onTopResumedActivityChanged(boolean p0){}
+    public void onTrimMemory(int p0){}
+    public void onUserInteraction(){}
+    public void onVisibleBehindCanceled(){}
+    public void onWindowAttributesChanged(WindowManager.LayoutParams p0){}
+    public void onWindowFocusChanged(boolean p0){}
+    public void openContextMenu(View p0){}
+    public void openOptionsMenu(){}
+    public void overridePendingTransition(int p0, int p1){}
+    public void postponeEnterTransition(){}
+    public void recreate(){}
+    public void registerActivityLifecycleCallbacks(Application.ActivityLifecycleCallbacks p0){}
+    public void registerForContextMenu(View p0){}
+    public void reportFullyDrawn(){}
+    public void setActionBar(Toolbar p0){}
+    public void setContentTransitionManager(TransitionManager p0){}
+    public void setContentView(View p0){}
+    public void setContentView(View p0, ViewGroup.LayoutParams p1){}
+    public void setContentView(int p0){}
+    public void setEnterSharedElementCallback(SharedElementCallback p0){}
+    public void setExitSharedElementCallback(SharedElementCallback p0){}
+    public void setFinishOnTouchOutside(boolean p0){}
+    public void setImmersive(boolean p0){}
+    public void setInheritShowWhenLocked(boolean p0){}
+    public void setIntent(Intent p0){}
+    public void setLocusContext(LocusId p0, Bundle p1){}
+    public void setPictureInPictureParams(PictureInPictureParams p0){}
+    public void setRequestedOrientation(int p0){}
+    public void setShowWhenLocked(boolean p0){}
+    public void setTaskDescription(ActivityManager.TaskDescription p0){}
+    public void setTheme(int p0){}
+    public void setTitle(CharSequence p0){}
+    public void setTitle(int p0){}
+    public void setTitleColor(int p0){}
+    public void setTurnScreenOn(boolean p0){}
+    public void setVisible(boolean p0){}
+    public void setVrModeEnabled(boolean p0, ComponentName p1){}
+    public void showLockTaskEscapeMessage(){}
+    public void startActivities(Intent[] p0){}
+    public void startActivities(Intent[] p0, Bundle p1){}
+    public void startActivity(Intent p0){}
+    public void startActivity(Intent p0, Bundle p1){}
+    public void startActivityForResult(Intent p0, int p1){}
+    public void startActivityForResult(Intent p0, int p1, Bundle p2){}
+    public void startActivityFromChild(Activity p0, Intent p1, int p2){}
+    public void startActivityFromChild(Activity p0, Intent p1, int p2, Bundle p3){}
+    public void startActivityFromFragment(Fragment p0, Intent p1, int p2){}
+    public void startActivityFromFragment(Fragment p0, Intent p1, int p2, Bundle p3){}
+    public void startIntentSender(IntentSender p0, Intent p1, int p2, int p3, int p4){}
+    public void startIntentSender(IntentSender p0, Intent p1, int p2, int p3, int p4, Bundle p5){}
+    public void startIntentSenderForResult(IntentSender p0, int p1, Intent p2, int p3, int p4, int p5){}
+    public void startIntentSenderForResult(IntentSender p0, int p1, Intent p2, int p3, int p4, int p5, Bundle p6){}
+    public void startIntentSenderFromChild(Activity p0, IntentSender p1, int p2, Intent p3, int p4, int p5, int p6){}
+    public void startIntentSenderFromChild(Activity p0, IntentSender p1, int p2, Intent p3, int p4, int p5, int p6, Bundle p7){}
+    public void startLocalVoiceInteraction(Bundle p0){}
+    public void startLockTask(){}
+    public void startManagingCursor(Cursor p0){}
+    public void startPostponedEnterTransition(){}
+    public void startSearch(String p0, boolean p1, Bundle p2, boolean p3){}
+    public void stopLocalVoiceInteraction(){}
+    public void stopLockTask(){}
+    public void stopManagingCursor(Cursor p0){}
+    public void takeKeyEvents(boolean p0){}
+    public void triggerSearch(String p0, Bundle p1){}
+    public void unregisterActivityLifecycleCallbacks(Application.ActivityLifecycleCallbacks p0){}
+    public void unregisterForContextMenu(View p0){}
 }

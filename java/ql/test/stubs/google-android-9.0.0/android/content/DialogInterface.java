@@ -16,10 +16,6 @@ public interface DialogInterface
     {
         void onCancel(DialogInterface p0);
     }
-    static public interface OnClickListener
-    {
-        void onClick(DialogInterface p0, int p1);
-    }
     static public interface OnDismissListener
     {
         void onDismiss(DialogInterface p0);
@@ -27,10 +23,6 @@ public interface DialogInterface
     static public interface OnKeyListener
     {
         boolean onKey(DialogInterface p0, int p1, KeyEvent p2);
-    }
-    static public interface OnMultiChoiceClickListener
-    {
-        void onClick(DialogInterface p0, int p1, boolean p2);
     }
     static public interface OnShowListener
     {

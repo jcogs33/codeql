@@ -31,12 +31,9 @@ public class PendingIntent implements Parcelable
     public static Parcelable.Creator<PendingIntent> CREATOR = null;
     public static PendingIntent getActivities(Context p0, int p1, Intent[] p2, int p3){ return null; }
     public static PendingIntent getActivities(Context p0, int p1, Intent[] p2, int p3, Bundle p4){ return null; }
-    public static PendingIntent getActivitiesAsUser(Context p0, int p1, Intent[] p3, int p4, Bundle p5, UserHandle p6) { return null; }
     public static PendingIntent getActivity(Context p0, int p1, Intent p2, int p3){ return null; }
     public static PendingIntent getActivity(Context p0, int p1, Intent p2, int p3, Bundle p4){ return null; }
-    public static PendingIntent getActivityAsUser(Context p0, int p1, Intent p2, int p3, Bundle p4, UserHandle p5) { return null; }
     public static PendingIntent getBroadcast(Context p0, int p1, Intent p2, int p3){ return null; }
-    public static PendingIntent getBroadcastAsUser(Context p0, int p1, Intent p2, int p3, UserHandle p4) { return null; }
     public static PendingIntent getForegroundService(Context p0, int p1, Intent p2, int p3){ return null; }
     public static PendingIntent getService(Context p0, int p1, Intent p2, int p3){ return null; }
     public static PendingIntent readPendingIntentOrNullFromParcel(Parcel p0){ return null; }

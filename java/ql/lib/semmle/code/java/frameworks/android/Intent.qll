@@ -246,6 +246,10 @@ class GrantWriteUriPermissionFlag extends GrantUriPermissionFlag {
  * // class StartComponentIntentStep extends AdditionalValueStep { }
  */
 
+private class StartComponentIntentStep extends AdditionalValueStep {
+  override predicate step(DataFlow::Node n1, DataFlow::Node n2) { none() } // overridden in subclasses
+}
+
 /**
  * Gets the `Class<?>` argument of an `android.content.Intent`constructor.
  *
@@ -264,7 +268,7 @@ private Argument getClassArgOfIntentConstructor(ClassInstanceExpr classInstanceE
  * A value-preserving step from the Intent argument of a `startActivity` call to
  * a `getIntent` call in the Activity the Intent pointed to in its constructor.
  */
-private class StartActivityIntentStep extends AdditionalValueStep {
+private class StartActivityIntentStep extends StartComponentIntentStep {
   /**
    * Gets the `Intent` argument of an Android `StartActivityMethod`.
    *
@@ -300,7 +304,7 @@ private class StartActivityIntentStep extends AdditionalValueStep {
  * the `Intent` parameter in the `onReceive` method of the BroadcastReceiver the
  * Intent pointed to in its constructor.
  */
-private class SendBroadcastReceiverIntentStep extends AdditionalValueStep {
+private class SendBroadcastReceiverIntentStep extends StartComponentIntentStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
     exists(MethodAccess sendBroadcast, Method onReceive, ClassInstanceExpr newIntent |
       sendBroadcast.getMethod().overrides*(any(SendBroadcastMethod m)) and
@@ -320,7 +324,7 @@ private class SendBroadcastReceiverIntentStep extends AdditionalValueStep {
  * the `Intent` parameter in an `AndroidServiceIntentMethod` of the Service the
  * Intent pointed to in its constructor.
  */
-private class StartServiceIntentStep extends AdditionalValueStep {
+private class StartServiceIntentStep extends StartComponentIntentStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
     exists(MethodAccess startService, Method serviceIntent, ClassInstanceExpr newIntent |
       startService.getMethod().overrides*(any(StartServiceMethod m)) and
