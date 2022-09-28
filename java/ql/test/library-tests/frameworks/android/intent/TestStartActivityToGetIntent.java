@@ -30,6 +30,12 @@ public class TestStartActivityToGetIntent {
         }
         {
             Intent intent = new Intent(null, SomeActivity.class);
+            intent.putExtra("data", (String) source("start-activities"));
+            Intent[] intents = new Intent[] {intent};
+            act.startActivities(intents);
+        }
+        {
+            Intent intent = new Intent(null, SomeActivity.class);
             intent.putExtra("data", (String) source("start-if-needed"));
             act.startActivityIfNeeded(intent, 0);
         }
@@ -67,7 +73,9 @@ public class TestStartActivityToGetIntent {
     static class SomeActivity extends Activity {
 
         public void test() {
-            sink(getIntent().getStringExtra("data")); // $ hasValueFlow=ctx-start hasValueFlow=act-start hasValueFlow=start-for-result hasValueFlow=start-if-needed hasValueFlow=start-matching hasValueFlow=start-from-child hasValueFlow=start-from-frag hasValueFlow=4-arg
+            // @formatter:off
+            sink(getIntent().getStringExtra("data")); // $ hasValueFlow=ctx-start hasValueFlow=act-start hasValueFlow=start-for-result hasValueFlow=start-if-needed hasValueFlow=start-matching hasValueFlow=start-from-child hasValueFlow=start-from-frag hasValueFlow=4-arg hasValueFlow=start-activities
+            // @formatter:on
         }
 
     }

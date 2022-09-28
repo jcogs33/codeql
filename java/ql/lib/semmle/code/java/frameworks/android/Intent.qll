@@ -2,6 +2,7 @@ import java
 private import semmle.code.java.dataflow.DataFlow
 private import semmle.code.java.dataflow.ExternalFlow
 private import semmle.code.java.dataflow.FlowSteps
+private import semmle.code.java.dataflow.internal.ContainerFlow
 
 /**
  * The class `android.content.Intent`.
@@ -259,17 +260,27 @@ private class StartComponentMethodAccess extends MethodAccess {
 
   /** Gets the intent argument of this call. */
   Argument getIntentArg() {
-    result.getType() instanceof TypeIntent and
+    (
+      result.getType() instanceof TypeIntent or
+      result.getType().(Array).getElementType() instanceof TypeIntent
+    ) and
     result = this.getAnArgument()
   }
 
   /** Holds if this targets a component of type `targetType`. */
   predicate targetsComponentType(RefType targetType) {
     exists(NewIntent newIntent |
-      DataFlow::localExprFlow(newIntent, this.getIntentArg()) and
+      localFlowOrArrayStoreStep*(DataFlow::exprNode(newIntent),
+        DataFlow::exprNode(this.getIntentArg())) and
       newIntent.getClassArg().getType().(ParameterizedType).getATypeArgument() = targetType
     )
   }
+}
+
+/** A local data flow step that also includes array store steps. */
+private predicate localFlowOrArrayStoreStep(DataFlow::Node node1, DataFlow::Node node2) {
+  DataFlow::localFlowStep(node1, node2) or
+  arrayStoreStep(node1, node2)
 }
 
 /**
@@ -292,6 +303,17 @@ private predicate startActivityIntentStep(DataFlow::Node n1, DataFlow::Node n2) 
  */
 private class StartActivityIntentStep extends AdditionalValueStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) { startActivityIntentStep(n1, n2) }
+}
+
+/**
+ * An `ArrayContent`-reading step from the array argument of a `startActivities` call to
+ * a `getIntent` call in one of the activities any of the intents targeted in their constructor.
+ */
+private class StartActivitiesIntentReadStep extends AdditionalReadStep {
+  override predicate step(DataFlow::Node n1, DataFlow::Content f, DataFlow::Node n2) {
+    f instanceof DataFlow::ArrayContent and
+    startActivityIntentStep(n1, n2)
+  }
 }
 
 /**
