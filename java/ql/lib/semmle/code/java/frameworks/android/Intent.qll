@@ -118,6 +118,14 @@ class StartServiceMethod extends Method {
   }
 }
 
+class StartComponentMethod extends Method {
+  StartComponentMethod() {
+    this instanceof StartActivityMethod or
+    this instanceof StartServiceMethod or
+    this instanceof SendBroadcastMethod
+  }
+}
+
 /** Specifies that if an `Intent` is tainted, then so are its synthetic fields. */
 private class IntentFieldsInheritTaint extends DataFlow::SyntheticFieldContent,
   TaintInheritingContent {
@@ -235,9 +243,10 @@ private class NewIntent extends ClassInstanceExpr {
 /** A call to a method that starts an Android component */
 private class StartComponentMethodAccess extends MethodAccess {
   StartComponentMethodAccess() {
-    this.getMethod().overrides*(any(StartActivityMethod m)) or
-    this.getMethod().overrides*(any(StartServiceMethod m)) or
-    this.getMethod().overrides*(any(SendBroadcastMethod m))
+    // this.getMethod().overrides*(any(StartActivityMethod m)) or
+    // this.getMethod().overrides*(any(StartServiceMethod m)) or
+    // this.getMethod().overrides*(any(SendBroadcastMethod m))
+    this.getMethod().overrides*(any(StartComponentMethod m))
   }
 
   /** Gets the intent argument of this call. */
@@ -255,56 +264,127 @@ private class StartComponentMethodAccess extends MethodAccess {
   }
 }
 
-/**
- * A value-preserving step from the intent argument of a `startActivity` call to
- * a `getIntent` call in the activity the intent targeted in its constructor.
- */
-private class StartActivityIntentStep extends AdditionalValueStep {
-  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(StartComponentMethodAccess startActivity, MethodAccess getIntent |
-      startActivity.getMethod().overrides*(any(StartActivityMethod m)) and
-      getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
-      startActivity.targetsComponentType(getIntent.getReceiverType()) and
-      n1.asExpr() = startActivity.getIntentArg() and
+// /**
+//  * TEST
+//  */
+// private predicate startActivityIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
+//   exists(StartComponentMethodAccess startActivity, MethodAccess getIntent |
+//     startActivity.getMethod().overrides*(any(StartActivityMethod m)) and
+//     getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
+//     startActivity.targetsComponentType(getIntent.getReceiverType()) and
+//     n1.asExpr() = startActivity.getIntentArg() and
+//     n2.asExpr() = getIntent
+//   )
+// }
+// /**
+//  * TEST
+//  */
+// private predicate sendBroadcastReceiverIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
+//   exists(StartComponentMethodAccess sendBroadcast, Method onReceive |
+//     sendBroadcast.getMethod().overrides*(any(SendBroadcastMethod m)) and
+//     onReceive.overrides*(any(AndroidReceiveIntentMethod m)) and
+//     sendBroadcast.targetsComponentType(onReceive.getDeclaringType()) and
+//     n1.asExpr() = sendBroadcast.getIntentArg() and
+//     n2.asParameter() = onReceive.getParameter(1)
+//   )
+// }
+// /**
+//  * TEST
+//  */
+// private predicate startServiceIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
+//   exists(StartComponentMethodAccess startService, Method serviceIntent |
+//     startService.getMethod().overrides*(any(StartServiceMethod m)) and
+//     serviceIntent.overrides*(any(AndroidServiceIntentMethod m)) and
+//     startService.targetsComponentType(serviceIntent.getDeclaringType()) and
+//     n1.asExpr() = startService.getIntentArg() and
+//     n2.asParameter() = serviceIntent.getParameter(0)
+//   )
+// }
+Parameter getIntentParameter(Method m) {
+  result.getType() instanceof TypeIntent and
+  result = m.getAParameter()
+}
+
+// ! does not work
+private predicate startComponentIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
+  exists(StartComponentMethodAccess startComponent, Method mIntent, MethodAccess getIntent |
+    (
+      mIntent.overrides*(any(AndroidServiceIntentMethod m)) or
+      mIntent.overrides*(any(AndroidReceiveIntentMethod m)) or
+      getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m))
+    ) and
+    (
+      startComponent.targetsComponentType(mIntent.getDeclaringType()) or
+      startComponent.targetsComponentType(getIntent.getReceiverType())
+    ) and
+    n1.asExpr() = startComponent.getIntentArg() and
+    (
+      n2.asParameter() = getIntentParameter(mIntent) or
       n2.asExpr() = getIntent
     )
-  }
+  )
 }
 
 /**
- * A value-preserving step from the intent argument of a `sendBroadcast` call to
- * the intent parameter in the `onReceive` method of the receiver the
- * intent targeted in its constructor.
+ * TEST
  */
-private class SendBroadcastReceiverIntentStep extends AdditionalValueStep {
+private class StartComponentIntentStep extends AdditionalValueStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(StartComponentMethodAccess sendBroadcast, Method onReceive |
-      sendBroadcast.getMethod().overrides*(any(SendBroadcastMethod m)) and
-      onReceive.overrides*(any(AndroidReceiveIntentMethod m)) and
-      sendBroadcast.targetsComponentType(onReceive.getDeclaringType()) and
-      n1.asExpr() = sendBroadcast.getIntentArg() and
-      n2.asParameter() = onReceive.getParameter(1)
-    )
+    // startActivityIntentStep(n1, n2)
+    // or
+    // sendBroadcastReceiverIntentStep(n1, n2) or
+    // startServiceIntentStep(n1, n2)
+    startComponentIntentStep(n1, n2)
   }
 }
 
-/**
- * A value-preserving step from the intent argument of a `startService` call to
- * the intent parameter in an `AndroidServiceIntentMethod` of the service the
- * intent targeted in its constructor.
- */
-private class StartServiceIntentStep extends AdditionalValueStep {
-  override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    exists(StartComponentMethodAccess startService, Method serviceIntent |
-      startService.getMethod().overrides*(any(StartServiceMethod m)) and
-      serviceIntent.overrides*(any(AndroidServiceIntentMethod m)) and
-      startService.targetsComponentType(serviceIntent.getDeclaringType()) and
-      n1.asExpr() = startService.getIntentArg() and
-      n2.asParameter() = serviceIntent.getParameter(0)
-    )
-  }
-}
-
+// /**
+//  * A value-preserving step from the intent argument of a `startActivity` call to
+//  * a `getIntent` call in the activity the intent targeted in its constructor.
+//  */
+// private class StartActivityIntentStep extends AdditionalValueStep {
+//   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+//     exists(StartComponentMethodAccess startActivity, MethodAccess getIntent |
+//       startActivity.getMethod().overrides*(any(StartActivityMethod m)) and
+//       getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
+//       startActivity.targetsComponentType(getIntent.getReceiverType()) and
+//       n1.asExpr() = startActivity.getIntentArg() and
+//       n2.asExpr() = getIntent
+//     )
+//   }
+// }
+// /**
+//  * A value-preserving step from the intent argument of a `sendBroadcast` call to
+//  * the intent parameter in the `onReceive` method of the receiver the
+//  * intent targeted in its constructor.
+//  */
+// private class SendBroadcastReceiverIntentStep extends AdditionalValueStep {
+//   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+//     exists(StartComponentMethodAccess sendBroadcast, Method onReceive |
+//       sendBroadcast.getMethod().overrides*(any(SendBroadcastMethod m)) and
+//       onReceive.overrides*(any(AndroidReceiveIntentMethod m)) and
+//       sendBroadcast.targetsComponentType(onReceive.getDeclaringType()) and
+//       n1.asExpr() = sendBroadcast.getIntentArg() and
+//       n2.asParameter() = onReceive.getParameter(1)
+//     )
+//   }
+// }
+// /**
+//  * A value-preserving step from the intent argument of a `startService` call to
+//  * the intent parameter in an `AndroidServiceIntentMethod` of the service the
+//  * intent targeted in its constructor.
+//  */
+// private class StartServiceIntentStep extends AdditionalValueStep {
+//   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
+//     exists(StartComponentMethodAccess startService, Method serviceIntent |
+//       startService.getMethod().overrides*(any(StartServiceMethod m)) and
+//       serviceIntent.overrides*(any(AndroidServiceIntentMethod m)) and
+//       startService.targetsComponentType(serviceIntent.getDeclaringType()) and
+//       n1.asExpr() = startService.getIntentArg() and
+//       n2.asParameter() = serviceIntent.getParameter(0)
+//     )
+//   }
+// }
 private class IntentBundleFlowSteps extends SummaryModelCsv {
   override predicate row(string row) {
     row =
