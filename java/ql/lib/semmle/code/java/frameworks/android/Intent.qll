@@ -61,6 +61,16 @@ class AndroidServiceIntentMethod extends Method {
   }
 }
 
+// /**
+//  * TEST
+//  */
+// class ComponentGetIntentMethod extends Method {
+//   ComponentGetIntentMethod() {
+//     this instanceof AndroidGetIntentMethod or
+//     this instanceof AndroidReceiveIntentMethod or
+//     this instanceof AndroidServiceIntentMethod
+//   }
+// }
 /**
  * The method `Context.startActivity` or `startActivities`.
  *
@@ -73,16 +83,13 @@ deprecated class ContextStartActivityMethod extends Method {
   }
 }
 
-/**
- * The method `Context.startActivity`, `Context.startActivities`,
- * `Activity.startActivity`,`Activity.startActivities`,
- * `Activity.startActivityForResult`, `Activity.startActivityIfNeeded`,
- * `Activity.startNextMatchingActivity`, `Activity.startActivityFromChild`,
- * or `Activity.startActivityFromFragment`.
- */
+/** A method that starts an Activity. */
 class StartActivityMethod extends Method {
   StartActivityMethod() {
-    this.getName().matches("start%Activit%") and
+    this.hasName([
+        "startActivity", "startActivities", "startActivityForResult", "startActivityIfNeeded",
+        "startNextMatchingActivity", "startActivityFromChild", "startActivityFromFragment"
+      ]) and
     (
       this.getDeclaringType() instanceof TypeContext or
       this.getDeclaringType() instanceof TypeActivity
@@ -90,24 +97,20 @@ class StartActivityMethod extends Method {
   }
 }
 
-/**
- * The method `Context.sendBroadcast`, `sendBroadcastAsUser`,
- * `sendOrderedBroadcast`, `sendOrderedBroadcastAsUser`,
- * `sendStickyBroadcast`, `sendStickyBroadcastAsUser`,
- * `sendStickyOrderedBroadcast`, `sendStickyOrderedBroadcastAsUser`,
- * or `sendBroadcastWithMultiplePermissions`.
- */
+/** A method that sends a broadcast. */
 class SendBroadcastMethod extends Method {
   SendBroadcastMethod() {
-    this.getName().matches("send%Broadcast%") and
+    this.hasName([
+        "sendBroadcast", "sendBroadcastAsUser", "sendOrderedBroadcast",
+        "sendOrderedBroadcastAsUser", "sendStickyBroadcast", "sendStickyBroadcastAsUser",
+        "sendStickyOrderedBroadcast", "sendStickyOrderedBroadcastAsUser",
+        "sendBroadcastWithMultiplePermissions"
+      ]) and
     this.getDeclaringType() instanceof TypeContext
   }
 }
 
-/**
- * The method `Context.startService`, `startForegroundService`,
- * `bindIsolatedService`, `bindService`, or `bindServiceAsUser`.
- */
+/** A method that starts a service. */
 class StartServiceMethod extends Method {
   StartServiceMethod() {
     this.hasName([
@@ -118,6 +121,7 @@ class StartServiceMethod extends Method {
   }
 }
 
+/** A method that starts a component. */
 class StartComponentMethod extends Method {
   StartComponentMethod() {
     this instanceof StartActivityMethod or
@@ -242,12 +246,7 @@ private class NewIntent extends ClassInstanceExpr {
 
 /** A call to a method that starts an Android component */
 private class StartComponentMethodAccess extends MethodAccess {
-  StartComponentMethodAccess() {
-    // this.getMethod().overrides*(any(StartActivityMethod m)) or
-    // this.getMethod().overrides*(any(StartServiceMethod m)) or
-    // this.getMethod().overrides*(any(SendBroadcastMethod m))
-    this.getMethod().overrides*(any(StartComponentMethod m))
-  }
+  StartComponentMethodAccess() { this.getMethod().overrides*(any(StartComponentMethod m)) }
 
   /** Gets the intent argument of this call. */
   Argument getIntentArg() {
@@ -264,77 +263,80 @@ private class StartComponentMethodAccess extends MethodAccess {
   }
 }
 
-// /**
-//  * TEST
-//  */
-// private predicate startActivityIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
-//   exists(StartComponentMethodAccess startActivity, MethodAccess getIntent |
-//     startActivity.getMethod().overrides*(any(StartActivityMethod m)) and
-//     getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
-//     startActivity.targetsComponentType(getIntent.getReceiverType()) and
-//     n1.asExpr() = startActivity.getIntentArg() and
-//     n2.asExpr() = getIntent
-//   )
-// }
-// /**
-//  * TEST
-//  */
-// private predicate sendBroadcastReceiverIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
-//   exists(StartComponentMethodAccess sendBroadcast, Method onReceive |
-//     sendBroadcast.getMethod().overrides*(any(SendBroadcastMethod m)) and
-//     onReceive.overrides*(any(AndroidReceiveIntentMethod m)) and
-//     sendBroadcast.targetsComponentType(onReceive.getDeclaringType()) and
-//     n1.asExpr() = sendBroadcast.getIntentArg() and
-//     n2.asParameter() = onReceive.getParameter(1)
-//   )
-// }
-// /**
-//  * TEST
-//  */
-// private predicate startServiceIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
-//   exists(StartComponentMethodAccess startService, Method serviceIntent |
-//     startService.getMethod().overrides*(any(StartServiceMethod m)) and
-//     serviceIntent.overrides*(any(AndroidServiceIntentMethod m)) and
-//     startService.targetsComponentType(serviceIntent.getDeclaringType()) and
-//     n1.asExpr() = startService.getIntentArg() and
-//     n2.asParameter() = serviceIntent.getParameter(0)
-//   )
-// }
-Parameter getIntentParameter(Method m) {
-  result.getType() instanceof TypeIntent and
-  result = m.getAParameter()
-}
-
-// ! does not work
-private predicate startComponentIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
-  exists(StartComponentMethodAccess startComponent, Method mIntent, MethodAccess getIntent |
-    (
-      mIntent.overrides*(any(AndroidServiceIntentMethod m)) or
-      mIntent.overrides*(any(AndroidReceiveIntentMethod m)) or
-      getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m))
-    ) and
-    (
-      startComponent.targetsComponentType(mIntent.getDeclaringType()) or
-      startComponent.targetsComponentType(getIntent.getReceiverType())
-    ) and
-    n1.asExpr() = startComponent.getIntentArg() and
-    (
-      n2.asParameter() = getIntentParameter(mIntent) or
-      n2.asExpr() = getIntent
-    )
+/**
+ * TEST
+ */
+private predicate startActivityIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
+  exists(StartComponentMethodAccess startActivity, MethodAccess getIntent |
+    startActivity.getMethod().overrides*(any(StartActivityMethod m)) and
+    getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m)) and
+    startActivity.targetsComponentType(getIntent.getReceiverType()) and
+    n1.asExpr() = startActivity.getIntentArg() and
+    n2.asExpr() = getIntent
   )
 }
 
 /**
  * TEST
  */
+private predicate sendBroadcastReceiverIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
+  exists(StartComponentMethodAccess sendBroadcast, Method onReceive |
+    sendBroadcast.getMethod().overrides*(any(SendBroadcastMethod m)) and
+    onReceive.overrides*(any(AndroidReceiveIntentMethod m)) and
+    sendBroadcast.targetsComponentType(onReceive.getDeclaringType()) and
+    n1.asExpr() = sendBroadcast.getIntentArg() and
+    n2.asParameter() = onReceive.getParameter(1)
+  )
+}
+
+/**
+ * TEST
+ */
+private predicate startServiceIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
+  exists(StartComponentMethodAccess startService, Method serviceIntent |
+    startService.getMethod().overrides*(any(StartServiceMethod m)) and
+    //startService.getMethod().getDeclaringType() instanceof TypeService and
+    serviceIntent.overrides*(any(AndroidServiceIntentMethod m)) and
+    //serviceIntent.getDeclaringType() instanceof TypeService and
+    startService.targetsComponentType(serviceIntent.getDeclaringType()) and
+    n1.asExpr() = startService.getIntentArg() and
+    n2.asParameter() = serviceIntent.getParameter(0)
+  )
+}
+
+// /** TEST */
+// Parameter getIntentParameter(Method m) {
+//   result.getType() instanceof TypeIntent and
+//   result = m.getAParameter()
+// }
+// // ! does not work
+// private predicate startComponentIntentStep(DataFlow::Node n1, DataFlow::Node n2) {
+//   exists(StartComponentMethodAccess startComponent, Method mIntent, MethodAccess getIntent |
+//     (
+//       mIntent.overrides*(any(AndroidServiceIntentMethod m)) or
+//       mIntent.overrides*(any(AndroidReceiveIntentMethod m)) or
+//       getIntent.getMethod().overrides*(any(AndroidGetIntentMethod m))
+//     ) and
+//     (
+//       startComponent.targetsComponentType(mIntent.getDeclaringType()) or
+//       startComponent.targetsComponentType(getIntent.getReceiverType())
+//     ) and
+//     n1.asExpr() = startComponent.getIntentArg() and
+//     (
+//       n2.asParameter() = getIntentParameter(mIntent) or
+//       n2.asExpr() = getIntent
+//     )
+//   )
+// }
+/**
+ * TEST
+ */
 private class StartComponentIntentStep extends AdditionalValueStep {
   override predicate step(DataFlow::Node n1, DataFlow::Node n2) {
-    // startActivityIntentStep(n1, n2)
-    // or
-    // sendBroadcastReceiverIntentStep(n1, n2) or
-    // startServiceIntentStep(n1, n2)
-    startComponentIntentStep(n1, n2)
+    startActivityIntentStep(n1, n2) or
+    sendBroadcastReceiverIntentStep(n1, n2) or
+    startServiceIntentStep(n1, n2)
+    // startComponentIntentStep(n1, n2)
   }
 }
 
