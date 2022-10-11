@@ -215,7 +215,7 @@ public class InsufficientKeySizeTest {
         keyGen.init(keySize); // $ MISSING: hasInsufficientKeySize
 
         // BAD: Key size is less than 2048
-        kg.init(64); // $ hasInsufficientKeySize
+        kg.init(64); // $ MISSING: hasInsufficientKeySize
     }
 
     //! refactor this to use expected-value tag and combine with above method
@@ -231,7 +231,7 @@ public class InsufficientKeySizeTest {
         keyPairGen.initialize(keySize); // $ MISSING: hasInsufficientKeySize
 
         // BAD: Key size is less than 2048
-        kpg.initialize(1024); // $ hasInsufficientKeySize
+        kpg.initialize(1024); // $ MISSING: hasInsufficientKeySize
     }
 
     //! refactor this to use expected-value tag and combine with above method
@@ -259,12 +259,12 @@ public class InsufficientKeySizeTest {
     // ? todo #3: add test for retrieving a key from elsewhere?
     // ? todo #4: add barrier-guard tests (see FP from OpenIdentityPlatform/OpenAM)
     // ? todo #5: add tests for updated keysize variable?: e.g. keysize = 1024; keysize += 1024; so when it's used it is correctly 2048. (prbly only student projects would not use constants?)
-    // ```
+    //
         //int size = 128;
         // use `size` for AES key
 
         //size += 1920; // size is now 2048
         // use size for RSA key
-    // ```
+    //
     // ? todo #6: consider if some flow paths for keysize variables will be too hard to track how the keysize is updated (e.g. if calling some other method to get keysize, etc....)
 }

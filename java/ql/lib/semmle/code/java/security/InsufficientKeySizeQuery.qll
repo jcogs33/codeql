@@ -53,41 +53,35 @@ private int getECKeySize(string algorithm) {
   result = algorithm.regexpCapture(".*[a-zA-Z](\\d+)[a-zA-Z].*", 1).toInt()
 }
 
-/** Data flow configuration tracking flow from a key generator to a `init` method call. */
-private class KeyGeneratorInitConfiguration extends DataFlow::Configuration {
-  KeyGeneratorInitConfiguration() { this = "KeyGeneratorInitConfiguration" }
-
-  override predicate isSource(DataFlow::Node source) {
-    source.asExpr() instanceof JavaxCryptoKeyGenerator
-  }
-
-  override predicate isSink(DataFlow::Node sink) {
-    exists(MethodAccess ma |
-      ma.getMethod() instanceof KeyGeneratorInitMethod and
-      sink.asExpr() = ma.getQualifier()
-    )
-  }
-}
-
-/**
- * Data flow  configuration tracking flow from a keypair generator to
- * an `initialize` method call.
- */
-private class KeyPairGeneratorInitConfiguration extends DataFlow::Configuration {
-  KeyPairGeneratorInitConfiguration() { this = "KeyPairGeneratorInitConfiguration" }
-
-  override predicate isSource(DataFlow::Node source) {
-    source.asExpr() instanceof JavaSecurityKeyPairGenerator
-  }
-
-  override predicate isSink(DataFlow::Node sink) {
-    exists(MethodAccess ma |
-      ma.getMethod() instanceof KeyPairGeneratorInitMethod and
-      sink.asExpr() = ma.getQualifier()
-    )
-  }
-}
-
+// /** Data flow configuration tracking flow from a key generator to a `init` method call. */
+// private class KeyGeneratorInitConfiguration extends DataFlow::Configuration {
+//   KeyGeneratorInitConfiguration() { this = "KeyGeneratorInitConfiguration" }
+//   override predicate isSource(DataFlow::Node source) {
+//     source.asExpr() instanceof JavaxCryptoKeyGenerator
+//   }
+//   override predicate isSink(DataFlow::Node sink) {
+//     exists(MethodAccess ma |
+//       ma.getMethod() instanceof KeyGeneratorInitMethod and
+//       sink.asExpr() = ma.getQualifier()
+//     )
+//   }
+// }
+// /**
+//  * Data flow  configuration tracking flow from a keypair generator to
+//  * an `initialize` method call.
+//  */
+// private class KeyPairGeneratorInitConfiguration extends DataFlow::Configuration {
+//   KeyPairGeneratorInitConfiguration() { this = "KeyPairGeneratorInitConfiguration" }
+//   override predicate isSource(DataFlow::Node source) {
+//     source.asExpr() instanceof JavaSecurityKeyPairGenerator
+//   }
+//   override predicate isSink(DataFlow::Node sink) {
+//     exists(MethodAccess ma |
+//       ma.getMethod() instanceof KeyPairGeneratorInitMethod and
+//       sink.asExpr() = ma.getQualifier()
+//     )
+//   }
+// }
 /**
  * Holds if a symmetric `KeyGenerator` implementing encryption algorithm
  * `type` and initialized by `ma` uses an insufficient key size.
@@ -97,14 +91,18 @@ private class KeyPairGeneratorInitConfiguration extends DataFlow::Configuration 
 bindingset[type]
 private predicate hasShortSymmetricKey(MethodAccess ma, string msg, string type) {
   ma.getMethod() instanceof KeyGeneratorInitMethod and
-  exists(
-    JavaxCryptoKeyGenerator jcg, KeyGeneratorInitConfiguration cc, DataFlow::PathNode source,
-    DataFlow::PathNode dest
-  |
+  // exists(
+  //   JavaxCryptoKeyGenerator jcg, KeyGeneratorInitConfiguration cc, DataFlow::PathNode source,
+  //   DataFlow::PathNode dest
+  // |
+  //   jcg.getAlgoSpec().(StringLiteral).getValue() = type and
+  //   source.getNode().asExpr() = jcg and
+  //   dest.getNode().asExpr() = ma.getQualifier() and
+  //   cc.hasFlowPath(source, dest)
+  // ) and
+  exists(JavaxCryptoKeyGenerator jcg |
     jcg.getAlgoSpec().(StringLiteral).getValue() = type and
-    source.getNode().asExpr() = jcg and
-    dest.getNode().asExpr() = ma.getQualifier() and
-    cc.hasFlowPath(source, dest)
+    DataFlow::localExprFlow(jcg, ma.getQualifier())
   ) and
   ma.getArgument(0).(CompileTimeConstantExpr).getIntValue() < 128 and
   msg = "Key size should be at least 128 bits for " + type + " encryption."
@@ -127,24 +125,30 @@ private predicate hasShortAESKey(MethodAccess ma, string msg) {
 bindingset[type]
 private predicate hasShortAsymmetricKeyPair(Expr e, string msg, string type) {
   (
-    exists(
-      JavaSecurityKeyPairGenerator jpg, KeyPairGeneratorInitConfiguration kc,
-      DataFlow::PathNode source, DataFlow::PathNode dest, MethodAccess ma
-    |
+    exists(JavaSecurityKeyPairGenerator jpg, MethodAccess ma |
+      // KeyPairGeneratorInitConfiguration kc,
+      // DataFlow::PathNode source, DataFlow::PathNode dest
       ma.getMethod() instanceof KeyPairGeneratorInitMethod and
+      // jpg.getAlgoSpec().(StringLiteral).getValue().toUpperCase() = type and
+      // source.getNode().asExpr() = jpg and
+      // dest.getNode().asExpr() = ma.getQualifier() and
+      // kc.hasFlowPath(source, dest) and
       jpg.getAlgoSpec().(StringLiteral).getValue().toUpperCase() = type and
-      source.getNode().asExpr() = jpg and
-      dest.getNode().asExpr() = ma.getQualifier() and
-      kc.hasFlowPath(source, dest) and
+      DataFlow::localExprFlow(jpg, ma.getQualifier()) and
       ma.getArgument(0).(CompileTimeConstantExpr).getIntValue() < 2048 and
       ma = e
     )
     or
     exists(ClassInstanceExpr genParamSpec |
       (
-        genParamSpec.getConstructedType() instanceof RsaKeyGenParameterSpec or
-        genParamSpec.getConstructedType() instanceof DsaGenParameterSpec or
-        genParamSpec.getConstructedType() instanceof DhGenParameterSpec
+        genParamSpec.getConstructedType() instanceof RsaKeyGenParameterSpec and
+        type = "RSA" // need `type` specified to avoid also matching to DSA and DH
+        or
+        genParamSpec.getConstructedType() instanceof DsaGenParameterSpec and
+        type = "DSA"
+        or
+        genParamSpec.getConstructedType() instanceof DhGenParameterSpec and
+        type = "DH"
       ) and
       genParamSpec.getArgument(0).(CompileTimeConstantExpr).getIntValue() < 2048 and
       genParamSpec = e
@@ -179,15 +183,16 @@ private predicate hasShortRsaKeyPair(Expr e, string msg) {
  */
 private predicate hasShortECKeyPair(Expr e, string msg) {
   (
-    exists(
-      JavaSecurityKeyPairGenerator jpg, KeyPairGeneratorInitConfiguration kc,
-      DataFlow::PathNode source, DataFlow::PathNode dest, MethodAccess ma
-    |
+    exists(JavaSecurityKeyPairGenerator jpg, MethodAccess ma |
+      // KeyPairGeneratorInitConfiguration kc,
+      // DataFlow::PathNode source, DataFlow::PathNode dest
       ma.getMethod() instanceof KeyPairGeneratorInitMethod and
-      jpg.getAlgoSpec().(StringLiteral).getValue().matches("EC%") and // ECC variants such as ECDH and ECDSA
-      source.getNode().asExpr() = jpg and
-      dest.getNode().asExpr() = ma.getQualifier() and
-      kc.hasFlowPath(source, dest) and
+      // jpg.getAlgoSpec().(StringLiteral).getValue().matches("EC%") and // ECC variants such as ECDH and ECDSA
+      // source.getNode().asExpr() = jpg and
+      // dest.getNode().asExpr() = ma.getQualifier() and
+      // kc.hasFlowPath(source, dest) and
+      jpg.getAlgoSpec().(StringLiteral).getValue().matches("EC%") and
+      DataFlow::localExprFlow(jpg, ma.getQualifier()) and
       ma.getArgument(0).(CompileTimeConstantExpr).getIntValue() < 256 and
       ma = e
     )
