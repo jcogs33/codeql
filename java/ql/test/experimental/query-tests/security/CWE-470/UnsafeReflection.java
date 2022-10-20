@@ -60,7 +60,7 @@ public class UnsafeReflection {
         hashSet.add("com.example.test2");
         String className = request.getParameter("className");
         String parameterValue = request.getParameter("parameterValue");
-        if (!hashSet.contains(className)){ 
+        if (!hashSet.contains(className)){
             throw new Exception("Class not valid: "  + className);
         }
         try {
@@ -101,6 +101,7 @@ public class UnsafeReflection {
         }
     }
 
+    // ! for CVE-2021-21985
     private Object invokeService(String beanIdOrClassName, String methodName, MultipartFile[] files, List<Object> data) throws Exception {
         BeanFactory beanFactory = new BeanFactory();
 		try {

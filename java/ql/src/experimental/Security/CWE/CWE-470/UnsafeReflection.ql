@@ -86,11 +86,14 @@ private Expr getAMethodArgument(MethodAccess reflectiveCall) {
   result = reflectiveCall.(MethodInvokeCall).getAnArgument()
 }
 
-from
-  DataFlow::PathNode source, DataFlow::PathNode sink, UnsafeReflectionConfig conf,
-  MethodAccess reflectiveCall
-where
-  conf.hasFlowPath(source, sink) and
-  sink.getNode().asExpr() = reflectiveCall.getQualifier() and
-  conf.hasFlowToExpr(getAMethodArgument(reflectiveCall))
-select sink.getNode(), source, sink, "Unsafe reflection of $@.", source.getNode(), "user input"
+// from
+//   DataFlow::PathNode source, DataFlow::PathNode sink, UnsafeReflectionConfig conf,
+//   MethodAccess reflectiveCall
+// where
+//   conf.hasFlowPath(source, sink) and
+//   sink.getNode().asExpr() = reflectiveCall.getQualifier() and
+//   conf.hasFlowToExpr(getAMethodArgument(reflectiveCall))
+// select sink.getNode(), source, sink, "Unsafe reflection of $@.", source.getNode(), "user input"
+from MethodAccess ma
+where ma.getFile().getBaseName().matches("QueryService.%") // GetDeclaredField, Kylin: QueryService
+select ma, "test"
