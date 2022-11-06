@@ -155,7 +155,7 @@ module Public {
      * Holds if this node is the parameter of `c` at the specified (zero-based)
      * position. The implicit `this` parameter is considered to have index `-1`.
      */
-    abstract predicate isParameterOf(DataFlowCallable c, int pos);
+    abstract predicate isParameterOf(Callable c, int pos);
   }
 
   /**
@@ -173,9 +173,7 @@ module Public {
     /** Gets the parameter corresponding to this node. */
     Parameter getParameter() { result = param }
 
-    override predicate isParameterOf(DataFlowCallable c, int pos) {
-      c.asCallable().getParameter(pos) = param
-    }
+    override predicate isParameterOf(Callable c, int pos) { c.getParameter(pos) = param }
   }
 
   /** Gets the node corresponding to `p`. */
@@ -215,9 +213,7 @@ module Public {
     /** Gets the callable containing this `this` parameter. */
     Callable getCallable() { result = callable }
 
-    override predicate isParameterOf(DataFlowCallable c, int pos) {
-      callable = c.asCallable() and pos = -1
-    }
+    override predicate isParameterOf(Callable c, int pos) { callable = c and pos = -1 }
   }
 
   /**
@@ -347,7 +343,7 @@ module Private {
 
   /** Holds if `p` is a `ParameterNode` of `c` with position `pos`. */
   predicate isParameterNode(ParameterNode p, DataFlowCallable c, ParameterPosition pos) {
-    p.isParameterOf(c, pos)
+    p.isParameterOf(c.asCallable(), pos)
   }
 
   /** Holds if `arg` is an `ArgumentNode` of `c` with position `pos`. */
@@ -459,9 +455,7 @@ module Private {
 
     override string toString() { result = "[summary param] " + pos_ + " in " + sc }
 
-    override predicate isParameterOf(DataFlowCallable c, int pos) {
-      c.asSummarizedCallable() = sc and pos = pos_
-    }
+    override predicate isParameterOf(Callable c, int pos) { c = c and pos = pos_ }
 
     Type getTypeImpl() { result = sc.getParameterType(pos_) }
   }
