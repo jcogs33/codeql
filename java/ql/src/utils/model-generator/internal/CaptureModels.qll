@@ -224,7 +224,7 @@ private class FromSourceConfiguration extends TaintTracking::Configuration {
     this = "FromSourceConfiguration" and any(ActiveConfiguration ac).activateFromSourceConfig()
   }
 
-  override predicate isSource(DataFlow::Node source) { ExternalFlow::sourceNode(source, _) }
+  override predicate isSource(DataFlow::Node source) { ExternalFlow::sourceNode(source, _) } // only look at already known sources and sinks; they have to be return nodes
 
   override predicate isSink(DataFlow::Node sink) {
     exists(DataFlowTargetApi c |
@@ -234,6 +234,7 @@ private class FromSourceConfiguration extends TaintTracking::Configuration {
   }
 
   override DataFlow::FlowFeature getAFeature() {
+    //doesn't know what this does
     result instanceof DataFlow::FeatureHasSinkCallContext
   }
 
@@ -248,10 +249,10 @@ private class FromSourceConfiguration extends TaintTracking::Configuration {
 string captureSource(DataFlowTargetApi api) {
   exists(DataFlow::Node source, DataFlow::Node sink, FromSourceConfiguration config, string kind |
     config.hasFlow(source, sink) and
-    ExternalFlow::sourceNode(source, kind) and
+    ExternalFlow::sourceNode(source, kind) and // known sink node
     api = sink.getEnclosingCallable() and
     isRelevantSourceKind(kind) and
-    result = asSourceModel(api, returnNodeAsOutput(sink), kind)
+    result = asSourceModel(api, returnNodeAsOutput(sink), kind) // flow from known source to one of returns of api (return itself or out node) - then found wrapper of known source
   )
 }
 
@@ -281,11 +282,12 @@ private class PropagateToSinkConfiguration extends TaintTracking::Configuration 
  * Gets the sink model(s) of `api`, if there is flow from a parameter to an existing known sink.
  */
 string captureSink(DataFlowTargetApi api) {
+  // similar to source
   exists(DataFlow::Node src, DataFlow::Node sink, PropagateToSinkConfiguration config, string kind |
     config.hasFlow(src, sink) and
-    ExternalFlow::sinkNode(sink, kind) and
-    api = src.getEnclosingCallable() and
+    ExternalFlow::sinkNode(sink, kind) and // *known* sink node
+    api = src.getEnclosingCallable() and // src node within the api that looking at
     isRelevantSinkKind(kind) and
-    result = asSinkModel(api, asInputArgument(src), kind)
+    result = asSinkModel(api, asInputArgument(src), kind) // api is new sink because one of its params/self into known sink (so then it's a derived sink)
   )
 }
