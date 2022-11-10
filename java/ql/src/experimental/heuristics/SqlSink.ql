@@ -2,6 +2,7 @@ import java
 import semmle.code.java.security.QueryInjection
 import semmle.code.java.dataflow.TaintTracking
 import semmle.code.java.dataflow.ExternalFlow
+import semmle.code.java.dataflow.internal.DataFlowPrivate
 
 class PublicCallable extends Callable {
   PublicCallable() { this.isPublic() and this.getDeclaringType().isPublic() }
@@ -33,28 +34,28 @@ class PublicArgumentToSqlInjectionSinkTaintConfiguration extends TaintTracking::
   override predicate isSink(DataFlow::Node node) { node instanceof SqlInjectionSink }
 }
 
-Callable getASqlInjectionVulnerableParameterValueFlow(int paramIdx) {
+DataFlowCallable getASqlInjectionVulnerableParameterValueFlow(int paramIdx) {
   exists(PublicArgumentToSqlInjectionSinkConfiguration config, DataFlow::ParameterNode source |
     config.hasFlow(source, _) and
     source.isParameterOf(result, paramIdx)
   )
 }
 
-Callable getASqlInjectionVulnerableParameterTaintFlow(int paramIdx) {
+DataFlowCallable getASqlInjectionVulnerableParameterTaintFlow(int paramIdx) {
   exists(PublicArgumentToSqlInjectionSinkTaintConfiguration config, DataFlow::ParameterNode source |
     config.hasFlow(source, _) and
     source.isParameterOf(result, paramIdx)
   )
 }
 
-PublicCallable getASqlInjectionVulnerableParameterNameBasedGuess(int paramIdx) {
+DataFlowCallable getASqlInjectionVulnerableParameterNameBasedGuess(int paramIdx) {
   exists(Parameter p |
     p.getName() = "sql" and
-    p = result.getParameter(paramIdx)
+    p = result.asCallable().getParameter(paramIdx)
   )
 }
 
-query PublicCallable getASqlInjectionVulnerableParameter(int paramIdx, string reason) {
+query DataFlowCallable getASqlInjectionVulnerableParameter(int paramIdx, string reason) {
   result = getASqlInjectionVulnerableParameterValueFlow(paramIdx) and
   reason = "valueFlowToKnownSink"
   or
@@ -81,10 +82,11 @@ string signatureIfNeeded(PublicCallable c) {
 }
 
 query string getASqlInjectionVulnerableParameterSpecification() {
-  exists(PublicCallable c, int paramIdx |
+  exists(DataFlowCallable c, int paramIdx |
     c = getASqlInjectionVulnerableParameter(paramIdx, _) and
     result =
-      c.getDeclaringType().getPackage() + ";" + c.getDeclaringType().getName() + ";" + "false;" +
-        c.getName() + ";" + signatureIfNeeded(c) + ";;" + "Argument[" + paramIdx + "];" + "sql"
+      c.asCallable().getDeclaringType().getPackage() + ";" +
+        c.asCallable().getDeclaringType().getName() + ";" + "false;" + c.asCallable().getName() +
+        ";" + signatureIfNeeded(c.asCallable()) + ";;" + "Argument[" + paramIdx + "];" + "sql"
   )
 }
