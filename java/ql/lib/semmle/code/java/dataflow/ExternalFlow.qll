@@ -609,6 +609,7 @@ module CsvValidation {
     exists(string row, string kind | sinkModel(row) |
       kind = row.splitAt(";", 7) and
       not kind =
+        // ! Does the below need to be updated every time a new model is added??
         [
           "open-url", "jndi-injection", "ldap", "sql", "jdbc-url", "logging", "mvel", "xpath",
           "groovy", "xss", "ognl-injection", "intent-start", "pending-intent-sent",
