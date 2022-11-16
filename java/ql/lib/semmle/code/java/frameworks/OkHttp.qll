@@ -9,7 +9,9 @@ private class OkHttpOpenUrlSinks extends SinkModelCsv {
   override predicate row(string row) {
     row =
       [
+        // ! parameter for below is unclear form docs...
         "okhttp3;Request;true;Request;;;Argument[0];open-url;manual",
+        // ! parameter name for below is "url" which may cause overlap with SSRF sinks if using heuristic?
         "okhttp3;Request$Builder;true;url;;;Argument[0];open-url;manual"
       ]
   }

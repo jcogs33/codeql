@@ -17,6 +17,7 @@ private class SqlSinkCsv extends SinkModelCsv {
         //"package;type;overrides;name;signature;ext;spec;kind"
         "org.springframework.jdbc.core;JdbcTemplate;false;batchUpdate;(String[]);;Argument[0];sql;manual",
         "org.springframework.jdbc.core;JdbcTemplate;false;batchUpdate;;;Argument[0];sql;manual",
+        // ! might be including too many `execute`, `query`, etc. methods here since didn't include the signature?
         "org.springframework.jdbc.core;JdbcTemplate;false;execute;;;Argument[0];sql;manual",
         "org.springframework.jdbc.core;JdbcTemplate;false;update;;;Argument[0];sql;manual",
         "org.springframework.jdbc.core;JdbcTemplate;false;query;;;Argument[0];sql;manual",
@@ -26,7 +27,9 @@ private class SqlSinkCsv extends SinkModelCsv {
         "org.springframework.jdbc.core;JdbcTemplate;false;queryForRowSet;;;Argument[0];sql;manual",
         "org.springframework.jdbc.core;JdbcTemplate;false;queryForStream;;;Argument[0];sql;manual",
         "org.springframework.jdbc.object;BatchSqlUpdate;false;BatchSqlUpdate;;;Argument[1];sql;manual",
+        //! I think the below has a typo and should be `MappingSqlQuery.MappingSqlQuery` instead of `MappingSqlQuery.BatchSqlUpdate`
         "org.springframework.jdbc.object;MappingSqlQuery;false;BatchSqlUpdate;;;Argument[1];sql;manual",
+        //! I think the below has a typo and should be `MappingSqlQueryWithParameters.MappingSqlQueryWithParameters` instead of `MappingSqlQueryWithParameters.BatchSqlUpdate`
         "org.springframework.jdbc.object;MappingSqlQueryWithParameters;false;BatchSqlUpdate;;;Argument[1];sql;manual",
         "org.springframework.jdbc.object;RdbmsOperation;true;setSql;;;Argument[0];sql;manual",
         "org.springframework.jdbc.object;SqlCall;false;SqlCall;;;Argument[1];sql;manual",

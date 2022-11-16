@@ -36,6 +36,7 @@ private class DefaultGroovyInjectionSinkModel extends SinkModelCsv {
         "groovy.lang;GroovyShell;false;evaluate;(String,String);;Argument[0];groovy;manual",
         "groovy.lang;GroovyShell;false;evaluate;(String,String,String);;Argument[0];groovy;manual",
         "groovy.lang;GroovyShell;false;evaluate;(URI);;Argument[0];groovy;manual",
+        // ! why some parse methods excluded fom below? e.g. parse(File file) and parse(String scriptText, Binding binding), etc. (different API version? I'm looking at https://docs.groovy-lang.org/latest/html/api/groovy/lang/GroovyShell.html)
         "groovy.lang;GroovyShell;false;parse;(Reader);;Argument[0];groovy;manual",
         "groovy.lang;GroovyShell;false;parse;(Reader,String);;Argument[0];groovy;manual",
         "groovy.lang;GroovyShell;false;parse;(String);;Argument[0];groovy;manual",

@@ -610,6 +610,7 @@ module CsvValidation {
       kind = row.splitAt(";", 7) and
       not kind =
         // ! Does the below need to be updated every time a new model is added??
+        // ! is this missing `fragment-injection`? Or is the exclusion on purpose?
         [
           "open-url", "jndi-injection", "ldap", "sql", "jdbc-url", "logging", "mvel", "xpath",
           "groovy", "xss", "ognl-injection", "intent-start", "pending-intent-sent",

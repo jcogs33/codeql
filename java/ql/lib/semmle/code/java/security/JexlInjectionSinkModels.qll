@@ -12,6 +12,7 @@ private class DefaultJexlInjectionSinkModel extends SinkModelCsv {
         "org.apache.commons.jexl2;JexlEngine;false;setProperty;(JexlContext,Object,String,Object);;Argument[2];jexl;manual",
         "org.apache.commons.jexl2;JexlEngine;false;setProperty;(Object,String,Object);;Argument[1];jexl;manual",
         "org.apache.commons.jexl2;Expression;false;evaluate;;;Argument[-1];jexl;manual",
+        // ! should the below be ExpressionImpl instead of Expression?
         "org.apache.commons.jexl2;Expression;false;callable;;;Argument[-1];jexl;manual",
         "org.apache.commons.jexl2;JexlExpression;false;evaluate;;;Argument[-1];jexl;manual",
         "org.apache.commons.jexl2;JexlExpression;false;callable;;;Argument[-1];jexl;manual",
