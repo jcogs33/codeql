@@ -93,6 +93,7 @@ private class GuavaIoSinkCsv extends SinkModelCsv {
         "com.google.common.io;Resources;false;asByteSource;(URL);;Argument[0];url-open-stream;manual",
         "com.google.common.io;Resources;false;asCharSource;(URL,Charset);;Argument[0];url-open-stream;manual",
         "com.google.common.io;Resources;false;copy;(URL,OutputStream);;Argument[0];url-open-stream;manual",
+        // ! below line seems like an unnecessary repeat of the first row (unless I'm not seeing the difference?)
         "com.google.common.io;Resources;false;asByteSource;(URL);;Argument[0];url-open-stream;manual",
         "com.google.common.io;Resources;false;readLines;;;Argument[0];url-open-stream;manual",
         "com.google.common.io;Resources;false;toByteArray;(URL);;Argument[0];url-open-stream;manual",
