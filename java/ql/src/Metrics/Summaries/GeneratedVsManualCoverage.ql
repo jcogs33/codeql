@@ -37,7 +37,7 @@ private float getNumMadModeledApis(string package, string provenance) {
 
 /**
  * Returns the total number of `DataFlowTargetApi`s with either a Summary or
- * a Negative Summary MaD model for a given package.
+ * a Neutral MaD model for a given package.
  */
 bindingset[package]
 float getTotalNumModeledApis(string package) {
@@ -46,7 +46,9 @@ float getTotalNumModeledApis(string package) {
       package = dataFlowTargApi.getDeclaringType().getPackage().toString() and
       (
         exists(SummarizedCallable sc | dataFlowTargApi = sc.asCallable()) or
-        exists(FlowSummaryImpl::Public::NegativeSummarizedCallable nc |
+        exists(
+          FlowSummaryImpl::Public::NegativeSummarizedCallable nc // ! update based on Michael's naming change
+        |
           dataFlowTargApi = nc.asCallable()
         )
       )
@@ -58,6 +60,14 @@ from
   float manualOnly, float non, float all, float generatedCoverage, float manualCoverage
 where
   package = dataFlowTargApi.getDeclaringType().getPackage().toString() and
+  (
+    exists(SummarizedCallable sc | dataFlowTargApi = sc.asCallable()) or
+    exists(
+      FlowSummaryImpl::Public::NegativeSummarizedCallable nc // ! update based on Michael's naming change
+    |
+      dataFlowTargApi = nc.asCallable()
+    )
+  ) and
   generatedOnly = getNumMadModeledApis(package, "generated") and
   manualOnly = getNumMadModeledApis(package, "manual") and
   both = getNumMadModeledApis(package, "both") and
