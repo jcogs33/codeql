@@ -9,6 +9,7 @@
 import java
 import semmle.code.java.dataflow.FlowSummary
 import utils.modelgenerator.internal.CaptureModels
+import semmle.code.java.dataflow.internal.FlowSummaryImpl as FlowSummaryImpl
 
 /**
  * Returns the number of `DataFlowTargetApi`s with Summary MaD models
@@ -34,12 +35,21 @@ private float getNumMadModeledApis(string package, string provenance) {
     )
 }
 
-/** Returns the total number of `DataFlowTargetApi`s for a given package. */
+/**
+ * Returns the total number of `DataFlowTargetApi`s with either a Summary or
+ * a Negative Summary MaD model for a given package.
+ */
 bindingset[package]
-private float getNumApis(string package) {
+float getTotalNumModeledApis(string package) {
   result =
     count(DataFlowTargetApi dataFlowTargApi |
-      package = dataFlowTargApi.getDeclaringType().getPackage().toString()
+      package = dataFlowTargApi.getDeclaringType().getPackage().toString() and
+      (
+        exists(SummarizedCallable sc | dataFlowTargApi = sc.asCallable()) or
+        exists(FlowSummaryImpl::Public::NegativeSummarizedCallable nc |
+          dataFlowTargApi = nc.asCallable()
+        )
+      )
     )
 }
 
@@ -51,7 +61,7 @@ where
   generatedOnly = getNumMadModeledApis(package, "generated") and
   manualOnly = getNumMadModeledApis(package, "manual") and
   both = getNumMadModeledApis(package, "both") and
-  all = getNumApis(package) and
+  all = getTotalNumModeledApis(package) and
   non = all - (generatedOnly + both + manualOnly) and
   generatedCoverage = (both / (both + manualOnly)) and // Proportion of manual models covered by generated ones
   manualCoverage = (both / (both + generatedOnly)) // Proportion of generated models covered by manual ones
