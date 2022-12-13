@@ -1,0 +1,11 @@
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: extSummaryModel
+    data:
+
+
+  - addsTo:
+      pack: codeql/java-all
+      extensible: extNeutralModel
+    data:
