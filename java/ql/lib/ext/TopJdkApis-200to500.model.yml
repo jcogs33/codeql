@@ -26,7 +26,6 @@ extensions:
       - ["java.util", "Optional", False, "orElseThrow", "(Supplier)", "", "aaa", "aaa", "aaa", "manual"]
       - ["java.util", "Properties", False, "setProperty", "(String,String)", "", "aaa", "aaa", "aaa", "manual"]
       - ["java.util", "StringJoiner", False, "add", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]
-
       - ["java.util.concurrent", "CountDownLatch", False, "CountDownLatch", "(int)", "", "aaa", "aaa", "aaa", "manual"]
       - ["java.util.concurrent", "CountDownLatch", False, "countDown", "()", "", "aaa", "aaa", "aaa", "manual"]
       - ["java.util.concurrent.atomic", "AtomicInteger", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]
@@ -34,13 +33,47 @@ extensions:
       - ["java.util.function", "Supplier", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]
       - ["java.util.function", "Function", False, "apply", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
       - ["java.util.function", "Consumer", False, "accept", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
-
       - ["java.util.stream", "Collectors", False, "joining", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]
       - ["java.util.stream", "Collectors", False, "toSet", "()", "", "aaa", "aaa", "aaa", "manual"]
       - ["java.util.stream", "Stream", False, "flatMap", "(Function)", "", "aaa", "aaa", "aaa", "manual"]
       - ["java.util.stream", "Stream", False, "anyMatch", "(Predicate)", "", "aaa", "aaa", "aaa", "manual"]
       - ["java.util.stream", "Collectors", False, "toMap", "(Function,Function)", "", "aaa", "aaa", "aaa", "manual"]
-      - ["java.util.stream", "Stream", False, "of", "(Object\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.util.stream", "Stream", False, "of", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]
+
+      - ["java.lang", "String", False, "replaceAll", "(String,String)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "String", False, "getBytes", "(Charset)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "String", False, "getBytes", "()", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "String", False, "toUpperCase", "()", "", "aaa", "aaa", "taint", "manual"]
+      - ["java.lang", "String", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"] # Tony would prbly want it
+      - ["java.lang", "String", False, "concat", "(String)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "StringBuilder", False, "StringBuilder", "(String)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "Integer", False, "valueOf", "(int)", "", "aaa", "aaa", "aaa", "manual"] # probably questionable based on String.valueof...
+      - ["java.lang", "Long", False, "parseLong", "(String)", "", "aaa", "aaa", "aaa", "manual"] # Tony would prbly want it
+      - ["java.lang", "Long", False, "longValue", "()", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "Math", False, "min", "(int,int)", "", "aaa", "aaa", "aaa", "manual"] # Tony would prbly want it
+      - ["java.lang", "System", False, "getProperty", "(String)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "Throwable", False, "getCause", "()", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "Exception", False, "Exception", "(String)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "IndexOutOfBoundsException", False, "IndexOutOfBoundsException", "(String)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "RuntimeException", False, "RuntimeException", "(String,Throwable)", "", "aaa", "aaa", "aaa", "manual"]
+
+      - ["java.io", "File", False, "File", "(File,String)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.io", "File", False, "toPath", "()", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.io", "ByteArrayInputStream", False, "ByteArrayInputStream", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.io", "IOException", False, "IOException", "(String)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.nio.file", "Paths", False, "get", "(String,String[])", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.nio.file", "Path", False, "toFile", "()", "", "aaa", "aaa", "aaa", "manual"]
+
+      - ["java.sql", "PreparedStatement", False, "setString", "(int,String)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.sql", "PreparedStatement", False, "setInt", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.sql", "ResultSet", False, "next", "()", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.sql", "ResultSet", False, "getInt", "(String)", "", "aaa", "aaa", "aaa", "manual"]
+
+      - ["java.time", "LocalDate", False, "of", "(int,int,int)", "", "aaa", "aaa", "aaa", "manual"] # maaybe flow due to params?
+
+      - ["java.math", "BigDecimal", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"] # Tony might want?
+      - ["java.math", "BigDecimal", False, "valueOf", "(double)", "", "aaa", "aaa", "aaa", "manual"] # Tony might want?
+
 
   - addsTo:
       pack: codeql/java-all
@@ -57,75 +90,42 @@ extensions:
       - ["java.util.regex", "Pattern", False, "matcher", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]
       - ["java.util.regex", "Matcher", False, "group", "(int)", "", "aaa", "aaa", "aaa", "manual"]
 
+      - ["java.lang", "String", "endsWith", "(String)", "manual"] # type as sanitizer
+      - ["java.lang", "String", False, "indexOf", "(String)", "", "aaa", "aaa", "aaa", "manual"] # type as sanitizer?
+      - ["java.lang", "AbstractStringBuilder", "length", "()", "manual"] # type as sanitizer
+      - ["java.lang", "StringBuffer", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "Integer", "toString", "(int)", "manual"] # toString okay at all for Integer?
+      - ["java.lang", "Integer", False, "intValue", "()", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "Long", "toString", "()", "manual"] # toString okay at all for Long?
+      - ["java.lang", "Long", "equals", "(Object)", "manual"] # type as sanitizer
+      - ["java.lang", "Boolean", "equals", "(Object)", "manual"] # type as sanitizer
+      - ["java.lang", "System", False, "nanoTime", "()", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "Thread", False, "sleep", "(long)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "Thread", False, "currentThread", "()", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "Class", False, "isAssignableFrom", "(Class)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.lang", "Class", False, "getClassLoader", "()", "", "aaa", "aaa", "aaa", "manual"]
+
+      - ["java.io", "File", False, "getAbsolutePath", "()", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.io", "File", "exists", "()", "manual"] # type as sanitizer
+      - ["java.io", "File", False, "getName", "()", "", "aaa", "aaa", "aaa", "manual"]
+
+      - ["java.nio.file", "Path", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"] # toString okay at all for Path?
+
+      - ["java.time", "Instant", "now", "()", "manual"] # just gets "current instant from the system clock"
+      - ["java.time", "ZonedDateTime", "now", "()", "manual"] # "Obtains the current date-time from the system clock in the default time-zone"
+
+      - ["java.math", "BigDecimal", "compareTo", "(BigDecimal)", "manual"] # type as sanitizer
+
+      - ["java.text", "DateFormat", False, "format", "(Date)", "", "aaa", "aaa", "aaa", "manual"]
+      - ["java.text", "SimpleDateFormat", False, "SimpleDateFormat", "(String)", "", "aaa", "aaa", "aaa", "manual"]
+
+
+# ! top-200 ****************************** above
+
 
 
 
 # ****************************** UNSORTED ******************************
-# ! top-200 ******************************
-- ["java.lang", "Integer", False, "intValue", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "replaceAll", "(String,String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "getBytes", "(Charset)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "endsWith", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "AbstractStringBuilder", False, "length", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Integer", False, "valueOf", "(int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Integer", False, "toString", "(int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "StringBuilder", False, "StringBuilder", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Thread", False, "sleep", "(long)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Thread", False, "currentThread", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "getBytes", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "toUpperCase", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Long", False, "parseLong", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Class", False, "isAssignableFrom", "(Class)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "IndexOutOfBoundsException", False, "IndexOutOfBoundsException", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Throwable", False, "getCause", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Exception", False, "Exception", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "indexOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Math", False, "min", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Long", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "System", False, "getProperty", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "RuntimeException", False, "RuntimeException", "(String,Throwable)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "StringBuffer", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "System", False, "nanoTime", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Long", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Class", False, "getClassLoader", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Boolean", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "concat", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Long", False, "longValue", "()", "", "aaa", "aaa", "aaa", "manual"]
-
-- ["java.io", "File", False, "getAbsolutePath", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "Writer", False, "write", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "File", False, "exists", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "File", False, "File", "(File,String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "File", False, "getName", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "ByteArrayInputStream", False, "ByteArrayInputStream", "(byte\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "File", False, "toPath", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "IOException", False, "IOException", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-
-- ["java.nio.file", "Path", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.nio.file", "Paths", False, "get", "(String,String\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.nio.file", "Path", False, "toFile", "()", "", "aaa", "aaa", "aaa", "manual"]
-
-- ["java.sql", "PreparedStatement", False, "setString", "(int,String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.sql", "ResultSet", False, "next", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.sql", "PreparedStatement", False, "setInt", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.sql", "ResultSet", False, "getInt", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-
-- ["java.time", "Instant", False, "now", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.time", "ZonedDateTime", False, "now", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.time", "LocalDate", False, "of", "(int,int,int)", "", "aaa", "aaa", "aaa", "manual"]
-
-- ["java.math", "BigDecimal", False, "compareTo", "(BigDecimal)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.math", "BigDecimal", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.math", "BigDecimal", False, "valueOf", "(double)", "", "aaa", "aaa", "aaa", "manual"]
-
-- ["java.text", "DateFormat", False, "format", "(Date)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.text", "SimpleDateFormat", False, "SimpleDateFormat", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-
-
-
-
-
 # ! top-300 ******************************
 - ["java.util", "Map", False, "of", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Math", False, "max", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]
@@ -182,13 +182,13 @@ extensions:
 - ["java.util.logging", "Logger", False, "isLoggable", "(Level)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Enum", False, "hashCode", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "List", False, "hashCode", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang.reflect", "Method", False, "invoke", "(Object,Object\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "String", "(byte\\[\\],Charset)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang.reflect", "Method", False, "invoke", "(Object,Object[])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang", "String", False, "String", "(byte[],Charset)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Comparator", False, "comparing", "(Function)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Arrays", False, "toString", "(Object\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util", "Arrays", False, "toString", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.time", "LocalDate", False, "now", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util.function", "Function", False, "identity", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "OutputStream", False, "write", "(byte\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.io", "OutputStream", False, "write", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Integer", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.io", "BufferedReader", False, "BufferedReader", "(Reader)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.io", "DataInput", False, "readInt", "()", "", "aaa", "aaa", "aaa", "manual"]
@@ -210,7 +210,7 @@ extensions:
 - ["java.util.stream", "Stream", False, "sorted", "(Comparator)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "String", False, "toCharArray", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util.concurrent.atomic", "AtomicInteger", False, "AtomicInteger", "(int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "String", "(byte\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang", "String", False, "String", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang.reflect", "Method", False, "getName", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.sql", "ResultSet", False, "getString", "(int)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.net", "URI", False, "create", "(String)", "", "aaa", "aaa", "aaa", "manual"]
@@ -240,7 +240,7 @@ extensions:
 - ["java.lang", "System", False, "getenv", "(String)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.time", "Duration", False, "ofMillis", "(long)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Integer", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang.reflect", "Constructor", False, "newInstance", "(Object\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang.reflect", "Constructor", False, "newInstance", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Hashtable", False, "get", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Class", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Vector", False, "add", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
@@ -249,14 +249,14 @@ extensions:
 - ["java.lang", "System", False, "identityHashCode", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util.stream", "Stream", False, "count", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util.concurrent", "CompletableFuture", False, "complete", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.nio.file", "Files", False, "exists", "(Path,LinkOption\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.nio.file", "Files", False, "exists", "(Path,LinkOption[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "List", False, "set", "(int,Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util.concurrent.atomic", "AtomicLong", False, "AtomicLong", "(long)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Optional", False, "orElseGet", "(Supplier)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Class", False, "forName", "(String)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "String", False, "replace", "(char,char)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Enumeration", False, "nextElement", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Class", False, "getMethod", "(String,Class\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang", "Class", False, "getMethod", "(String,Class[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.nio.file", "Path", False, "toAbsolutePath", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Enumeration", False, "hasMoreElements", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Class", False, "cast", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
@@ -292,16 +292,16 @@ extensions:
 - ["java.sql", "PreparedStatement", False, "executeUpdate", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.time", "ZoneId", False, "of", "(String)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util.concurrent.atomic", "AtomicLong", False, "addAndGet", "(long)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.nio", "ByteBuffer", False, "wrap", "(byte\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.nio", "ByteBuffer", False, "wrap", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "List", False, "indexOf", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Collections", False, "unmodifiableMap", "(Map)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Long", False, "Long", "(long)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "StringTokenizer", False, "nextToken", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "join", "(CharSequence,CharSequence\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang", "String", False, "join", "(CharSequence,CharSequence[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.io", "StringWriter", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Integer", False, "toHexString", "(int)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Long", False, "intValue", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.text", "MessageFormat", False, "format", "(String,Object\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.text", "MessageFormat", False, "format", "(String,Object[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Exception", False, "Exception", "(String,Throwable)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util.stream", "Stream", False, "toArray", "(IntFunction)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "List", False, "sort", "(Comparator)", "", "aaa", "aaa", "aaa", "manual"]
@@ -359,14 +359,14 @@ extensions:
 - ["java.lang", "Class", False, "getDeclaredField", "(String)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.io", "InputStreamReader", False, "InputStreamReader", "(InputStream)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Runtime", False, "getRuntime", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Class", False, "getDeclaredConstructor", "(Class\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang", "Class", False, "getDeclaredConstructor", "(Class[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "AbstractStringBuilder", False, "setLength", "(int)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.nio", "Buffer", False, "position", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.nio.file", "Path", False, "getFileName", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "List", False, "toArray", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "CharSequence", False, "length", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util.stream", "Stream", False, "distinct", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "format", "(ObjectString,Object\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang", "String", False, "format", "(ObjectString,Object[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.net", "URL", False, "toURI", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Queue", False, "poll", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Thread", False, "getContextClassLoader", "()", "", "aaa", "aaa", "aaa", "manual"]
@@ -444,7 +444,7 @@ extensions:
 - ["java.lang", "StringBuilder", False, "append", "(String)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "String", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Object", False, "getClass", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "format", "(String,Object\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang", "String", False, "format", "(String,Object[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Throwable", False, "getMessage", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "String", False, "equalsIgnoreCase", "(String)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "StringBuilder", False, "append", "(char)", "", "aaa", "aaa", "aaa", "manual"]
@@ -495,7 +495,7 @@ extensions:
 - ["java.util", "List", False, "size", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Collection", False, "stream", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Objects", False, "equals", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Arrays", False, "asList", "(Object\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util", "Arrays", False, "asList", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "List", False, "isEmpty", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Set", False, "add", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "HashMap", False, "put", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]
@@ -519,7 +519,7 @@ extensions:
 - ["java.util", "Optional", False, "map", "(Function)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "List", False, "of", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "List", False, "contains", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Objects", False, "hash", "(Object\\[\\])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util", "Objects", False, "hash", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Set", False, "size", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Map", False, "values", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Map", False, "size", "()", "", "aaa", "aaa", "aaa", "manual"]
