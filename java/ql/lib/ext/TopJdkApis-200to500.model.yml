@@ -38,7 +38,10 @@ extensions:
       - ["java.util.stream", "Stream", False, "flatMap", "(Function)", "", "aaa", "aaa", "aaa", "manual"]                              # SUPPORTED
       - ["java.util.stream", "Stream", False, "anyMatch", "(Predicate)", "", "aaa", "aaa", "aaa", "manual"]                            # SUPPORTED
       - ["java.util.stream", "Stream", False, "of", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]                                   # SUPPORTED
+      - ["java.util.regex", "Pattern", False, "matcher", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]                          # **SUPPORTED**
+      - ["java.util.regex", "Matcher", False, "group", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                     # **SUPPORTED**
 
+      - ["java.lang", "String", "endsWith", "(String)", "manual"]                                                                      # **SUPPORTED**: type as sanitizer (neutral? -- see startsWith from last time...)
       - ["java.lang", "String", False, "replaceAll", "(String,String)", "", "aaa", "aaa", "aaa", "manual"]                             # SUPPORTED
       - ["java.lang", "String", False, "getBytes", "(Charset)", "", "aaa", "aaa", "aaa", "manual"]                                     # SUPPORTED
       - ["java.lang", "String", False, "getBytes", "()", "", "aaa", "aaa", "aaa", "manual"]                                            # SUPPORTED
@@ -55,6 +58,12 @@ extensions:
       - ["java.lang", "Exception", False, "Exception", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # **UNSUPPORTED**: no manual model
       - ["java.lang", "IndexOutOfBoundsException", False, "IndexOutOfBoundsException", "(String)", "", "aaa", "aaa", "aaa", "manual"]  # **UNSUPPORTED**: no manual model
       - ["java.lang", "RuntimeException", False, "RuntimeException", "(String,Throwable)", "", "aaa", "aaa", "aaa", "manual"]          # **UNSUPPORTED**: no manual model
+
+      # neutrals?, but why "supported"?
+      - ["java.lang", "StringBuffer", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                      # **SUPPORTED**
+      - ["java.lang", "Integer", "toString", "(int)", "manual"]                                                                        # **SUPPORTED**: toString okay at all for Integer? # no manual model
+      - ["java.lang", "Integer", False, "intValue", "()", "", "aaa", "aaa", "aaa", "manual"]                                           # **SUPPORTED**: no manual model
+      - ["java.lang", "Long", "toString", "()", "manual"]                                                                              # **SUPPORTED**: toString okay at all for Long? # no manual model
 
       - ["java.io", "File", False, "File", "(File,String)", "", "aaa", "aaa", "aaa", "manual"]                                         # SUPPORTED
       - ["java.io", "File", False, "toPath", "()", "", "aaa", "aaa", "aaa", "manual"]                                                  # SUPPORTED
@@ -78,46 +87,37 @@ extensions:
       pack: codeql/java-all
       extensible: extNeutralModel
     data:
-      - ["java.util", "ArrayList", "size", "()", "manual"]                                                                             # UNSUPPORTED: type as sanitizer # no manual model
-      - ["java.util", "List", False, "clear", "()", "", "aaa", "aaa", "aaa", "manual"]                                                 # UNSUPPORTED: no manual model
-      - ["java.util", "Collections", False, "emptyMap", "()", "", "aaa", "aaa", "aaa", "manual"]                                       # UNSUPPORTED: no manual model
-      - ["java.util", "Collections", False, "emptySet", "()", "", "aaa", "aaa", "aaa", "manual"]                                       # UNSUPPORTED: no manual model
-      - ["java.util", "Collection", "isEmpty", "()", "manual"]                                                                         # UNSUPPORTED: type as sanitizer # no manual model
-      - ["java.util", "Map", False, "clear", "()", "", "aaa", "aaa", "aaa", "manual"]                                                  # UNSUPPORTED: no manual model
-      - ["java.util", "Date", False, "getTime", "()", "", "aaa", "aaa", "aaa", "manual"]                                               # UNSUPPORTED: no manual model
-      - ["java.util", "Date", False, "Date", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                              # UNSUPPORTED: no manual model
-      - ["java.util.regex", "Pattern", False, "matcher", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]                          # **SUPPORTED**
-      - ["java.util.regex", "Matcher", False, "group", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                     # **SUPPORTED**
-      - ["java.util.stream", "Collectors", False, "toSet", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # UNSUPPORTED: no manual model (prbly paramless static method like Collectors.toList())
+      # COMMENT OUT WHEN MOVED TO FINAL FILE
+      # - ["java.util", "ArrayList", "size", "()", "manual"]                 # UNSUPPORTED: type as sanitizer # no manual model
+      # - ["java.util", "Collection", "isEmpty", "()", "manual"]             # UNSUPPORTED: type as sanitizer # no manual model
+      # - ["java.util", "List", "clear", "()", "manual"]                     # UNSUPPORTED: no manual model
+      # - ["java.util", "Collections", "emptyMap", "()", "manual"]           # UNSUPPORTED: no manual model
+      # - ["java.util", "Collections", "emptySet", "()", "manual"]           # UNSUPPORTED: no manual model
+      # - ["java.util", "Map", "clear", "()", "manual"]                      # UNSUPPORTED: no manual model
+      # - ["java.util", "Date", "getTime", "()", "manual"]                   # UNSUPPORTED: no manual model
+      # - ["java.util.stream", "Collectors", "toSet", "()", "manual"]        # UNSUPPORTED: no manual model (prbly paramless static method like Collectors.toList())
+      # - ["java.lang", "AbstractStringBuilder", "length", "()", "manual"]   # UNSUPPORTED: type as sanitizer # no manual model
+      # - ["java.lang", "System", "nanoTime", "()", "manual"]                # UNSUPPORTED: no manual model
+      # - ["java.lang", "Thread", "currentThread", "()", "manual"]           # UNSUPPORTED: no manual model
+      # - ["java.lang", "Class", "isAssignableFrom", "(Class)", "manual"]    # UNSUPPORTED: no manual model, type as sanitizer
+      # - ["java.lang", "Class", "getClassLoader", "()", "manual"]           # UNSUPPORTED: no manual model
+      # - ["java.io", "File", "exists", "()", "manual"]                      # UNSUPPORTED: type as sanitizer # no manual model
+      # - ["java.io", "File", "getName", "()", "manual"]                     # UNSUPPORTED: no manual model
+      # - ["java.time", "Instant", "now", "()", "manual"]                    # UNSUPPORTED: just gets "current instant from the system clock" # no manual model
+      # - ["java.time", "ZonedDateTime", "now", "()", "manual"]              # UNSUPPORTED: "Obtains the current date-time from the system clock in the default time-zone" # no manual model
+      # - ["java.math", "BigDecimal", "compareTo", "(BigDecimal)", "manual"] # UNSUPPORTED: type as sanitizer # no manual model
 
-      - ["java.lang", "String", "endsWith", "(String)", "manual"]                                                                      # **SUPPORTED**: type as sanitizer
-      - ["java.lang", "String", False, "indexOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                       # UNSUPPORTED: type as sanitizer? # no manual model
-      - ["java.lang", "AbstractStringBuilder", "length", "()", "manual"]                                                               # UNSUPPORTED: type as sanitizer # no manual model
-      - ["java.lang", "StringBuffer", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                      # **SUPPORTED**
-      - ["java.lang", "Integer", "toString", "(int)", "manual"]                                                                        # **SUPPORTED**: toString okay at all for Integer? # no manual model
-      - ["java.lang", "Integer", False, "intValue", "()", "", "aaa", "aaa", "aaa", "manual"]                                           # **SUPPORTED**: no manual model
-      - ["java.lang", "Long", "toString", "()", "manual"]                                                                              # **SUPPORTED**: toString okay at all for Long? # no manual model
-      - ["java.lang", "Long", "equals", "(Object)", "manual"]                                                                          # **SUPPORTED/UNSUPPORTED**: type as sanitizer # no manual model
-      - ["java.lang", "Boolean", "equals", "(Object)", "manual"]                                                                       # **SUPPORTED/UNSUPPORTED**: type as sanitizer # no manual model
-      - ["java.lang", "System", False, "nanoTime", "()", "", "aaa", "aaa", "aaa", "manual"]                                            # UNSUPPORTED: no manual model
-      - ["java.lang", "Thread", False, "sleep", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                           # UNSUPPORTED: no manual model
-      - ["java.lang", "Thread", False, "currentThread", "()", "", "aaa", "aaa", "aaa", "manual"]                                       # UNSUPPORTED: no manual model
-      - ["java.lang", "Class", False, "isAssignableFrom", "(Class)", "", "aaa", "aaa", "aaa", "manual"]                                # UNSUPPORTED: no manual model
-      - ["java.lang", "Class", False, "getClassLoader", "()", "", "aaa", "aaa", "aaa", "manual"]                                       # UNSUPPORTED: no manual model
 
-      - ["java.io", "File", False, "getAbsolutePath", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # **SUPPORTED/UNSUPPORTED**
-      - ["java.io", "File", "exists", "()", "manual"]                                                                                  # UNSUPPORTED: type as sanitizer # no manual model
-      - ["java.io", "File", False, "getName", "()", "", "aaa", "aaa", "aaa", "manual"]                                                 # UNSUPPORTED: no manual model
-
-      - ["java.nio.file", "Path", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                          # **SUPPORTED/UNSUPPORTED**: toString okay at all for Path?
-
-      - ["java.time", "Instant", "now", "()", "manual"]                                                                                # UNSUPPORTED: just gets "current instant from the system clock" # no manual model
-      - ["java.time", "ZonedDateTime", "now", "()", "manual"]                                                                          # UNSUPPORTED: "Obtains the current date-time from the system clock in the default time-zone" # no manual model
-
-      - ["java.math", "BigDecimal", "compareTo", "(BigDecimal)", "manual"]                                                             # UNSUPPORTED: type as sanitizer # no manual model
-
-      - ["java.text", "DateFormat", False, "format", "(Date)", "", "aaa", "aaa", "aaa", "manual"]                                      # UNSUPPORTED: no manual model
-      - ["java.text", "SimpleDateFormat", False, "SimpleDateFormat", "(String)", "", "aaa", "aaa", "aaa", "manual"]                    # UNSUPPORTED: no manual model
+      # ! MAYBE Negative models (not sure about these ones):
+      - ["java.util", "Date", False, "Date", "(long)", "", "aaa", "aaa", "aaa", "manual"]                              # UNSUPPORTED: no manual model, seems uninteresting, but I guess there could be flow through the param...
+      - ["java.lang", "Long", "equals", "(Object)", "manual"]                                                          # **SUPPORTED/UNSUPPORTED**: type as sanitizer # no manual model
+      - ["java.lang", "Boolean", "equals", "(Object)", "manual"]                                                       # **SUPPORTED/UNSUPPORTED**: type as sanitizer # no manual model
+      - ["java.lang", "String", False, "indexOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]                       # UNSUPPORTED: type as sanitizer? # no manual model
+      - ["java.lang", "Thread", False, "sleep", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # UNSUPPORTED: no manual model
+      - ["java.io", "File", "getAbsolutePath", "()", "manual"]                                                         # **SUPPORTED/UNSUPPORTED**
+      - ["java.nio.file", "Path", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                          # **SUPPORTED/UNSUPPORTED**: toString okay at all for Path?
+      - ["java.text", "DateFormat", False, "format", "(Date)", "", "aaa", "aaa", "aaa", "manual"]                      # UNSUPPORTED: no manual model, seems uninteresting, but I guess there could be flow through the param...
+      - ["java.text", "SimpleDateFormat", False, "SimpleDateFormat", "(String)", "", "aaa", "aaa", "aaa", "manual"]    # UNSUPPORTED: no manual model, seems uninteresting, but I guess there could be flow through the param...
 
 
 # ! top-200 ****************************** above
@@ -125,7 +125,7 @@ extensions:
 
 
 
-# ****************************** UNSORTED ******************************
+# ****************************** UNSORTED ***********************************************************************************************************************************************************************
 # ! top-300 ******************************
 - ["java.util", "Map", False, "of", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "Math", False, "max", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]

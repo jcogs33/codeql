@@ -355,3 +355,15 @@ extensions:
       - ["java.util", "Vector", True, "setElementAt", "(Object,int)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
       - ["java.util", "WeakHashMap", False, "WeakHashMap", "(Map)", "", "Argument[0].MapKey", "Argument[-1].MapKey", "value", "manual"]
       - ["java.util", "WeakHashMap", False, "WeakHashMap", "(Map)", "", "Argument[0].MapValue", "Argument[-1].MapValue", "value", "manual"]
+
+  - addsTo:
+      pack: codeql/java-all
+      extensible: neutralModel
+    data:
+      - ["java.util", "ArrayList", "size", "()", "manual"]
+      - ["java.util", "Collection", "isEmpty", "()", "manual"]
+      - ["java.util", "List", "clear", "()", "manual"]
+      - ["java.util", "Collections", "emptyMap", "()", "manual"]
+      - ["java.util", "Collections", "emptySet", "()", "manual"]
+      - ["java.util", "Map", "clear", "()", "manual"]
+      - ["java.util", "Date", "getTime", "()", "manual"]
