@@ -367,3 +367,5 @@ extensions:
       - ["java.util", "Collections", "emptySet", "()", "manual"]
       - ["java.util", "Map", "clear", "()", "manual"]
       - ["java.util", "Date", "getTime", "()", "manual"]
+      - ["java.util", "Objects", "nonNull", "(Object)", "manual"]
+      - ["java.util", "ArrayList", "ArrayList", "(int)", "manual"]

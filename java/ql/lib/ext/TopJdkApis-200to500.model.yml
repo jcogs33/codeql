@@ -3,26 +3,27 @@ extensions:
       pack: codeql/java-all
       extensible: extSummaryModel
     data:
-      - ["java.util", "Objects", False, "requireNonNull", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                               # SUPPORTED
-      - ["java.util", "Objects", False, "nonNull", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                      # **UNSUPPORTED**: no manual model
-      - ["java.util", "Collection", False, "add", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                       # SUPPORTED
-      - ["java.util", "Collections", False, "singleton", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                # SUPPORTED
-      - ["java.util", "Collections", False, "singletonMap", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                      # SUPPORTED
-      - ["java.util", "Collection", False, "iterator", "()", "", "aaa", "aaa", "aaa", "manual"]                                        # SUPPORTED
-      - ["java.util", "Arrays", False, "stream", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]                                      # SUPPORTED
-      - ["java.util", "ArrayList", False, "ArrayList", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                     # **UNSUPPORTED**: no manual model
-      - ["java.util", "ArrayList", False, "get", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                           # SUPPORTED
-      - ["java.util", "List", False, "of", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                                       # SUPPORTED
-      - ["java.util", "List", False, "iterator", "()", "", "aaa", "aaa", "aaa", "manual"]                                              # SUPPORTED
-      - ["java.util", "List", False, "toArray", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]                                       # SUPPORTED
-      - ["java.util", "Set", False, "iterator", "()", "", "aaa", "aaa", "aaa", "manual"]                                               # SUPPORTED
-      - ["java.util", "Set", False, "addAll", "(Collection)", "", "aaa", "aaa", "aaa", "manual"]                                       # SUPPORTED
-      - ["java.util", "HashSet", False, "HashSet", "(Collection)", "", "aaa", "aaa", "aaa", "manual"]                                  # SUPPORTED
-      - ["java.util", "HashSet", False, "add", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                          # SUPPORTED
-      - ["java.util", "Hashtable", False, "put", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                                 # SUPPORTED
+      # - ["java.util", "Objects", False, "requireNonNull", "(Object)", "", "Argument[0]", "ReturnValue", "value", "manual"]                   # SUPPORTED: already modeled in java.util.model.yml with no signature
+      # - ["java.util", "Collection", True, "add", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]                   # SUPPORTED: already modeled in java.util.model.yml with no signature
+      # - ["java.util", "Collections", False, "singleton", "(Object)", "", "Argument[0]", "ReturnValue.Element", "value", "manual"]            # SUPPORTED: already modeled in java.util.model.yml
+      # - ["java.util", "Collections", False, "singletonMap", "(Object,Object)", "", "Argument[0]", "ReturnValue.MapKey", "value", "manual"]   # SUPPORTED: already modeled in java.util.model.yml
+      # - ["java.util", "Collections", False, "singletonMap", "(Object,Object)", "", "Argument[1]", "ReturnValue.MapValue", "value", "manual"] # SUPPORTED: already modeled in java.util.model.yml
+      # - ["java.util", "Arrays", False, "stream", "(Object[])", "", "Argument[0].ArrayElement", "ReturnValue.Element", "value", "manual"]     # SUPPORTED: already modeled in java.util.model.yml with no signature
+      # - ["java.util", "ArrayList", True, "get", "(int)", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]                       # SUPPORTED: already modeled in java.util.model.yml by `List.get(int)`
+      # - ["java.util", "List", False, "of", "(Object,Object)", "", "Argument[0..1]", "ReturnValue.Element", "value", "manual"]                # SUPPORTED: already modeled in java.util.model.yml
+      # - ["java.util", "List", True, "toArray", "(Object[])", "", "Argument[-1].Element", "Argument[0].ArrayElement", "value", "manual"]      # SUPPORTED: already modeled in java.util.model.yml by `Collection.toArray`
+      # - ["java.util", "Set", True, "addAll", "(Collection)", "", "Argument[0].Element", "Argument[-1].Element", "value", "manual"]           # SUPPORTED: already modeled in java.util.model.yml by `Collection.addAll`
+      # - ["java.util", "HashSet", False, "HashSet", "(Collection)", "", "Argument[0].Element", "Argument[-1].Element", "value", "manual"]     # SUPPORTED: already modeled in java.util.model.yml
+      # - ["java.util", "HashSet", True, "add", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]                      # SUPPORTED: already modeled in java.util.model.yml by `Collection.add`
+      # - ["java.util", "Hashtable", True, "put", "(Object,Object)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]            # SUPPORTED: already modeled in java.util.model.yml by `Dictionary.put`
+      # - ["java.util", "Hashtable", True, "put", "(Object,Object)", "", "Argument[0]", "Argument[-1].MapKey", "value", "manual"]              # SUPPORTED: already modeled in java.util.model.yml by `Dictionary.put`
+      # - ["java.util", "Hashtable", True, "put", "(Object,Object)", "", "Argument[1]", "Argument[-1].MapValue", "value", "manual"]            # SUPPORTED: already modeled in java.util.model.yml by `Dictionary.put`
+
+
       - ["java.util", "Map", False, "getOrDefault", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                              # SUPPORTED
       - ["java.util", "Map", False, "putAll", "(Map)", "", "aaa", "aaa", "aaa", "manual"]                                              # SUPPORTED
       - ["java.util", "Map", False, "computeIfAbsent", "(Object,Function)", "", "aaa", "aaa", "aaa", "manual"]                         # SUPPORTED
+
       - ["java.util", "Optional", False, "orElseThrow", "(Supplier)", "", "aaa", "aaa", "aaa", "manual"]                               # SUPPORTED
       - ["java.util", "Properties", False, "setProperty", "(String,String)", "", "aaa", "aaa", "aaa", "manual"]                        # **SUPPORTED/UNSUPPORTED**
       - ["java.util", "StringJoiner", False, "add", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]                               # **UNSUPPORTED**: no manual model
@@ -41,7 +42,6 @@ extensions:
       - ["java.util.regex", "Pattern", False, "matcher", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]                          # **SUPPORTED**
       - ["java.util.regex", "Matcher", False, "group", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                     # **SUPPORTED**
 
-      - ["java.lang", "String", "endsWith", "(String)", "manual"]                                                                      # **SUPPORTED**: type as sanitizer (neutral? -- see startsWith from last time...)
       - ["java.lang", "String", False, "replaceAll", "(String,String)", "", "aaa", "aaa", "aaa", "manual"]                             # SUPPORTED
       - ["java.lang", "String", False, "getBytes", "(Charset)", "", "aaa", "aaa", "aaa", "manual"]                                     # SUPPORTED
       - ["java.lang", "String", False, "getBytes", "()", "", "aaa", "aaa", "aaa", "manual"]                                            # SUPPORTED
@@ -83,6 +83,12 @@ extensions:
       - ["java.math", "BigDecimal", False, "valueOf", "(double)", "", "aaa", "aaa", "aaa", "manual"]                                   # SUPPORTED: Tony might want? # no manual model
 
 
+    # ! MAYBE Positive models (not sure about these ones):
+      - ["java.util", "Collection", True, "iterator", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                      # * SUPPORTED: not finding an existing MaD model...
+      - ["java.util", "List", False, "iterator", "()", "", "aaa", "aaa", "aaa", "manual"]                                              # * SUPPORTED: not finding an existing MaD model...
+      - ["java.util", "Set", False, "iterator", "()", "", "aaa", "aaa", "aaa", "manual"]                                               # SUPPORTED
+
+
   - addsTo:
       pack: codeql/java-all
       extensible: extNeutralModel
@@ -106,6 +112,8 @@ extensions:
       # - ["java.time", "Instant", "now", "()", "manual"]                    # UNSUPPORTED: just gets "current instant from the system clock" # no manual model
       # - ["java.time", "ZonedDateTime", "now", "()", "manual"]              # UNSUPPORTED: "Obtains the current date-time from the system clock in the default time-zone" # no manual model
       # - ["java.math", "BigDecimal", "compareTo", "(BigDecimal)", "manual"] # UNSUPPORTED: type as sanitizer # no manual model
+      # - ["java.util", "Objects", "nonNull", "(Object)", "manual"]          # UNSUPPORTED: no manual model, type as sanitizer
+      # - ["java.util", "ArrayList", "ArrayList", "(int)", "manual"]         # UNSUPPORTED: no manual model
 
 
       # ! MAYBE Negative models (not sure about these ones):
@@ -118,6 +126,7 @@ extensions:
       - ["java.nio.file", "Path", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                          # **SUPPORTED/UNSUPPORTED**: toString okay at all for Path?
       - ["java.text", "DateFormat", False, "format", "(Date)", "", "aaa", "aaa", "aaa", "manual"]                      # UNSUPPORTED: no manual model, seems uninteresting, but I guess there could be flow through the param...
       - ["java.text", "SimpleDateFormat", False, "SimpleDateFormat", "(String)", "", "aaa", "aaa", "aaa", "manual"]    # UNSUPPORTED: no manual model, seems uninteresting, but I guess there could be flow through the param...
+      - ["java.lang", "String", "endsWith", "(String)", "manual"]                                                      # **SUPPORTED**: type as sanitizer (neutral? -- see startsWith from last time...; returns a boolean, so I *think* it should be neutral based on what Michael said, but modeled as a taint step in java.lang.model.yml...)
 
 
 # ! top-200 ****************************** above
