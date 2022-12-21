@@ -5,7 +5,7 @@ extensions:
     data:
       # COMMENT OUT WHEN MOVED TO FINAL FILE
 
-      # ALREADY SUPPORTED
+      # * ALREADY SUPPORTED
       # - ["java.util", "Objects", False, "requireNonNull", "(Object)", "", "Argument[0]", "ReturnValue", "value", "manual"]                   # SUPPORTED: already modeled in java.util.model.yml with no signature
       # - ["java.util", "Collection", True, "add", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]                   # SUPPORTED: already modeled in java.util.model.yml with no signature
       # - ["java.util", "Collections", False, "singleton", "(Object)", "", "Argument[0]", "ReturnValue.Element", "value", "manual"]            # SUPPORTED: already modeled in java.util.model.yml
@@ -41,62 +41,61 @@ extensions:
       # - ["java.lang", "StringBuilder", True, "StringBuilder", "(String)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]              # SUPPORTED: already modeled in java.lang.model.yml with no signature
       # - ["java.io", "File", False, "File", "(File,String)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                            # SUPPORTED: already modeled in java.io.model.yml with no signature
       # - ["java.io", "File", False, "File", "(File,String)", "", "Argument[1]", "Argument[-1]", "taint", "manual"]                            # SUPPORTED: already modeled in java.io.model.yml with no signature
-      # ! Why is subtype `True` for the below? I'm not seeing that File has any subclasses... (review the docs again...)
+      # ! Why is subtype `True` for the below? I'm not seeing that File has any subclasses... (review the docs again, especially newer docs...)
       # - ["java.io", "File", True, "toPath", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                      # SUPPORTED: already modeled in java.io.model.yml with no signature
       # - ["java.io", "ByteArrayInputStream", False, "ByteArrayInputStream", "(byte[])", "", "Argument[0]", "Argument[-1]", "taint", "manual"] # SUPPORTED: already modeled in java.io.model.yml with no signature
       # - ["java.nio.file", "Path", False, "toFile", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                               # SUPPORTED: already modeled in java.nio.file.model.yml with no signature
+      # - ["java.lang", "StringBuffer", False, "toString", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                         # SUPPORTED: already modeled in java.lang.model.yml by `AbstractStringBuilder.toString`
+      # - ["java.io", "File", True, "getAbsolutePath", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                             # ! SUPPORTED/UNSUPPORTED: confirm this one, seems to be already modeled in java.io.model.yml with no signature
+      # - ["java.nio.file", "Path", True, "toString", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                              # ! SUPPORTED/UNSUPPORTED: confirm this one, seems to be already modeled in java.nio.file.model.yml with no signature
+      # - ["java.util.stream", "Stream", True, "flatMap", "(Function)", "", "Argument[-1].Element", "Argument[0].Parameter[0]", "value", "manual"]       # SUPPORTED: already modeled in java.util.stream.model.yml
+      # - ["java.util.stream", "Stream", True, "flatMap", "(Function)", "", "Argument[0].ReturnValue.Element", "ReturnValue.Element", "value", "manual"] # ! SUPPORTED: already modeled in java.util.stream.model.yml, check that `.ReturnValue` or `.Element` in the input is not a typo (see Optional.flatMap for a comparison)
+      # - ["java.util.stream", "Stream", True, "anyMatch", "(Predicate)", "", "Argument[-1].Element", "Argument[0].Parameter[0]", "value", "manual"]     # ! SUPPORTED: already modeled in java.util.stream.model.yml, check that input/output is correct with docs
+      # - ["java.util.stream", "Stream", True, "of", "(Object[])", "", "Argument[0].ArrayElement", "ReturnValue.Element", "value", "manual"]             # SUPPORTED: already modeled in java.util.stream.model.yml
+      # - ["java.util", "Properties", True, "setProperty", "(String,String)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]   # ! SUPPORTED/UNSUPPORTED: already modeled in java.util.model.yml, confirm with docs
+      # - ["java.util", "Properties", True, "setProperty", "(String,String)", "", "Argument[0]", "Argument[-1].MapKey", "value", "manual"]     # ! SUPPORTED/UNSUPPORTED: already modeled in java.util.model.yml, confirm with docs
+      # - ["java.util", "Properties", True, "setProperty", "(String,String)", "", "Argument[1]", "Argument[-1].MapValue", "value", "manual"]   # ! SUPPORTED/UNSUPPORTED: already modeled in java.util.model.yml, confirm with docs
+      # - ["java.nio.file", "Paths", False, "get", "(String,String[])", "", "Argument[0]", "ReturnValue", "taint", "manual"]                   # ! SUPPORTED/UNSUPPORTED: already modeled in java.nio.file.model.yml with no signature, confirm with docs
+      # - ["java.nio.file", "Paths", False, "get", "(String,String[])", "", "Argument[1].ArrayElement", "ReturnValue", "taint", "manual"]      # ! SUPPORTED/UNSUPPORTED: already modeled in java.nio.file.model.yml with no signature, confirm with docs
+      # - ["java.util", "Collection", True, "iterator", "()", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]            # SUPPORTED: already modeled in java.lang.model.yml by `Iterable.iterator` (and by `taintPreservingQualifierToMethod` in ContainerFlow.qll?)
+      # - ["java.util", "List", True, "iterator", "()", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]                  # SUPPORTED: already modeled in java.lang.model.yml by `Iterable.iterator` (and by `taintPreservingQualifierToMethod` in ContainerFlow.qll?)
+      # - ["java.util", "Set", True, "iterator", "()", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]                   # SUPPORTED: already modeled in java.lang.model.yml by `Iterable.iterator` (and by `taintPreservingQualifierToMethod` in ContainerFlow.qll?)
 
 
-      # ADDING A MAD MODEL
+      # * ADDING A MAD MODEL
       # - ["java.lang", "String", False, "valueOf", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                             # **UNSUPPORTED**: similar to `String.valueOf(int)` from top-100, which Tony wanted, # no manual model
       # - ["java.lang", "Integer", False, "valueOf", "(int)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                             # SUPPORTED: already modeled in CodeQL by `NumberTaintPreservingCallable`, # no manual model
       # - ["java.lang", "Long", False, "parseLong", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                           # SUPPORTED: already modeled in CodeQL by `NumberTaintPreservingCallable`, # no manual model
       # - ["java.lang", "Long", False, "longValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                # SUPPORTED: already modeled in CodeQL by `NumberTaintPreservingCallable`, # no manual model
+      # - ["java.lang", "Integer", False, "intValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                              # SUPPORTED: already modeled in CodeQL by `NumberTaintPreservingCallable`, # no manual model
       # - ["java.math", "BigDecimal", False, "valueOf", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                         # SUPPORTED: already modeled in CodeQL by `NumberTaintPreservingCallable`, # no manual model
       # - ["java.math", "BigDecimal", False, "valueOf", "(double)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                       # SUPPORTED: already modeled in CodeQL by `NumberTaintPreservingCallable`, # no manual model
+      # ! I believe subtyping should be True for `Throwable`s `getCause` and `getMessage` methods (fix typo from last PR...)
+      # - ["java.lang", "Throwable", True, "getCause", "()", "", "Argument[-1].SyntheticField[java.lang.Throwable.cause]", "ReturnValue", "value", "manual"]                                           # **UNSUPPORTED**: no manual model, I modeled on first PR in java.lang.model.yml
+      # - ["java.lang", "Exception", False, "Exception", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]                                 # **UNSUPPORTED**: no manual model, more exception modeling
+      # - ["java.lang", "IndexOutOfBoundsException", False, "IndexOutOfBoundsException", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"] # **UNSUPPORTED**: no manual model, more exception modeling
+      # - ["java.io", "IOException", False, "IOException", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]                               # **UNSUPPORTED**: no manual model, more exception modeling
+      # - ["java.lang", "RuntimeException", False, "RuntimeException", "(String,Throwable)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]         # **UNSUPPORTED**: no manual model, more exception modeling
+      # - ["java.lang", "RuntimeException", False, "RuntimeException", "(String,Throwable)", "", "Argument[1]", "Argument[-1].SyntheticField[java.lang.Throwable.cause]", "value", "manual"]           # **UNSUPPORTED**: no manual model, more exception modeling
+      # ! Can I do `Argument[0..1]` as the input for the below? Or does it need two rows instead?
+      # - ["java.lang", "Math", False, "min", "(int,int)", "", "Argument[0..1]", "ReturnValue", "value", "manual"]                             # **UNSUPPORTED**: value flow from min arg to return value # no manual model
+      # ! not sure about output here, should it be the ReturnValue instead? See if can find other examples where returns a reference instead of the object itself. (also, would this technically be `taint` instead?)
+      # - ["java.util", "StringJoiner", False, "add", "(CharSequence)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]          # **UNSUPPORTED**: flow from arg to StringJoiner Object, # no manual model
+      # - ["java.util.concurrent", "CountDownLatch", False, "CountDownLatch", "(int)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.CountDownLatch.count]", "value", "manual"] # ! **UNSUPPORTED**: confirm if this is interesting
+      # - ["java.util.concurrent", "CountDownLatch", False, "getCount", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.CountDownLatch.count]", "ReturnValue", "value", "manual"]          # ! **UNSUPPORTED**: confirm if this is interesting
+      # - ["java.lang", "Integer", False, "toString", "(int)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                            # ! SUPPORTED: already modeled in CodeQL by `NumberTaintPreservingCallable`, should I add this as a MaD model (double-check input/output)?, # no manual model
+      # - ["java.lang", "Long", False, "toString", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                 # ! SUPPORTED: already modeled in CodeQL by `NumberTaintPreservingCallable`, should I add this as a MaD model (double-check input/output)?, # no manual model
+      # - ["java.util.function", "Function", True, "apply", "(Object)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                   # ! **UNSUPPORTED**: confirm that this is positive and that my model looks correct, # no manual model
+      # - ["java.sql", "PreparedStatement", True, "setString", "(int,String)", "", "Argument[1]", "Argument[-1].Parameter[Argument[0]]", "value", "manual"]   # ! **UNSUPPORTED**: unsure how to model output, # no manual model
+      # - ["java.sql", "PreparedStatement", True, "setInt", "(int,int)", "", "Argument[1]", "Argument[-1].Parameter[Argument[0]]", "value", "manual"]         # ! **UNSUPPORTED**: unsure how to model output, # no manual model
+      # - ["java.sql", "ResultSet", True, "getInt", "(String)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                          # ! **UNSUPPORTED**: confirm the model, why didn't I have the param involved for `getString`?, # no manual model
+      # - ["java.lang", "System", False, "getProperty", "(String)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]             # ! **UNSUPPORTED**: confirm positive model and that my model is correct (based on java.util.Properties#getProperty), # no manual model
+      # - ["java.util.function", "Supplier", False, "get", "()", "", "Argument[-1]", "ReturnValue", "value", "manual"]                         # ! **UNSUPPORTED**: another FunctionalInterface one, confrim model, I'm confused by these ones..., # no manual model
+    # ! different input needed? e.g. Argument[-1] or Argument[-1].Value?
+      # - ["java.util.concurrent.atomic", "AtomicInteger", False, "get", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicInteger.value]", "ReturnValue", "value", "manual"]     # ! **UNSUPPORTED**: confirm model correct, especially input, # no manual model
+      # - ["java.util.concurrent.atomic", "AtomicReference", False, "get", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicReference.value]", "ReturnValue", "value", "manual"] # ! **UNSUPPORTED**: confirm model correct, especially input, # no manual model
 
 
-
-      - ["java.util", "StringJoiner", False, "add", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]                               # **UNSUPPORTED**: no manual model
-      - ["java.util.concurrent", "CountDownLatch", False, "CountDownLatch", "(int)", "", "aaa", "aaa", "aaa", "manual"]                # **UNSUPPORTED**: no manual model
-      - ["java.util.concurrent", "CountDownLatch", False, "countDown", "()", "", "aaa", "aaa", "aaa", "manual"]                        # **UNSUPPORTED**: no manual model
-      - ["java.util.concurrent.atomic", "AtomicInteger", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                        # **UNSUPPORTED**: no manual model
-      - ["java.util.concurrent.atomic", "AtomicReference", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                      # **UNSUPPORTED**: no manual model
-      - ["java.util.function", "Supplier", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                                      # **UNSUPPORTED**: no manual model
-      - ["java.util.function", "Function", False, "apply", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                              # **UNSUPPORTED**: no manual model
-      - ["java.util.function", "Consumer", False, "accept", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                             # **UNSUPPORTED**: no manual model
-      - ["java.util.stream", "Collectors", False, "joining", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]                      # **UNSUPPORTED**: no manual model
-      - ["java.util.stream", "Collectors", False, "toMap", "(Function,Function)", "", "aaa", "aaa", "aaa", "manual"]                   # **UNSUPPORTED**: no manual model (paramless static?)
-
-
-      - ["java.lang", "Math", False, "min", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                                            # **UNSUPPORTED**: Tony would prbly want it # no manual model
-      - ["java.lang", "System", False, "getProperty", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                   # **UNSUPPORTED**: no manual model
-      - ["java.lang", "Throwable", False, "getCause", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # **UNSUPPORTED**: no manual model
-      - ["java.lang", "Exception", False, "Exception", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # **UNSUPPORTED**: no manual model
-      - ["java.lang", "IndexOutOfBoundsException", False, "IndexOutOfBoundsException", "(String)", "", "aaa", "aaa", "aaa", "manual"]  # **UNSUPPORTED**: no manual model
-      - ["java.lang", "RuntimeException", False, "RuntimeException", "(String,Throwable)", "", "aaa", "aaa", "aaa", "manual"]          # **UNSUPPORTED**: no manual model
-
-      - ["java.io", "IOException", False, "IOException", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                # **UNSUPPORTED**: no manual model
-
-      - ["java.sql", "PreparedStatement", False, "setString", "(int,String)", "", "aaa", "aaa", "aaa", "manual"]                       # **UNSUPPORTED**: no manual model
-      - ["java.sql", "PreparedStatement", False, "setInt", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                             # **UNSUPPORTED**: no manual model
-      - ["java.sql", "ResultSet", False, "next", "()", "", "aaa", "aaa", "aaa", "manual"]                                              # **UNSUPPORTED**: no manual model
-      - ["java.sql", "ResultSet", False, "getInt", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                      # **UNSUPPORTED**: no manual model
-
-      - ["java.time", "LocalDate", False, "of", "(int,int,int)", "", "aaa", "aaa", "aaa", "manual"]                                    # **UNSUPPORTED**: maybe flow due to params? # no manual model
-
-
-
-
-    # ! MAYBE Positive models (not sure about these ones):
-      - ["java.util", "Collection", True, "iterator", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                      # * SUPPORTED: not finding an existing MaD model...
-      - ["java.util", "List", False, "iterator", "()", "", "aaa", "aaa", "aaa", "manual"]                                              # * SUPPORTED: not finding an existing MaD model...
-      - ["java.util", "Set", False, "iterator", "()", "", "aaa", "aaa", "aaa", "manual"]                                               # SUPPORTED
-      - ["java.util.stream", "Stream", False, "flatMap", "(Function)", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]   # * SUPPORTED: not finding an existing MaD model...
-      - ["java.util.stream", "Stream", False, "anyMatch", "(Predicate)", "", "aaa", "aaa", "aaa", "manual"]                            # * SUPPORTED: not finding an existing MaD model...
-      - ["java.util.stream", "Stream", False, "of", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]                                   # * SUPPORTED: not finding an existing MaD model...
-      - ["java.util", "Properties", False, "setProperty", "(String,String)", "", "aaa", "aaa", "aaa", "manual"]                        # **SUPPORTED/UNSUPPORTED**
-      - ["java.nio.file", "Paths", False, "get", "(String,String[])", "", "aaa", "aaa", "aaa", "manual"]                               # **SUPPORTED/UNSUPPORTED**
 
   - addsTo:
       pack: codeql/java-all
@@ -123,24 +122,21 @@ extensions:
       # - ["java.math", "BigDecimal", "compareTo", "(BigDecimal)", "manual"] # UNSUPPORTED: type as sanitizer # no manual model
       # - ["java.util", "Objects", "nonNull", "(Object)", "manual"]          # UNSUPPORTED: no manual model, type as sanitizer
       # - ["java.util", "ArrayList", "ArrayList", "(int)", "manual"]         # UNSUPPORTED: no manual model
+      # - ["java.lang", "Long", "equals", "(Object)", "manual"]              # ! SUPPORTED/UNSUPPORTED: not sure why collision for this one, type as sanitizer # no manual model
+      # - ["java.lang", "Boolean", "equals", "(Object)", "manual"]           # ! SUPPORTED/UNSUPPORTED: not sure why collision for this one, type as sanitizer # no manual model
+      # - ["java.lang", "String", "endsWith", "(String)", "manual"]          # ! **SUPPORTED**: type as sanitizer (neutral? -- see startsWith from last time...; returns a boolean, so I *think* it should be neutral based on what Michael said, but already modeled as a taint step in java.lang.model.yml...)
+      # - ["java.util", "Date", "Date", "(long)", "manual"]                  # ! UNSUPPORTED: no manual model, confirm that this is uninteresting, maybe bad to control the date?
+      # - ["java.text", "SimpleDateFormat", "SimpleDateFormat", "(String)", "manual"]  # ! UNSUPPORTED: no manual model, confirm that this is uninteresting, maybe bad to control the date format?
+      # - ["java.text", "DateFormat", "format", "(Date)", "manual"]                    # ! UNSUPPORTED: no manual model, confirm that this is uninteresting, maybe bad to control the date?
+      # - ["java.lang", "String", "indexOf", "(String)", "manual"]           # ! UNSUPPORTED: confirm uninteresting (based on kotlin generated models it's probably a neutral) # no manual model
+      # - ["java.lang", "Thread", "sleep", "(long)", "manual"]               # ! UNSUPPORTED: confirm uninteresting, definitely seems like just a sink, and not flow-through, # no manual model
+      # - ["java.util.concurrent", "CountDownLatch", "countDown", "()", "manual"]      # UNSUPPORTED: just counts down, # no manual model
+      # - ["java.util.function", "Consumer", "accept", "(Object)", "manual"]           # ! UNSUPPORTED: confirm this is neutral (seems like just a sink to me since no return value? or is output Argument[-1] or something?), # no manual model
+      # - ["java.util.stream", "Collectors", "joining", "(CharSequence)", "manual"]    # ! UNSUPPORTED: confirm neutral, the `Collectors` class and its methods confuse me..., # no manual model
+      # - ["java.util.stream", "Collectors", "toMap", "(Function,Function)", "manual"] # ! UNSUPPORTED: confirm neutral, the `Collectors` class and its methods confuse me..., # no manual model
+      # - ["java.sql", "ResultSet", "next", "()", "manual"]                            # ! UNSUPPORTED: confirm neutral, type as sanitizer?, # no manual model
+      # - ["java.time", "LocalDate", "of", "(int,int,int)", "manual"]                  # ! UNSUPPORTED: confirm uninteresting, maybe flow due to params?, # no manual model
 
-
-      # ! MAYBE Negative models (not sure about these ones):
-      - ["java.util", "Date", False, "Date", "(long)", "", "aaa", "aaa", "aaa", "manual"]                              # UNSUPPORTED: no manual model, seems uninteresting, but I guess there could be flow through the param...
-      - ["java.lang", "Long", "equals", "(Object)", "manual"]                                                          # **SUPPORTED/UNSUPPORTED**: type as sanitizer # no manual model
-      - ["java.lang", "Boolean", "equals", "(Object)", "manual"]                                                       # **SUPPORTED/UNSUPPORTED**: type as sanitizer # no manual model
-      - ["java.lang", "String", False, "indexOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]                       # UNSUPPORTED: type as sanitizer? # no manual model
-      - ["java.lang", "Thread", False, "sleep", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # UNSUPPORTED: no manual model
-      - ["java.io", "File", "getAbsolutePath", "()", "manual"]                                                         # **SUPPORTED/UNSUPPORTED**
-      - ["java.nio.file", "Path", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                          # **SUPPORTED/UNSUPPORTED**: toString okay at all for Path?
-      - ["java.text", "DateFormat", False, "format", "(Date)", "", "aaa", "aaa", "aaa", "manual"]                      # UNSUPPORTED: no manual model, seems uninteresting, but I guess there could be flow through the param...
-      - ["java.text", "SimpleDateFormat", False, "SimpleDateFormat", "(String)", "", "aaa", "aaa", "aaa", "manual"]    # UNSUPPORTED: no manual model, seems uninteresting, but I guess there could be flow through the param...
-      - ["java.lang", "String", "endsWith", "(String)", "manual"]                                                      # **SUPPORTED**: type as sanitizer (neutral? -- see startsWith from last time...; returns a boolean, so I *think* it should be neutral based on what Michael said, but modeled as a taint step in java.lang.model.yml...)
-      # ! neutrals?, but why "supported"?:
-      - ["java.lang", "StringBuffer", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                      # **SUPPORTED**
-      - ["java.lang", "Integer", "toString", "(int)", "manual"]                                                        # **SUPPORTED**: toString okay at all for Integer? # no manual model
-      - ["java.lang", "Integer", False, "intValue", "()", "", "aaa", "aaa", "aaa", "manual"]                           # **SUPPORTED**: no manual model
-      - ["java.lang", "Long", "toString", "()", "manual"]                                                              # **SUPPORTED**: toString okay at all for Long? # no manual model
 
 # ! top-200 ****************************** above
 

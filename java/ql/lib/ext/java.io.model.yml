@@ -74,6 +74,7 @@ extensions:
       - ["java.io", "InputStream", True, "readNBytes", "(int)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.io", "InputStream", True, "transferTo", "(OutputStream)", "", "Argument[-1]", "Argument[0]", "taint", "manual"]
       - ["java.io", "InputStreamReader", False, "InputStreamReader", "", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
+      - ["java.io", "IOException", False, "IOException", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]
       - ["java.io", "ObjectInput", True, "read", "", "", "Argument[-1]", "Argument[0]", "taint", "manual"]
       - ["java.io", "ObjectInputStream", False, "ObjectInputStream", "", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
       - ["java.io", "OutputStream", True, "write", "(byte[])", "", "Argument[0]", "Argument[-1]", "taint", "manual"]

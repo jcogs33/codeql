@@ -335,6 +335,7 @@ extensions:
       - ["java.util", "Stack", True, "peek", "()", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]
       - ["java.util", "Stack", True, "pop", "()", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]
       - ["java.util", "Stack", True, "push", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
+      - ["java.util", "StringJoiner", False, "add", "(CharSequence)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
       - ["java.util", "StringTokenizer", False, "StringTokenizer", "", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
       - ["java.util", "StringTokenizer", False, "nextElement", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.util", "StringTokenizer", False, "nextToken", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
@@ -362,6 +363,7 @@ extensions:
     data:
       - ["java.util", "ArrayList", "size", "()", "manual"]
       - ["java.util", "Collection", "isEmpty", "()", "manual"]
+      - ["java.util", "Date", "Date", "(long)", "manual"]
       - ["java.util", "List", "clear", "()", "manual"]
       - ["java.util", "Collections", "emptyMap", "()", "manual"]
       - ["java.util", "Collections", "emptySet", "()", "manual"]

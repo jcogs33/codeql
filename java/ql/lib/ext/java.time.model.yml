@@ -4,4 +4,5 @@ extensions:
       extensible: neutralModel
     data:
       - ["java.time", "Instant", "now", "()", "manual"]
+      - ["java.time", "LocalDate", "of", "(int,int,int)", "manual"]
       - ["java.time", "ZonedDateTime", "now", "()", "manual"]
