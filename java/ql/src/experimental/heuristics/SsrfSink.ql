@@ -6,15 +6,15 @@ class PublicCallable extends Callable {
   PublicCallable() { this.isPublic() and this.getDeclaringType().isPublic() }
 }
 
-Callable getASqlInjectionVulnerableParameterNameBasedGuess(int paramIdx) {
+Callable getASsrfVulnerableParameterNameBasedGuess(int paramIdx) {
   exists(Parameter p |
-    p.getName() = "sql" and
+    p.getName() = "url" and
     p = result.getParameter(paramIdx)
   )
 }
 
-query Callable getASqlInjectionVulnerableParameter(int paramIdx, string reason) {
-  result = getASqlInjectionVulnerableParameterNameBasedGuess(paramIdx) and
+query Callable getASsrfVulnerableParameter(int paramIdx, string reason) {
+  result = getASsrfVulnerableParameterNameBasedGuess(paramIdx) and
   reason = "nameBasedGuess"
 }
 
@@ -30,11 +30,11 @@ string signatureIfNeeded(PublicCallable c) {
   if hasOverloads(c) then result = paramsString(c) else result = ""
 }
 
-query string getASqlInjectionVulnerableParameterSpecification() {
+query string getASsrfVulnerableParameterSpecification() {
   exists(Callable c, int paramIdx |
-    c = getASqlInjectionVulnerableParameter(paramIdx, _) and
+    c = getASsrfVulnerableParameter(paramIdx, _) and
     result =
       c.getDeclaringType().getPackage() + ";" + c.getDeclaringType().getName() + ";" + "false;" +
-        c.getName() + ";" + signatureIfNeeded(c) + ";;" + "Argument[" + paramIdx + "];" + "sql"
+        c.getName() + ";" + signatureIfNeeded(c) + ";;" + "Argument[" + paramIdx + "];" + "ssrf" // ! note current ssrf sinks are jdbc-url and open-url
   )
 }
