@@ -16,7 +16,10 @@ extensions:
 
 
       # * NEED TO ADD A MODEL
-
+      # - ["java.awt", "Container", True, "add", "(Component,Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]                     # no manual model, # UNSUPPORTED
+      # - ["java.io", "DataInput", True, "readInt", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                  # no manual model, # UNSUPPORTED
+      # - ["java.io", "DataOutput", True, "writeInt", "(int)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                             # no manual model, # UNSUPPORTED
+      # - ["java.io", "FileInputStream", False, "FileInputStream", "(File)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                # no manual model, # UNSUPPORTED
 
 
   - addsTo:
@@ -31,21 +34,23 @@ extensions:
 
       # COMMENT OUT WHEN MOVED TO FINAL FILE
       # * NEED TO ADD A MODEL
+      # - ["java.io", "File", "delete", "()", "manual"]                                        # no manual model, # UNSUPPORTED
+
 
 
 
 # ****************************** UNSORTED ***********************************************************************************************************************************************************************
 # ! top-300 ******************************
-- ["java.awt", "Container", False, "add", "(Component,Object)", "", "aaa", "aaa", "aaa", "manual"]                     # no manual model, # UNSUPPORTED
+# - ["java.awt", "Container", False, "add", "(Component,Object)", "", "aaa", "aaa", "aaa", "manual"]                     # no manual model, # UNSUPPORTED
 
-- ["java.io", "BufferedReader", False, "BufferedReader", "(Reader)", "", "aaa", "aaa", "aaa", "manual"]                # SUPPORTED
-- ["java.io", "BufferedReader", False, "readLine", "()", "", "aaa", "aaa", "aaa", "manual"]                            # SUPPORTED
-- ["java.io", "ByteArrayOutputStream", False, "toByteArray", "()", "", "aaa", "aaa", "aaa", "manual"]                  # SUPPORTED
-- ["java.io", "DataInput", False, "readInt", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
-- ["java.io", "DataOutput", False, "writeInt", "(int)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
-- ["java.io", "File", False, "delete", "()", "", "aaa", "aaa", "aaa", "manual"]                                        # no manual model, # UNSUPPORTED
-- ["java.io", "FileInputStream", False, "FileInputStream", "(File)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
-- ["java.io", "OutputStream", False, "write", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]                           # SUPPORTED
+# - ["java.io", "BufferedReader", False, "BufferedReader", "(Reader)", "", "aaa", "aaa", "aaa", "manual"]                # SUPPORTED
+# - ["java.io", "BufferedReader", False, "readLine", "()", "", "aaa", "aaa", "aaa", "manual"]                            # SUPPORTED
+# - ["java.io", "ByteArrayOutputStream", False, "toByteArray", "()", "", "aaa", "aaa", "aaa", "manual"]                  # SUPPORTED
+# - ["java.io", "DataInput", False, "readInt", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
+# - ["java.io", "DataOutput", False, "writeInt", "(int)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
+# - ["java.io", "File", False, "delete", "()", "", "aaa", "aaa", "aaa", "manual"]                                        # no manual model, # UNSUPPORTED
+# - ["java.io", "FileInputStream", False, "FileInputStream", "(File)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
+# - ["java.io", "OutputStream", False, "write", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]                           # SUPPORTED
 
 - ["java.lang", "Boolean", False, "booleanValue", "()", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
 - ["java.lang", "Boolean", False, "parseBoolean", "(String)", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
