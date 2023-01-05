@@ -20,6 +20,9 @@ extensions:
       # - ["java.io", "DataInput", True, "readInt", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                  # no manual model, # UNSUPPORTED
       # - ["java.io", "DataOutput", True, "writeInt", "(int)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                             # no manual model, # UNSUPPORTED
       # - ["java.io", "FileInputStream", False, "FileInputStream", "(File)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                # no manual model, # UNSUPPORTED
+      # - ["java.nio.charset", "Charset", False, "name", "()", "", "Argument[-1].SyntheticField[java.nio.charset.Charset.canonicalName]", "ReturnValue", "value", "manual"]                              # no manual model, # UNSUPPORTED
+      # - ["java.time", "Duration", False, "ofSeconds", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                           # no manual model, # UNSUPPORTED
+      # - ["java.text", "DateFormat", True, "parse", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                           # no manual model, # UNSUPPORTED
 
 
   - addsTo:
@@ -35,7 +38,8 @@ extensions:
       # COMMENT OUT WHEN MOVED TO FINAL FILE
       # * NEED TO ADD A MODEL
       # - ["java.io", "File", "delete", "()", "manual"]                                        # no manual model, # UNSUPPORTED
-
+      # - ["java.time", "LocalDate", "now", "()", "manual"]                                    # no manual model, # UNSUPPORTED
+      # - ["java.time", "LocalDateTime", "now", "()", "manual"]                                # no manual model, # UNSUPPORTED
 
 
 
@@ -89,21 +93,21 @@ extensions:
 - ["java.math", "BigDecimal", False, "BigDecimal", "(int)", "", "aaa", "aaa", "aaa", "manual"]                         # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
 - ["java.math", "BigInteger", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
 
-- ["java.net", "URI", False, "create", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # SUPPORTED
-- ["java.net", "URI", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                      # SUPPORTED
+# - ["java.net", "URI", False, "create", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # SUPPORTED
+# - ["java.net", "URI", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                      # SUPPORTED
 
-- ["java.nio.charset", "Charset", False, "name", "()", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
+# - ["java.nio.charset", "Charset", False, "name", "()", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
 
 - ["java.sql", "PreparedStatement", False, "executeQuery", "()", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model, # UNSUPPORTED
 - ["java.sql", "ResultSet", False, "getLong", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
 - ["java.sql", "ResultSet", False, "getString", "(int)", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model, # UNSUPPORTED
 - ["java.sql", "Timestamp", False, "Timestamp", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
 
-- ["java.text", "DateFormat", False, "parse", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
+# - ["java.text", "DateFormat", False, "parse", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
 
-- ["java.time", "Duration", False, "ofSeconds", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
-- ["java.time", "LocalDate", False, "now", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
-- ["java.time", "LocalDateTime", False, "now", "()", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
+# - ["java.time", "Duration", False, "ofSeconds", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
+# - ["java.time", "LocalDate", False, "now", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
+# - ["java.time", "LocalDateTime", False, "now", "()", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
 
 - ["java.util", "Arrays", False, "toString", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]                          # no manual model, # UNSUPPORTED
 - ["java.util", "Calendar", False, "get", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
