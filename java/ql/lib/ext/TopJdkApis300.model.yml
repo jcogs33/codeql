@@ -36,114 +36,114 @@ extensions:
 
 # ****************************** UNSORTED ***********************************************************************************************************************************************************************
 # ! top-300 ******************************
-- ["java.awt", "Container", False, "add", "(Component,Object)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.awt", "Container", False, "add", "(Component,Object)", "", "aaa", "aaa", "aaa", "manual"]                     # no manual model
 
 - ["java.io", "BufferedReader", False, "BufferedReader", "(Reader)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.io", "BufferedReader", False, "readLine", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.io", "ByteArrayOutputStream", False, "toByteArray", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "DataInput", False, "readInt", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "DataOutput", False, "writeInt", "(int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "File", False, "delete", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.io", "FileInputStream", False, "FileInputStream", "(File)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.io", "DataInput", False, "readInt", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model
+- ["java.io", "DataOutput", False, "writeInt", "(int)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model
+- ["java.io", "File", False, "delete", "()", "", "aaa", "aaa", "aaa", "manual"]                                        # no manual model
+- ["java.io", "FileInputStream", False, "FileInputStream", "(File)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model
 - ["java.io", "OutputStream", False, "write", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]
 
-- ["java.lang", "Boolean", False, "booleanValue", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Boolean", False, "parseBoolean", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Class", False, "getCanonicalName", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Enum", False, "hashCode", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Enum", False, "ordinal", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Integer", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Integer", False, "Integer", "(int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Integer", False, "valueOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Long", False, "toString", "(long)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Long", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Long", False, "valueOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Math", False, "max", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "NullPointerException", False, "NullPointerException", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Runnable", False, "run", "()", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang", "Boolean", False, "booleanValue", "()", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model
+- ["java.lang", "Boolean", False, "parseBoolean", "(String)", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model
+- ["java.lang", "Class", False, "getCanonicalName", "()", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model
+- ["java.lang", "Enum", False, "hashCode", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model
+- ["java.lang", "Enum", False, "ordinal", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model
+- ["java.lang", "Integer", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model
+- ["java.lang", "Integer", False, "Integer", "(int)", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model
+- ["java.lang", "Integer", False, "valueOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model
+- ["java.lang", "Long", False, "toString", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model
+- ["java.lang", "Long", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                 # no manual model
+- ["java.lang", "Long", False, "valueOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model
+- ["java.lang", "Math", False, "max", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model
+- ["java.lang", "NullPointerException", False, "NullPointerException", "(String)", "", "aaa", "aaa", "aaa", "manual"]  # no manual model
+- ["java.lang", "Runnable", False, "run", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model
 - ["java.lang", "String", False, "String", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "String", False, "String", "(byte[],Charset)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "String", False, "join", "(CharSequence,Iterable)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "String", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "String", False, "toCharArray", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "compareTo", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "String", False, "indexOf", "(int)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang", "String", False, "compareTo", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model
+- ["java.lang", "String", False, "indexOf", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model
 - ["java.lang", "StringBuilder", False, "append", "(long)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "StringBuilder", False, "StringBuilder", "(int)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.lang", "System", False, "arraycopy", "(Object,int,Object,int,int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "System", False, "lineSeparator", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "System", False, "setProperty", "(String,String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Thread", False, "start", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "ThreadLocal", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang", "Throwable", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang", "System", False, "lineSeparator", "()", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model
+- ["java.lang", "System", False, "setProperty", "(String,String)", "", "aaa", "aaa", "aaa", "manual"]                  # no manual model
+- ["java.lang", "Thread", False, "start", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model
+- ["java.lang", "ThreadLocal", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model
+- ["java.lang", "Throwable", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model
 
-- ["java.lang.reflect", "Method", False, "getName", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.lang.reflect", "Method", False, "invoke", "(Object,Object[])", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.lang.reflect", "Method", False, "getName", "()", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model
+- ["java.lang.reflect", "Method", False, "invoke", "(Object,Object[])", "", "aaa", "aaa", "aaa", "manual"]             # no manual model
 
-- ["java.math", "BigDecimal", False, "add", "(BigDecimal)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.math", "BigDecimal", False, "BigDecimal", "(int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.math", "BigInteger", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.math", "BigDecimal", False, "add", "(BigDecimal)", "", "aaa", "aaa", "aaa", "manual"]                         # no manual model
+- ["java.math", "BigDecimal", False, "BigDecimal", "(int)", "", "aaa", "aaa", "aaa", "manual"]                         # no manual model
+- ["java.math", "BigInteger", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model
 
 - ["java.net", "URI", False, "create", "(String)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.net", "URI", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]
 
-- ["java.nio.charset", "Charset", False, "name", "()", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.nio.charset", "Charset", False, "name", "()", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model
 
-- ["java.sql", "PreparedStatement", False, "executeQuery", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.sql", "ResultSet", False, "getLong", "(String)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.sql", "ResultSet", False, "getString", "(int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.sql", "Timestamp", False, "Timestamp", "(long)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.sql", "PreparedStatement", False, "executeQuery", "()", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model
+- ["java.sql", "ResultSet", False, "getLong", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model
+- ["java.sql", "ResultSet", False, "getString", "(int)", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model
+- ["java.sql", "Timestamp", False, "Timestamp", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model
 
-- ["java.text", "DateFormat", False, "parse", "(String)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.text", "DateFormat", False, "parse", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model
 
-- ["java.time", "Duration", False, "ofSeconds", "(long)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.time", "LocalDate", False, "now", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.time", "LocalDateTime", False, "now", "()", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.time", "Duration", False, "ofSeconds", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model
+- ["java.time", "LocalDate", False, "now", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model
+- ["java.time", "LocalDateTime", False, "now", "()", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model
 
-- ["java.util", "Arrays", False, "toString", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Calendar", False, "get", "(int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Calendar", False, "getInstance", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Calendar", False, "getTime", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Calendar", False, "set", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util", "Arrays", False, "toString", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]                          # no manual model
+- ["java.util", "Calendar", False, "get", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model
+- ["java.util", "Calendar", False, "getInstance", "()", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model
+- ["java.util", "Calendar", False, "getTime", "()", "", "aaa", "aaa", "aaa", "manual"]                                 # no manual model
+- ["java.util", "Calendar", False, "set", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model
 - ["java.util", "Collections", False, "unmodifiableList", "(List)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Comparator", False, "comparing", "(Function)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "HashMap", False, "HashMap", "(int)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util", "Comparator", False, "comparing", "(Function)", "", "aaa", "aaa", "aaa", "manual"]                     # no manual model
+- ["java.util", "HashMap", False, "HashMap", "(int)", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model
 - ["java.util", "HashMap", False, "HashMap", "(Map)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Iterator", False, "remove", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "List", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "List", False, "hashCode", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "List", False, "of", "()", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util", "Iterator", False, "remove", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model
+- ["java.util", "List", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model
+- ["java.util", "List", False, "hashCode", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model
+- ["java.util", "List", False, "of", "()", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model
 - ["java.util", "List", False, "of", "(Object,Object,Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "List", False, "remove", "(int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "List", False, "remove", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util", "List", False, "remove", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model
 - ["java.util", "Map", False, "entry", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Map", False, "forEach", "(BiConsumer)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Map", False, "of", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Objects", False, "isNull", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Optional", False, "isEmpty", "()", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util", "Objects", False, "isNull", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model
+- ["java.util", "Optional", False, "isEmpty", "()", "", "aaa", "aaa", "aaa", "manual"]                                 # no manual model
 - ["java.util", "Optional", False, "orElseThrow", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Properties", False, "getProperty", "(String)", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util", "Properties", False, "put", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Random", False, "nextInt", "(int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "ResourceBundle", False, "getString", "(String)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util", "Random", False, "nextInt", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model
+- ["java.util", "ResourceBundle", False, "getString", "(String)", "", "aaa", "aaa", "aaa", "manual"]                   # no manual model
 - ["java.util", "Set", False, "of", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util", "Set", False, "remove", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util", "Set", False, "remove", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                 # no manual model
 
-- ["java.util.concurrent", "CompletableFuture", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.concurrent", "CompletableFuture", False, "join", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.concurrent", "CountDownLatch", False, "await", "(long,TimeUnit)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.concurrent", "Future", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.concurrent", "TimeUnit", False, "toMillis", "(long)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.concurrent.atomic", "AtomicBoolean", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.concurrent.atomic", "AtomicBoolean", False, "set", "(boolean)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util.concurrent", "CompletableFuture", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model
+- ["java.util.concurrent", "CompletableFuture", False, "join", "()", "", "aaa", "aaa", "aaa", "manual"]                # no manual model
+- ["java.util.concurrent", "CountDownLatch", False, "await", "(long,TimeUnit)", "", "aaa", "aaa", "aaa", "manual"]     # no manual model
+- ["java.util.concurrent", "Future", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model
+- ["java.util.concurrent", "TimeUnit", False, "toMillis", "(long)", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model
+- ["java.util.concurrent.atomic", "AtomicBoolean", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]              # no manual model
+- ["java.util.concurrent.atomic", "AtomicBoolean", False, "set", "(boolean)", "", "aaa", "aaa", "aaa", "manual"]       # no manual model
 - ["java.util.concurrent.atomic", "AtomicInteger", False, "AtomicInteger", "(int)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.concurrent.atomic", "AtomicInteger", False, "incrementAndGet", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.concurrent.atomic", "AtomicLong", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.concurrent.atomic", "AtomicReference", False, "set", "(Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.function", "BiConsumer", False, "accept", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.function", "Function", False, "identity", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.logging", "Logger", False, "isLoggable", "(Level)", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.regex", "Matcher", False, "find", "()", "", "aaa", "aaa", "aaa", "manual"]
-- ["java.util.stream", "IntStream", False, "range", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]
+- ["java.util.concurrent.atomic", "AtomicInteger", False, "incrementAndGet", "()", "", "aaa", "aaa", "aaa", "manual"]  # no manual model
+- ["java.util.concurrent.atomic", "AtomicLong", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model
+- ["java.util.concurrent.atomic", "AtomicReference", False, "set", "(Object)", "", "aaa", "aaa", "aaa", "manual"]      # no manual model
+- ["java.util.function", "BiConsumer", False, "accept", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]          # no manual model
+- ["java.util.function", "Function", False, "identity", "()", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model
+- ["java.util.logging", "Logger", False, "isLoggable", "(Level)", "", "aaa", "aaa", "aaa", "manual"]                   # no manual model
+- ["java.util.regex", "Matcher", False, "find", "()", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model
+- ["java.util.stream", "IntStream", False, "range", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model
 - ["java.util.stream", "Stream", False, "toList", "()", "", "aaa", "aaa", "aaa", "manual"]
 - ["java.util.stream", "Stream", False, "sorted", "(Comparator)", "", "aaa", "aaa", "aaa", "manual"]
