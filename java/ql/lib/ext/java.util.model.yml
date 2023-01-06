@@ -44,6 +44,9 @@ extensions:
       - ["java.util", "Base64$Encoder", False, "encode", "(byte[])", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.util", "Base64$Encoder", False, "encodeToString", "(byte[])", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.util", "Base64$Encoder", False, "wrap", "(OutputStream)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      - ["java.util", "Calendar", True, "get", "(int)", "", "Argument[-1].Field[Argument[0]]", "ReturnValue", "value", "manual"] # ! don't think input for this model will work/is correct...
+      - ["java.util", "Calendar", True, "getTime", "()", "", "Argument[-1].Field[java.util.Calendar.time]", "ReturnValue", "taint", "manual"] # ! should this be neutral/uninteresting?
+      - ["java.util", "Calendar", True, "set", "(int,int)", "", "Argument[1]", "Argument[-1].Field[Argument[0]]", "value", "manual"]  # ! don't think output for this model will work/is correct...
       - ["java.util", "Collection", True, "add", "", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
       - ["java.util", "Collection", True, "addAll", "", "", "Argument[0].Element", "Argument[-1].Element", "value", "manual"]
       - ["java.util", "Collection", True, "parallelStream", "()", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]
@@ -290,6 +293,7 @@ extensions:
       - ["java.util", "Queue", True, "peek", "()", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]
       - ["java.util", "Queue", True, "poll", "()", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]
       - ["java.util", "Queue", True, "remove", "()", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]
+      - ["java.util", "ResourceBundle", True, "getString", "(String)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]
       - ["java.util", "Scanner", True, "Scanner", "", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
       - ["java.util", "Scanner", True, "findInLine", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.util", "Scanner", True, "findWithinHorizon", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
@@ -364,17 +368,26 @@ extensions:
     data:
       - ["java.util", "ArrayList", "ArrayList", "(int)", "manual"]
       - ["java.util", "ArrayList", "size", "()", "manual"]
+      - ["java.util", "Arrays", "toString", "(Object[])", "manual"] # ! should this have a summary model after all? (or unwanted model due to too much FP flow?)
+      - ["java.util", "Calendar", "getInstance", "()", "manual"]
       - ["java.util", "Collection", "isEmpty", "()", "manual"]
       - ["java.util", "Collection", "size", "()", "manual"]
       - ["java.util", "Collections", "emptyList", "()", "manual"]
       - ["java.util", "Collections", "emptyMap", "()", "manual"]
       - ["java.util", "Collections", "emptySet", "()", "manual"]
+      - ["java.util", "Comparator", "comparing", "(Function)", "manual"] # ! seems complex (functional interface), should maybe have a summary model after all?
       - ["java.util", "Date", "Date", "(long)", "manual"]
       - ["java.util", "Date", "getTime", "()", "manual"]
+      - ["java.util", "HashMap", "HashMap", "(int)", "manual"]
       - ["java.util", "Iterator", "hasNext", "()", "manual"]
+      - ["java.util", "Iterator", "remove", "()", "manual"] # ! should this have a summary model after all?
       - ["java.util", "List", "clear", "()", "manual"]
       - ["java.util", "List", "contains", "(Object)", "manual"]
+      - ["java.util", "List" "equals", "(Object)", "manual"]
+      - ["java.util", "List" "hashCode", "()", "manual"]
       - ["java.util", "List", "isEmpty", "()", "manual"]
+      - ["java.util", "List", "of", "()", "manual"]
+      - ["java.util", "List", "remove", "(Object)", "manual"] # ! should this have a summary model after all?
       - ["java.util", "List", "size", "()", "manual"]
       - ["java.util", "Map", "clear", "()", "manual"]
       - ["java.util", "Map", "containsKey", "(Object)", "manual"]
@@ -382,11 +395,15 @@ extensions:
       - ["java.util", "Map", "size", "()", "manual"]
       - ["java.util", "Objects", "equals", "(Object,Object)", "manual"]
       - ["java.util", "Objects", "hash", "(Object[])", "manual"]
+      - ["java.util", "Objects", "isNull", "(Object)", "manual"]
       - ["java.util", "Objects", "nonNull", "(Object)", "manual"]
       - ["java.util", "Optional", "empty", "()", "manual"]
+      - ["java.util", "Optional", "isEmpty", "()", "manual"]
       - ["java.util", "Optional", "isPresent", "()", "manual"]
+      - ["java.util", "Random", "nextInt", "(int)", "manual"]
       - ["java.util", "Set", "contains", "(Object)", "manual"]
       - ["java.util", "Set", "isEmpty", "()", "manual"]
+      - ["java.util", "Set", "remove", "(Object)", "manual"] # ! should this have a summary model after all?
       - ["java.util", "Set", "size", "()", "manual"]
       - ["java.util", "UUID", "randomUUID", "()", "manual"]
       - ["java.util", "UUID", "toString", "()", "manual"]
