@@ -32,6 +32,20 @@ extensions:
       # - ["java.sql", "ResultSet", True, "getString", "(int)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                            # no manual model, # UNSUPPORTED
       # - ["java.sql", "PreparedStatement", True, "executeQuery", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                    # no manual model, # UNSUPPORTED
       # - ["java.sql", "Timestamp", False, "Timestamp", "(long)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                           # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Integer", False, "Integer", "(int)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                               # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.lang", "Integer", False, "valueOf", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                            # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.lang", "Long", False, "toString", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.lang", "Long", False, "valueOf", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                 # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.lang", "Long", False, "valueOf", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                               # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.lang", "Math", False, "max", "(int,int)", "", "Argument[0..1]", "ReturnValue", "value", "manual"]                                  # no manual model, # UNSUPPORTED
+      # - ["java.lang", "NullPointerException", False, "NullPointerException", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]  # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Boolean", False, "booleanValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                             # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Boolean", False, "parseBoolean", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                       # no manual model, # UNSUPPORTED
+      # - ["java.lang", "System", False, "setProperty", "(String,String)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]  # no manual model, # UNSUPPORTED
+      # - ["java.lang", "System", False, "setProperty", "(String,String)", "", "Argument[0]", "Argument[-1].MapKey", "value", "manual"]
+      # - ["java.lang", "System", False, "setProperty", "(String,String)", "", "Argument[1]", "Argument[-1].MapValue", "value", "manual"]
+      # - ["java.lang", "ThreadLocal", True, "get", "()", "", "Argument[-1].SyntheticField[java.lang.ThreadLocal.value]", "ReturnValue", "value", "manual"]                                  # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Throwable", True, "toString", "()", "", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "ReturnValue", "taint", "manual"]                               # no manual model, # UNSUPPORTED
 
 
 
@@ -51,7 +65,15 @@ extensions:
       # - ["java.time", "LocalDate", "now", "()", "manual"]                                    # no manual model, # UNSUPPORTED
       # - ["java.time", "LocalDateTime", "now", "()", "manual"]                                # no manual model, # UNSUPPORTED
       # - ["java.lang.reflect", "Method", "getName", "()", "manual"]                           # no manual model, # UNSUPPORTED
-
+      # - ["java.lang", "Integer", "equals", "(Object)", "manual"]                             # no manual model, # ! SUPPORTED/UNSUPPORTED
+      # - ["java.lang", "Runnable", "run", "()", "manual"]                                     # no manual model, # UNSUPPORTED
+      # - ["java.lang", "String", "compareTo", "(String)", "manual"]                           # no manual model, # UNSUPPORTED
+      # - ["java.lang", "String", "indexOf", "(int)", "manual"]                                # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Class", "getCanonicalName", "()", "manual"]                           # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Enum", "hashCode", "()", "manual"]                                    # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Enum", "ordinal", "()", "manual"]                                     # no manual model, # UNSUPPORTED
+      # - ["java.lang", "System", "lineSeparator", "()", "manual"]                             # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Thread", "start", "()", "manual"]                                     # no manual model, # UNSUPPORTED
 
 
 # ****************************** UNSORTED ***********************************************************************************************************************************************************************
@@ -67,35 +89,41 @@ extensions:
 # - ["java.io", "FileInputStream", False, "FileInputStream", "(File)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
 # - ["java.io", "OutputStream", False, "write", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]                           # SUPPORTED
 
-- ["java.lang", "Boolean", False, "booleanValue", "()", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
-- ["java.lang", "Boolean", False, "parseBoolean", "(String)", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
-- ["java.lang", "Class", False, "getCanonicalName", "()", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
-- ["java.lang", "Enum", False, "hashCode", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
-- ["java.lang", "Enum", False, "ordinal", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
-- ["java.lang", "Integer", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # ! SUPPORTED/UNSUPPORTED
-- ["java.lang", "Integer", False, "Integer", "(int)", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.lang", "Integer", False, "valueOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.lang", "Long", False, "toString", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.lang", "Long", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                 # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.lang", "Long", False, "valueOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.lang", "Math", False, "max", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
-- ["java.lang", "NullPointerException", False, "NullPointerException", "(String)", "", "aaa", "aaa", "aaa", "manual"]  # no manual model, # UNSUPPORTED
-- ["java.lang", "Runnable", False, "run", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
-- ["java.lang", "String", False, "String", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]                              # SUPPORTED
-- ["java.lang", "String", False, "String", "(byte[],Charset)", "", "aaa", "aaa", "aaa", "manual"]                      # SUPPORTED
-- ["java.lang", "String", False, "join", "(CharSequence,Iterable)", "", "aaa", "aaa", "aaa", "manual"]                 # SUPPORTED
-- ["java.lang", "String", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # SUPPORTED
-- ["java.lang", "String", False, "toCharArray", "()", "", "aaa", "aaa", "aaa", "manual"]                               # SUPPORTED
-- ["java.lang", "String", False, "compareTo", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
-- ["java.lang", "String", False, "indexOf", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
-- ["java.lang", "StringBuilder", False, "append", "(long)", "", "aaa", "aaa", "aaa", "manual"]                         # SUPPORTED
-- ["java.lang", "StringBuilder", False, "StringBuilder", "(int)", "", "aaa", "aaa", "aaa", "manual"]                   # SUPPORTED
-- ["java.lang", "System", False, "arraycopy", "(Object,int,Object,int,int)", "", "aaa", "aaa", "aaa", "manual"]        # SUPPORTED
-- ["java.lang", "System", False, "lineSeparator", "()", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
-- ["java.lang", "System", False, "setProperty", "(String,String)", "", "aaa", "aaa", "aaa", "manual"]                  # no manual model, # UNSUPPORTED
-- ["java.lang", "Thread", False, "start", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
-- ["java.lang", "ThreadLocal", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
-- ["java.lang", "Throwable", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # UNSUPPORTED
+# - ["java.lang", "Boolean", False, "booleanValue", "()", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
+# - ["java.lang", "Boolean", False, "parseBoolean", "(String)", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
+# - ["java.lang", "Class", False, "getCanonicalName", "()", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
+# - ["java.lang", "Enum", False, "hashCode", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
+# - ["java.lang", "Enum", False, "ordinal", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
+
+# - ["java.lang", "Integer", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # ! SUPPORTED/UNSUPPORTED
+# - ["java.lang", "Integer", False, "Integer", "(int)", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.lang", "Integer", False, "valueOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.lang", "Long", False, "toString", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.lang", "Long", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                 # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.lang", "Long", False, "valueOf", "(String)", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.lang", "Math", False, "max", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
+
+# - ["java.lang", "NullPointerException", False, "NullPointerException", "(String)", "", "aaa", "aaa", "aaa", "manual"]  # no manual model, # UNSUPPORTED
+# - ["java.lang", "Runnable", False, "run", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
+
+# - ["java.lang", "String", False, "String", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]                              # SUPPORTED
+# - ["java.lang", "String", False, "String", "(byte[],Charset)", "", "aaa", "aaa", "aaa", "manual"]                      # SUPPORTED
+# - ["java.lang", "String", False, "join", "(CharSequence,Iterable)", "", "aaa", "aaa", "aaa", "manual"]                 # SUPPORTED
+# - ["java.lang", "String", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # SUPPORTED
+# - ["java.lang", "String", False, "toCharArray", "()", "", "aaa", "aaa", "aaa", "manual"]                               # SUPPORTED
+
+# - ["java.lang", "String", False, "compareTo", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
+# - ["java.lang", "String", False, "indexOf", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
+
+# - ["java.lang", "StringBuilder", False, "append", "(long)", "", "aaa", "aaa", "aaa", "manual"]                         # SUPPORTED
+# - ["java.lang", "StringBuilder", False, "StringBuilder", "(int)", "", "aaa", "aaa", "aaa", "manual"]                   # SUPPORTED
+# - ["java.lang", "System", False, "arraycopy", "(Object,int,Object,int,int)", "", "aaa", "aaa", "aaa", "manual"]        # SUPPORTED
+
+# - ["java.lang", "System", False, "lineSeparator", "()", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
+# - ["java.lang", "System", False, "setProperty", "(String,String)", "", "aaa", "aaa", "aaa", "manual"]                  # no manual model, # UNSUPPORTED
+# - ["java.lang", "Thread", False, "start", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
+# - ["java.lang", "ThreadLocal", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
+# - ["java.lang", "Throwable", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # UNSUPPORTED
 
 # - ["java.lang.reflect", "Method", False, "getName", "()", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
 # - ["java.lang.reflect", "Method", False, "invoke", "(Object,Object[])", "", "aaa", "aaa", "aaa", "manual"]             # no manual model, # UNSUPPORTED
