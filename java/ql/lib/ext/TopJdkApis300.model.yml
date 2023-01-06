@@ -51,6 +51,12 @@ extensions:
       # - ["java.util", "Calendar", True, "set", "(int,int)", "", "Argument[1]", "Argument[-1].Field[Argument[0]]", "value", "manual"]                              # no manual model, # UNSUPPORTED
       # - ["java.util", "ResourceBundle", True, "getString", "(String)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]                   # no manual model, # UNSUPPORTED
       # - ["java.util.stream", "IntStream", False, "range", "(int,int)", "", "Argument[0..1]", "ReturnValue.Element", "value", "manual"]                    # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent.atomic", "AtomicBoolean", False, "get", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicBoolean.value]", "ReturnValue", "value", "manual"]              # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent.atomic", "AtomicBoolean", False, "set", "(boolean)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicBoolean.value]", "value", "manual"]       # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent.atomic", "AtomicLong", False, "get", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicLong.value]", "ReturnValue", "value", "manual"]                 # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent.atomic", "AtomicInteger", False, "incrementAndGet", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicInteger.value]", "ReturnValue", "taint", "manual"]  # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent.atomic", "AtomicReference", False, "set", "(Object)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicReference.value]", "value", "manual"]      # no manual model, # UNSUPPORTED
+
 
   - addsTo:
       pack: codeql/java-all
@@ -210,12 +216,12 @@ extensions:
 - ["java.util.concurrent", "Future", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model, # UNSUPPORTED
 - ["java.util.concurrent", "TimeUnit", False, "toMillis", "(long)", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model, # UNSUPPORTED
 
-- ["java.util.concurrent.atomic", "AtomicBoolean", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]              # no manual model, # UNSUPPORTED
-- ["java.util.concurrent.atomic", "AtomicBoolean", False, "set", "(boolean)", "", "aaa", "aaa", "aaa", "manual"]       # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent.atomic", "AtomicBoolean", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]              # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent.atomic", "AtomicBoolean", False, "set", "(boolean)", "", "aaa", "aaa", "aaa", "manual"]       # no manual model, # UNSUPPORTED
 # - ["java.util.concurrent.atomic", "AtomicInteger", False, "AtomicInteger", "(int)", "", "aaa", "aaa", "aaa", "manual"] # SUPPORTED: I added this for top-200 AtomicInteger.get() model
-- ["java.util.concurrent.atomic", "AtomicInteger", False, "incrementAndGet", "()", "", "aaa", "aaa", "aaa", "manual"]  # no manual model, # UNSUPPORTED
-- ["java.util.concurrent.atomic", "AtomicLong", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model, # UNSUPPORTED
-- ["java.util.concurrent.atomic", "AtomicReference", False, "set", "(Object)", "", "aaa", "aaa", "aaa", "manual"]      # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent.atomic", "AtomicInteger", False, "incrementAndGet", "()", "", "aaa", "aaa", "aaa", "manual"]  # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent.atomic", "AtomicLong", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent.atomic", "AtomicReference", False, "set", "(Object)", "", "aaa", "aaa", "aaa", "manual"]      # no manual model, # UNSUPPORTED
 
 - ["java.util.function", "BiConsumer", False, "accept", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]          # no manual model, # UNSUPPORTED
 - ["java.util.function", "Function", False, "identity", "()", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
