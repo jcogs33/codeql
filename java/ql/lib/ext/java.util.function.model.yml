@@ -16,4 +16,6 @@ extensions:
       pack: codeql/java-all
       extensible: neutralModel
     data:
+      - ["java.util.function", "BiConsumer", "accept", "(Object,Object)", "manual"] # ! similarly to the below, I'm not sure if this should be a summary model instead.
       - ["java.util.function", "Consumer", "accept", "(Object)", "manual"]
+      - ["java.util.function", "Function", "identity", "()", "manual"]  # ! confirm this one since the Function class seems to confuse me

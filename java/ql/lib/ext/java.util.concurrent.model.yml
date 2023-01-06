@@ -17,9 +17,13 @@ extensions:
       - ["java.util.concurrent", "BlockingQueue", True, "poll", "(long,TimeUnit)", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]
       - ["java.util.concurrent", "BlockingQueue", True, "put", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
       - ["java.util.concurrent", "BlockingQueue", True, "take", "()", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]
+      - ["java.util.concurrent", "CompletableFuture", False, "get", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.CompletableFuture.value]", "ReturnValue", "value", "manual"] # ! not sure if using SyntheticField is correct here; also, should prbly remove this for `Future.get` below's subtyping to handle.
+      - ["java.util.concurrent", "CompletableFuture", False, "join", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.CompletableFuture.value]", "ReturnValue", "value", "manual"] # ! not sure if using SyntheticField is correct here
       - ["java.util.concurrent", "ConcurrentHashMap", True, "elements", "()", "", "Argument[-1].MapValue", "ReturnValue.Element", "value", "manual"]
       - ["java.util.concurrent", "CountDownLatch", False, "CountDownLatch", "(int)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.CountDownLatch.count]", "value", "manual"]
       - ["java.util.concurrent", "CountDownLatch", False, "getCount", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.CountDownLatch.count]", "ReturnValue", "value", "manual"]
+      - ["java.util.concurrent", "Future", True, "get", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.Future.value]", "ReturnValue", "value", "manual"] # ! not sure if using SyntheticField is correct here
+      - ["java.util.concurrent", "TimeUnit", False, "toMillis", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! not interesting as a general step?, change to neutral model?
       - ["java.util.concurrent", "TransferQueue", True, "transfer", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
       - ["java.util.concurrent", "TransferQueue", True, "tryTransfer", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
       - ["java.util.concurrent", "TransferQueue", True, "tryTransfer", "(Object,long,TimeUnit)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
@@ -28,4 +32,5 @@ extensions:
       pack: codeql/java-all
       extensible: neutralModel
     data:
+      - ["java.util.concurrent", "CountDownLatch", "await", "(long,TimeUnit)", "manual"]
       - ["java.util.concurrent", "CountDownLatch", "countDown", "()", "manual"]

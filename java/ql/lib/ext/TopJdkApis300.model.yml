@@ -56,7 +56,10 @@ extensions:
       # - ["java.util.concurrent.atomic", "AtomicLong", False, "get", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicLong.value]", "ReturnValue", "value", "manual"]                 # no manual model, # UNSUPPORTED
       # - ["java.util.concurrent.atomic", "AtomicInteger", False, "incrementAndGet", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicInteger.value]", "ReturnValue", "taint", "manual"]  # no manual model, # UNSUPPORTED
       # - ["java.util.concurrent.atomic", "AtomicReference", False, "set", "(Object)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicReference.value]", "value", "manual"]      # no manual model, # UNSUPPORTED
-
+      # - ["java.util.concurrent", "CompletableFuture", False, "get", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.CompletableFuture.value]", "ReturnValue", "value", "manual"]                 # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "CompletableFuture", False, "join", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.CompletableFuture.value]", "ReturnValue", "value", "manual"]                # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "Future", True, "get", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.Future.value]", "ReturnValue", "value", "manual"]                            # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "TimeUnit", False, "toMillis", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                 # no manual model, # UNSUPPORTED
 
   - addsTo:
       pack: codeql/java-all
@@ -98,6 +101,9 @@ extensions:
       # - ["java.util", "Set", "remove", "(Object)", "manual"]                                 # no manual model, # UNSUPPORTED
       # - ["java.util.logging", "Logger", "isLoggable", "(Level)", "manual"]                   # no manual model, # UNSUPPORTED
       # - ["java.util.regex", "Matcher", "find", "()", "manual"]                               # no manual model, # UNSUPPORTED
+      # - ["java.util.function", "BiConsumer", "accept", "(Object,Object)", "manual"]          # no manual model, # UNSUPPORTED
+      # - ["java.util.function", "Function", "identity", "()", "manual"]                       # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "CountDownLatch", "await", "(long,TimeUnit)", "manual"]     # no manual model, # UNSUPPORTED
 
 
 
@@ -207,14 +213,11 @@ extensions:
 # - ["java.util", "Set", False, "of", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                     # SUPPORTED
 # - ["java.util", "Set", False, "remove", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                 # no manual model, # UNSUPPORTED
 
-
-
-
-- ["java.util.concurrent", "CompletableFuture", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model, # UNSUPPORTED
-- ["java.util.concurrent", "CompletableFuture", False, "join", "()", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
-- ["java.util.concurrent", "CountDownLatch", False, "await", "(long,TimeUnit)", "", "aaa", "aaa", "aaa", "manual"]     # no manual model, # UNSUPPORTED
-- ["java.util.concurrent", "Future", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model, # UNSUPPORTED
-- ["java.util.concurrent", "TimeUnit", False, "toMillis", "(long)", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "CompletableFuture", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "CompletableFuture", False, "join", "()", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "CountDownLatch", False, "await", "(long,TimeUnit)", "", "aaa", "aaa", "aaa", "manual"]     # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "Future", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "TimeUnit", False, "toMillis", "(long)", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model, # UNSUPPORTED
 
 # - ["java.util.concurrent.atomic", "AtomicBoolean", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]              # no manual model, # UNSUPPORTED
 # - ["java.util.concurrent.atomic", "AtomicBoolean", False, "set", "(boolean)", "", "aaa", "aaa", "aaa", "manual"]       # no manual model, # UNSUPPORTED
@@ -223,8 +226,8 @@ extensions:
 # - ["java.util.concurrent.atomic", "AtomicLong", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model, # UNSUPPORTED
 # - ["java.util.concurrent.atomic", "AtomicReference", False, "set", "(Object)", "", "aaa", "aaa", "aaa", "manual"]      # no manual model, # UNSUPPORTED
 
-- ["java.util.function", "BiConsumer", False, "accept", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]          # no manual model, # UNSUPPORTED
-- ["java.util.function", "Function", False, "identity", "()", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
+# - ["java.util.function", "BiConsumer", False, "accept", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]          # no manual model, # UNSUPPORTED
+# - ["java.util.function", "Function", False, "identity", "()", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
 
 # - ["java.util.logging", "Logger", False, "isLoggable", "(Level)", "", "aaa", "aaa", "aaa", "manual"]                   # no manual model, # UNSUPPORTED
 # - ["java.util.regex", "Matcher", False, "find", "()", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # UNSUPPORTED
