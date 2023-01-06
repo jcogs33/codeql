@@ -50,8 +50,7 @@ extensions:
       # - ["java.util", "Calendar", True, "get", "(int)", "", "Argument[-1].Field[Argument[0]]", "ReturnValue", "value", "manual"]                                  # no manual model, # UNSUPPORTED
       # - ["java.util", "Calendar", True, "set", "(int,int)", "", "Argument[1]", "Argument[-1].Field[Argument[0]]", "value", "manual"]                              # no manual model, # UNSUPPORTED
       # - ["java.util", "ResourceBundle", True, "getString", "(String)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]                   # no manual model, # UNSUPPORTED
-
-
+      # - ["java.util.stream", "IntStream", False, "range", "(int,int)", "", "Argument[0..1]", "ReturnValue.Element", "value", "manual"]                    # no manual model, # UNSUPPORTED
 
   - addsTo:
       pack: codeql/java-all
@@ -90,7 +89,9 @@ extensions:
       # - ["java.util", "Objects", "isNull", "(Object)", "manual"]                             # no manual model, # UNSUPPORTED
       # - ["java.util", "Optional", "isEmpty", "()", "manual"]                                 # no manual model, # UNSUPPORTED
       # - ["java.util", "Random", "nextInt", "(int)", "manual"]                                # no manual model, # UNSUPPORTED
-      - ["java.util", "Set", "remove", "(Object)", "manual"]                                 # no manual model, # UNSUPPORTED
+      # - ["java.util", "Set", "remove", "(Object)", "manual"]                                 # no manual model, # UNSUPPORTED
+      # - ["java.util.logging", "Logger", "isLoggable", "(Level)", "manual"]                   # no manual model, # UNSUPPORTED
+      # - ["java.util.regex", "Matcher", "find", "()", "manual"]                               # no manual model, # UNSUPPORTED
 
 
 
@@ -219,9 +220,9 @@ extensions:
 - ["java.util.function", "BiConsumer", False, "accept", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]          # no manual model, # UNSUPPORTED
 - ["java.util.function", "Function", False, "identity", "()", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
 
-- ["java.util.logging", "Logger", False, "isLoggable", "(Level)", "", "aaa", "aaa", "aaa", "manual"]                   # no manual model, # UNSUPPORTED
-- ["java.util.regex", "Matcher", False, "find", "()", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # UNSUPPORTED
+# - ["java.util.logging", "Logger", False, "isLoggable", "(Level)", "", "aaa", "aaa", "aaa", "manual"]                   # no manual model, # UNSUPPORTED
+# - ["java.util.regex", "Matcher", False, "find", "()", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # UNSUPPORTED
 
-- ["java.util.stream", "IntStream", False, "range", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model, # UNSUPPORTED
+# - ["java.util.stream", "IntStream", False, "range", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model, # UNSUPPORTED
 # - ["java.util.stream", "Stream", False, "toList", "()", "", "aaa", "aaa", "aaa", "manual"]                             # SUPPORTED
 # - ["java.util.stream", "Stream", False, "sorted", "(Comparator)", "", "aaa", "aaa", "aaa", "manual"]                   # SUPPORTED
