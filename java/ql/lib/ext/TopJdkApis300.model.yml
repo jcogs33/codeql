@@ -23,6 +23,16 @@ extensions:
       # - ["java.nio.charset", "Charset", False, "name", "()", "", "Argument[-1].SyntheticField[java.nio.charset.Charset.canonicalName]", "ReturnValue", "value", "manual"]                              # no manual model, # UNSUPPORTED
       # - ["java.time", "Duration", False, "ofSeconds", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                           # no manual model, # UNSUPPORTED
       # - ["java.text", "DateFormat", True, "parse", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                           # no manual model, # UNSUPPORTED
+      # - ["java.math", "BigDecimal", False, "BigDecimal", "(int)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                         # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.math", "BigInteger", False, "valueOf", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                           # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.math", "BigDecimal", False, "add", "(BigDecimal)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                         # no manual model, # UNSUPPORTED
+      # - ["java.math", "BigDecimal", False, "add", "(BigDecimal)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      # - ["java.lang.reflect", "Method", False, "invoke", "(Object,Object[])", "", "Argument[1].ArrayElement", "Argument[-1].Parameter[0]", "value", "manual"]             # no manual model, # UNSUPPORTED
+      # - ["java.sql", "ResultSet", True, "getLong", "(String)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                           # no manual model, # UNSUPPORTED
+      # - ["java.sql", "ResultSet", True, "getString", "(int)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                            # no manual model, # UNSUPPORTED
+      # - ["java.sql", "PreparedStatement", True, "executeQuery", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                    # no manual model, # UNSUPPORTED
+      # - ["java.sql", "Timestamp", False, "Timestamp", "(long)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                           # no manual model, # UNSUPPORTED
+
 
 
   - addsTo:
@@ -40,6 +50,7 @@ extensions:
       # - ["java.io", "File", "delete", "()", "manual"]                                        # no manual model, # UNSUPPORTED
       # - ["java.time", "LocalDate", "now", "()", "manual"]                                    # no manual model, # UNSUPPORTED
       # - ["java.time", "LocalDateTime", "now", "()", "manual"]                                # no manual model, # UNSUPPORTED
+      # - ["java.lang.reflect", "Method", "getName", "()", "manual"]                           # no manual model, # UNSUPPORTED
 
 
 
@@ -86,22 +97,22 @@ extensions:
 - ["java.lang", "ThreadLocal", False, "get", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
 - ["java.lang", "Throwable", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # UNSUPPORTED
 
-- ["java.lang.reflect", "Method", False, "getName", "()", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
-- ["java.lang.reflect", "Method", False, "invoke", "(Object,Object[])", "", "aaa", "aaa", "aaa", "manual"]             # no manual model, # UNSUPPORTED
+# - ["java.lang.reflect", "Method", False, "getName", "()", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
+# - ["java.lang.reflect", "Method", False, "invoke", "(Object,Object[])", "", "aaa", "aaa", "aaa", "manual"]             # no manual model, # UNSUPPORTED
 
-- ["java.math", "BigDecimal", False, "add", "(BigDecimal)", "", "aaa", "aaa", "aaa", "manual"]                         # no manual model, # UNSUPPORTED
-- ["java.math", "BigDecimal", False, "BigDecimal", "(int)", "", "aaa", "aaa", "aaa", "manual"]                         # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.math", "BigInteger", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.math", "BigDecimal", False, "add", "(BigDecimal)", "", "aaa", "aaa", "aaa", "manual"]                         # no manual model, # UNSUPPORTED
+# - ["java.math", "BigDecimal", False, "BigDecimal", "(int)", "", "aaa", "aaa", "aaa", "manual"]                         # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.math", "BigInteger", False, "valueOf", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
 
 # - ["java.net", "URI", False, "create", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # SUPPORTED
 # - ["java.net", "URI", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                      # SUPPORTED
 
 # - ["java.nio.charset", "Charset", False, "name", "()", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
 
-- ["java.sql", "PreparedStatement", False, "executeQuery", "()", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model, # UNSUPPORTED
-- ["java.sql", "ResultSet", False, "getLong", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
-- ["java.sql", "ResultSet", False, "getString", "(int)", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model, # UNSUPPORTED
-- ["java.sql", "Timestamp", False, "Timestamp", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
+# - ["java.sql", "PreparedStatement", False, "executeQuery", "()", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model, # UNSUPPORTED
+# - ["java.sql", "ResultSet", False, "getLong", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
+# - ["java.sql", "ResultSet", False, "getString", "(int)", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model, # UNSUPPORTED
+# - ["java.sql", "Timestamp", False, "Timestamp", "(long)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
 
 # - ["java.text", "DateFormat", False, "parse", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
 
