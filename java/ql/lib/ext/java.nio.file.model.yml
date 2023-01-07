@@ -33,3 +33,8 @@ extensions:
       - ["java.nio.file", "Path", True, "toUri", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.nio.file", "Paths", True, "get", "", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.nio.file", "Paths", True, "get", "", "", "Argument[1].ArrayElement", "ReturnValue", "taint", "manual"]
+  - addsTo:
+      pack: codeql/java-all
+      extensible: neutralModel
+    data:
+      - ["java.nio.file", "Files", "exists", "(Path,LinkOption[])", "manual"]

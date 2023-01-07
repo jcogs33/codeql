@@ -20,12 +20,15 @@ extensions:
       extensible: summaryModel
     data:
       - ["java.sql", "PreparedStatement", True, "setInt", "(int,int)", "", "Argument[1]", "Argument[-1]", "value", "manual"]
+      - ["java.sql", "PreparedStatement", True, "setLong", "(int,long)", "", "Argument[1]", "Argument[-1]", "value", "manual"] # ! I'm questioning this model again, should it at least be a taint step?
       - ["java.sql", "PreparedStatement", True, "setString", "(int,String)", "", "Argument[1]", "Argument[-1]", "value", "manual"]
       - ["java.sql", "ResultSet", True, "getInt", "(String)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.sql", "ResultSet", True, "getString", "(String)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.sql", "Timestamp", False, "getTime", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]  # ! I feel like this should maybe be a neutral; also may need field flow with constructor?
 
   - addsTo:
       pack: codeql/java-all
       extensible: neutralModel
     data:
+      - ["java.sql", "PreparedStatement", "executeUpdate", "()", "manual"]
       - ["java.sql", "ResultSet", "next", "()", "manual"]

@@ -25,6 +25,10 @@ extensions:
       # - ["java.util.concurrent.atomic", "AtomicLong", False, "addAndGet", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]         # no manual model, # UNSUPPORTED
       # - ["java.util.concurrent.atomic", "AtomicLong", False, "addAndGet", "(long)", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicLong.value]", "ReturnValue", "taint", "manual"]
       # - ["java.util.concurrent.atomic", "AtomicLong", False, "AtomicLong", "(long)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicLong.value]", "value", "manual"]        # no manual model, # ! SUPPORTED, why is this showing as supported, I haven't merged any of 200-300 models...
+      # - ["java.text", "MessageFormat", False, "format", "(String,Object[])", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      # - ["java.text", "MessageFormat", False, "format", "(String,Object[])", "", "Argument[1].ArrayElement", "ReturnValue", "taint", "manual"]                # no manual model, # UNSUPPORTED
+      # - ["java.sql", "Timestamp", False, "getTime", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                   # no manual model, # UNSUPPORTED
+      # - ["java.sql", "PreparedStatement", True, "setLong", "(int,long)", "", "Argument[1]", "Argument[-1]", "value", "manual"]                   # no manual model, # UNSUPPORTED
 
 
   - addsTo:
@@ -43,6 +47,8 @@ extensions:
       # - ["java.nio", "ByteBuffer", "allocate", "(int)", "manual"]                              # no manual model, # UNSUPPORTED
       # - ["java.util.stream", "Stream", "count", "()", "manual"]                                # no manual model, # UNSUPPORTED
       # - ["java.util.concurrent.locks", "Lock", "unlock", "()", "manual"]                       # no manual model, # UNSUPPORTED
+      # - ["java.nio.file", "Files", "exists", "(Path,LinkOption[])", "manual"]                  # no manual model, # UNSUPPORTED
+      # - ["java.sql", "PreparedStatement", "executeUpdate", "()", "manual"]                     # no manual model, # UNSUPPORTED
 
 
 
@@ -100,14 +106,14 @@ extensions:
 # - ["java.nio", "ByteBuffer", False, "allocate", "(int)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
 # - ["java.nio", "ByteBuffer", False, "wrap", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]                               # SUPPORTED
 
-- ["java.nio.file", "Files", False, "exists", "(Path,LinkOption[])", "", "aaa", "aaa", "aaa", "manual"]                  # no manual model, # UNSUPPORTED
-- ["java.nio.file", "Path", False, "toAbsolutePath", "()", "", "aaa", "aaa", "aaa", "manual"]                            # ! SUPPORTED/UNSUPPORTED
+# - ["java.nio.file", "Files", False, "exists", "(Path,LinkOption[])", "", "aaa", "aaa", "aaa", "manual"]                  # no manual model, # UNSUPPORTED
+# - ["java.nio.file", "Path", False, "toAbsolutePath", "()", "", "aaa", "aaa", "aaa", "manual"]                            # ! SUPPORTED/UNSUPPORTED, a model exists already in java.nio.file.model.yml
 
-- ["java.sql", "PreparedStatement", False, "executeUpdate", "()", "", "aaa", "aaa", "aaa", "manual"]                     # no manual model, # UNSUPPORTED
-- ["java.sql", "PreparedStatement", False, "setLong", "(int,long)", "", "aaa", "aaa", "aaa", "manual"]                   # no manual model, # UNSUPPORTED
-- ["java.sql", "Timestamp", False, "getTime", "()", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # UNSUPPORTED
+# - ["java.sql", "PreparedStatement", False, "executeUpdate", "()", "", "aaa", "aaa", "aaa", "manual"]                     # no manual model, # UNSUPPORTED
+# - ["java.sql", "PreparedStatement", False, "setLong", "(int,long)", "", "aaa", "aaa", "aaa", "manual"]                   # no manual model, # UNSUPPORTED
+# - ["java.sql", "Timestamp", False, "getTime", "()", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # UNSUPPORTED
 
-- ["java.text", "MessageFormat", False, "format", "(String,Object[])", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
+# - ["java.text", "MessageFormat", False, "format", "(String,Object[])", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
 
 - ["java.time", "Duration", False, "ofMillis", "(long)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
 - ["java.time", "Duration", False, "toMillis", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED

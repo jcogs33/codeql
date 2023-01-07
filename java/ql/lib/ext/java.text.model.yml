@@ -1,6 +1,13 @@
 extensions:
   - addsTo:
       pack: codeql/java-all
+      extensible: summaryModel
+    data:
+      - ["java.text", "MessageFormat", False, "format", "(String,Object[])", "", "Argument[0]", "ReturnValue", "taint", "manual"]              # ! not sure I did this right
+      - ["java.text", "MessageFormat", False, "format", "(String,Object[])", "", "Argument[1].ArrayElement", "ReturnValue", "taint", "manual"] # ! not sure I did this right
+
+  - addsTo:
+      pack: codeql/java-all
       extensible: neutralModel
     data:
       - ["java.text", "DateFormat", "format", "(Date)", "manual"]
