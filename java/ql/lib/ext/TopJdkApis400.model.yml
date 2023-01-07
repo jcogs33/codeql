@@ -12,15 +12,15 @@ extensions:
         # no manual model
 
       # COMMENT OUT WHEN MOVED TO FINAL FILE
-      # * ALREADY SUPPORTED, NO NEED TO ADD A MODEL
-
-
       # * NEED TO ADD A MODEL
       # - ["java.math", "BigDecimal", False, "doubleValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                             # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
       # - ["java.math", "BigDecimal", False, "toString", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
       # - ["java.math", "BigDecimal", False, "setScale", "(int,RoundingMode)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                # no manual model
       # - ["java.math", "BigInteger", False, "or", "(BigInteger)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                            # no manual model
       # - ["java.math", "BigInteger", False, "or", "(BigInteger)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      # - ["java.awt", "Container", True, "add", "(Component)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]                              # no manual model, # UNSUPPORTED
+
+
 
   - addsTo:
       pack: codeql/java-all
@@ -34,12 +34,14 @@ extensions:
 
       # COMMENT OUT WHEN MOVED TO FINAL FILE
       # * NEED TO ADD A MODEL
+      # - ["java.nio", "Buffer", "remaining", "()", "manual"]                                    # no manual model, # UNSUPPORTED
+      # - ["java.nio", "ByteBuffer", "allocate", "(int)", "manual"]                              # no manual model, # UNSUPPORTED
 
 
 
 # ****************************************************************************************************************************************************************************************************
 # ! top-400 ******************************
-- ["java.awt", "Container", False, "add", "(Component)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
+# - ["java.awt", "Container", False, "add", "(Component)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
 
 - ["java.io", "File", False, "getPath", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
 - ["java.io", "File", False, "isDirectory", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
@@ -87,9 +89,9 @@ extensions:
 # - ["java.net", "URI", False, "URI", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                       # SUPPORTED
 # - ["java.net", "URL", False, "URL", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                       # SUPPORTED
 
-- ["java.nio", "Buffer", False, "remaining", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
-- ["java.nio", "ByteBuffer", False, "allocate", "(int)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
-- ["java.nio", "ByteBuffer", False, "wrap", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]                               # SUPPORTED
+# - ["java.nio", "Buffer", False, "remaining", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
+# - ["java.nio", "ByteBuffer", False, "allocate", "(int)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
+# - ["java.nio", "ByteBuffer", False, "wrap", "(byte[])", "", "aaa", "aaa", "aaa", "manual"]                               # SUPPORTED
 
 - ["java.nio.file", "Files", False, "exists", "(Path,LinkOption[])", "", "aaa", "aaa", "aaa", "manual"]                  # no manual model, # UNSUPPORTED
 - ["java.nio.file", "Path", False, "toAbsolutePath", "()", "", "aaa", "aaa", "aaa", "manual"]                            # ! SUPPORTED/UNSUPPORTED
