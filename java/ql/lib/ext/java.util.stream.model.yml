@@ -96,3 +96,4 @@ extensions:
       - ["java.util.stream", "Collectors", "toList", "()", "manual"]
       - ["java.util.stream", "Collectors", "toMap", "(Function,Function)", "manual"]
       - ["java.util.stream", "Collectors", "toSet", "()", "manual"]
+      - ["java.util.stream", "Stream", "count", "()", "manual"]

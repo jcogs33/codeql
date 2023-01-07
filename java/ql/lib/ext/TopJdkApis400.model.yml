@@ -19,6 +19,8 @@ extensions:
       # - ["java.math", "BigInteger", False, "or", "(BigInteger)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                            # no manual model
       # - ["java.math", "BigInteger", False, "or", "(BigInteger)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       # - ["java.awt", "Container", True, "add", "(Component)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]                              # no manual model, # UNSUPPORTED
+      # - ["java.util.logging", "Logger", False, "getLogger", "(String)", "", "Argument[0]", "ReturnValue.SyntheticField[java.util.logging.Logger.name]", "value", "manual"]                     # no manual model, # UNSUPPORTED
+      # - ["java.util.regex", "Pattern", False, "compile", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                        # no manual model, # UNSUPPORTED
 
 
 
@@ -36,6 +38,7 @@ extensions:
       # * NEED TO ADD A MODEL
       # - ["java.nio", "Buffer", "remaining", "()", "manual"]                                    # no manual model, # UNSUPPORTED
       # - ["java.nio", "ByteBuffer", "allocate", "(int)", "manual"]                              # no manual model, # UNSUPPORTED
+      # - ["java.util.stream", "Stream", "count", "()", "manual"]                                # no manual model, # UNSUPPORTED
 
 
 
@@ -150,10 +153,10 @@ extensions:
 
 - ["java.util.concurrent.locks", "Lock", False, "unlock", "()", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
 
-- ["java.util.logging", "Logger", False, "getLogger", "(String)", "", "aaa", "aaa", "aaa", "manual"]                     # no manual model, # UNSUPPORTED
-- ["java.util.regex", "Pattern", False, "compile", "(String)", "", "aaa", "aaa", "aaa", "manual"]                        # no manual model, # UNSUPPORTED
+# - ["java.util.logging", "Logger", False, "getLogger", "(String)", "", "aaa", "aaa", "aaa", "manual"]                     # no manual model, # UNSUPPORTED
+# - ["java.util.regex", "Pattern", False, "compile", "(String)", "", "aaa", "aaa", "aaa", "manual"]                        # no manual model, # UNSUPPORTED
 
-- ["java.util.stream", "Stream", False, "count", "()", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
-- ["java.util.stream", "Stream", False, "findAny", "()", "", "aaa", "aaa", "aaa", "manual"]                              # SUPPORTED
-- ["java.util.stream", "Stream", False, "of", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                             # SUPPORTED
-- ["java.util.stream", "Stream", False, "toArray", "(IntFunction)", "", "aaa", "aaa", "aaa", "manual"]                   # SUPPORTED
+# - ["java.util.stream", "Stream", False, "count", "()", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
+# - ["java.util.stream", "Stream", False, "findAny", "()", "", "aaa", "aaa", "aaa", "manual"]                              # SUPPORTED
+# - ["java.util.stream", "Stream", False, "of", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                             # SUPPORTED
+# - ["java.util.stream", "Stream", False, "toArray", "(IntFunction)", "", "aaa", "aaa", "aaa", "manual"]                   # SUPPORTED

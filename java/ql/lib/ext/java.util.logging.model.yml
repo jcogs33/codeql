@@ -12,6 +12,8 @@ extensions:
       - ["java.util.logging", "Logger", True, "fine", "", "", "Argument[0]", "logging", "manual"]
       - ["java.util.logging", "Logger", True, "finer", "", "", "Argument[0]", "logging", "manual"]
       - ["java.util.logging", "Logger", True, "finest", "", "", "Argument[0]", "logging", "manual"]
+      # ! why subtype "True" for the rest of these?, sould I switch below to "True"?
+      - ["java.util.logging", "Logger", False, "getLogger", "(String)", "", "Argument[0]", "ReturnValue.SyntheticField[java.util.logging.Logger.name]", "value", "manual"] # ! not sure if using SyntheticField here is correct...
       - ["java.util.logging", "Logger", True, "info", "", "", "Argument[0]", "logging", "manual"]
       - ["java.util.logging", "Logger", True, "log", "(Level,String)", "", "Argument[1]", "logging", "manual"]
       - ["java.util.logging", "Logger", True, "log", "(Level,String,Object)", "", "Argument[1..2]", "logging", "manual"]
