@@ -21,7 +21,10 @@ extensions:
       # - ["java.awt", "Container", True, "add", "(Component)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]                              # no manual model, # UNSUPPORTED
       # - ["java.util.logging", "Logger", False, "getLogger", "(String)", "", "Argument[0]", "ReturnValue.SyntheticField[java.util.logging.Logger.name]", "value", "manual"]                     # no manual model, # UNSUPPORTED
       # - ["java.util.regex", "Pattern", False, "compile", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                        # no manual model, # UNSUPPORTED
-
+      # - ["java.util.concurrent.atomic", "AtomicBoolean", False, "AtomicBoolean", "(boolean)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicBoolean.value]", "value", "manual"] # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent.atomic", "AtomicLong", False, "addAndGet", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]         # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent.atomic", "AtomicLong", False, "addAndGet", "(long)", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicLong.value]", "ReturnValue", "taint", "manual"]
+      # - ["java.util.concurrent.atomic", "AtomicLong", False, "AtomicLong", "(long)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicLong.value]", "value", "manual"]        # no manual model, # ! SUPPORTED, why is this showing as supported, I haven't merged any of 200-300 models...
 
 
   - addsTo:
@@ -39,6 +42,7 @@ extensions:
       # - ["java.nio", "Buffer", "remaining", "()", "manual"]                                    # no manual model, # UNSUPPORTED
       # - ["java.nio", "ByteBuffer", "allocate", "(int)", "manual"]                              # no manual model, # UNSUPPORTED
       # - ["java.util.stream", "Stream", "count", "()", "manual"]                                # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent.locks", "Lock", "unlock", "()", "manual"]                       # no manual model, # UNSUPPORTED
 
 
 
@@ -147,11 +151,11 @@ extensions:
 - ["java.util.concurrent", "ConcurrentHashMap", False, "get", "(Object)", "", "aaa", "aaa", "aaa", "manual"]             # SUPPORTED
 - ["java.util.concurrent", "Executor", False, "execute", "(Runnable)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
 
-- ["java.util.concurrent.atomic", "AtomicBoolean", False, "AtomicBoolean", "(boolean)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
-- ["java.util.concurrent.atomic", "AtomicLong", False, "addAndGet", "(long)", "", "aaa", "aaa", "aaa", "manual"]         # no manual model, # UNSUPPORTED
-- ["java.util.concurrent.atomic", "AtomicLong", False, "AtomicLong", "(long)", "", "aaa", "aaa", "aaa", "manual"]        # no manual model, # ! SUPPORTED, why is this showing as supported, I haven't merged any of 200-300 models...
+# - ["java.util.concurrent.atomic", "AtomicBoolean", False, "AtomicBoolean", "(boolean)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent.atomic", "AtomicLong", False, "addAndGet", "(long)", "", "aaa", "aaa", "aaa", "manual"]         # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent.atomic", "AtomicLong", False, "AtomicLong", "(long)", "", "aaa", "aaa", "aaa", "manual"]        # no manual model, # ! SUPPORTED, why is this showing as supported, I haven't merged any of 200-300 models...
 
-- ["java.util.concurrent.locks", "Lock", False, "unlock", "()", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent.locks", "Lock", False, "unlock", "()", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
 
 # - ["java.util.logging", "Logger", False, "getLogger", "(String)", "", "aaa", "aaa", "aaa", "manual"]                     # no manual model, # UNSUPPORTED
 # - ["java.util.regex", "Pattern", False, "compile", "(String)", "", "aaa", "aaa", "aaa", "manual"]                        # no manual model, # UNSUPPORTED

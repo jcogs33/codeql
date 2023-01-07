@@ -3,7 +3,11 @@ extensions:
       pack: codeql/java-all
       extensible: summaryModel
     data:
+      - ["java.util.concurrent.atomic", "AtomicBoolean", False, "AtomicBoolean", "(boolean)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicBoolean.value]", "value", "manual"]
       - ["java.util.concurrent.atomic", "AtomicInteger", False, "AtomicInteger", "(int)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicInteger.value]", "value", "manual"]
       - ["java.util.concurrent.atomic", "AtomicInteger", False, "get", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicInteger.value]", "ReturnValue", "value", "manual"]
+      - ["java.util.concurrent.atomic", "AtomicLong", False, "AtomicLong", "(long)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicLong.value]", "value", "manual"] # ! this is supposedly already supported per the telemetry query, LOOK INTO WHY/HOW
+      - ["java.util.concurrent.atomic", "AtomicLong", False, "addAndGet", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      - ["java.util.concurrent.atomic", "AtomicLong", False, "addAndGet", "(long)", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicLong.value]", "ReturnValue", "taint", "manual"]
       - ["java.util.concurrent.atomic", "AtomicReference", False, "AtomicReference", "(Object)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicReference.value]", "value", "manual"]
       - ["java.util.concurrent.atomic", "AtomicReference", False, "get", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.atomic.AtomicReference.value]", "ReturnValue", "value", "manual"]
