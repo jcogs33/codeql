@@ -1,6 +1,17 @@
 extensions:
   - addsTo:
       pack: codeql/java-all
+      extensible: summaryModel
+    data:
+      - ["java.time", "Duration", False, "ofMillis", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! I'm confused now about taint step to new type versus value step to syntheticfield...; also should these be neutral because uninteresting flow?
+      - ["java.time", "Duration", False, "ofMinutes", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      - ["java.time", "Duration", False, "toMillis", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.time", "Instant", False, "toEpochMilli", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.time", "LocalDateTime", False, "of", "(int,int,int,int,int,int)", "", "Argument[0..5]", "ReturnValue", "taint", "manual"] # ! neutral?
+      - ["java.time", "ZoneId", False, "of", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! neutral?
+
+  - addsTo:
+      pack: codeql/java-all
       extensible: neutralModel
     data:
       - ["java.time", "Instant", "now", "()", "manual"]

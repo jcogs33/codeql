@@ -29,6 +29,14 @@ extensions:
       # - ["java.text", "MessageFormat", False, "format", "(String,Object[])", "", "Argument[1].ArrayElement", "ReturnValue", "taint", "manual"]                # no manual model, # UNSUPPORTED
       # - ["java.sql", "Timestamp", False, "getTime", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                   # no manual model, # UNSUPPORTED
       # - ["java.sql", "PreparedStatement", True, "setLong", "(int,long)", "", "Argument[1]", "Argument[-1]", "value", "manual"]                   # no manual model, # UNSUPPORTED
+      # - ["java.time", "Duration", False, "ofMillis", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                              # no manual model, # UNSUPPORTED
+      # - ["java.time", "Duration", False, "toMillis", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                  # no manual model, # UNSUPPORTED
+      # - ["java.time", "Duration", False, "ofMinutes", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                             # no manual model, # UNSUPPORTED
+      # - ["java.time", "Instant", False, "toEpochMilli", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                               # no manual model, # UNSUPPORTED
+      # - ["java.time", "LocalDateTime", False, "of", "(int,int,int,int,int,int)", "", "Argument[0..5]", "ReturnValue", "taint", "manual"]            # no manual model, # UNSUPPORTED
+      # - ["java.time", "ZoneId", False, "of", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                    # no manual model, # UNSUPPORTED
+      # - ["java.time.chrono", "ChronoZonedDateTime", False, "toInstant", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]               # no manual model, # UNSUPPORTED
+      # - ["java.time.format", "DateTimeFormatter", False, "ofPattern", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]           # no manual model, # UNSUPPORTED
 
 
   - addsTo:
@@ -115,14 +123,14 @@ extensions:
 
 # - ["java.text", "MessageFormat", False, "format", "(String,Object[])", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
 
-- ["java.time", "Duration", False, "ofMillis", "(long)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
-- ["java.time", "Duration", False, "toMillis", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
-- ["java.time", "Duration", False, "ofMinutes", "(long)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
-- ["java.time", "Instant", False, "toEpochMilli", "()", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # UNSUPPORTED
-- ["java.time", "LocalDateTime", False, "of", "(int,int,int,int,int,int)", "", "aaa", "aaa", "aaa", "manual"]            # no manual model, # UNSUPPORTED
-- ["java.time", "ZoneId", False, "of", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
-- ["java.time.chrono", "ChronoZonedDateTime", False, "toInstant", "()", "", "aaa", "aaa", "aaa", "manual"]               # no manual model, # UNSUPPORTED
-- ["java.time.format", "DateTimeFormatter", False, "ofPattern", "(String)", "", "aaa", "aaa", "aaa", "manual"]           # no manual model, # UNSUPPORTED
+# - ["java.time", "Duration", False, "ofMillis", "(long)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
+# - ["java.time", "Duration", False, "toMillis", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
+# - ["java.time", "Duration", False, "ofMinutes", "(long)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
+# - ["java.time", "Instant", False, "toEpochMilli", "()", "", "aaa", "aaa", "aaa", "manual"]                               # no manual model, # UNSUPPORTED
+# - ["java.time", "LocalDateTime", False, "of", "(int,int,int,int,int,int)", "", "aaa", "aaa", "aaa", "manual"]            # no manual model, # UNSUPPORTED
+# - ["java.time", "ZoneId", False, "of", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
+# - ["java.time.chrono", "ChronoZonedDateTime", False, "toInstant", "()", "", "aaa", "aaa", "aaa", "manual"]               # no manual model, # UNSUPPORTED
+# - ["java.time.format", "DateTimeFormatter", False, "ofPattern", "(String)", "", "aaa", "aaa", "aaa", "manual"]           # no manual model, # UNSUPPORTED
 
 - ["java.util", "ArrayList", False, "addAll", "(Collection)", "", "aaa", "aaa", "aaa", "manual"]                         # SUPPORTED
 - ["java.util", "ArrayList", False, "isEmpty", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
