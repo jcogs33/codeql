@@ -39,7 +39,8 @@ extensions:
       # - ["java.time.format", "DateTimeFormatter", False, "ofPattern", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]           # no manual model, # UNSUPPORTED
       # - ["java.util", "Calendar", True, "getTimeInMillis", "()", "", "Argument[-1].Field[java.util.Calendar.time]", "ReturnValue", "taint", "manual"]                           # no manual model, # UNSUPPORTED
       # - ["java.util", "UUID", False, "fromString", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                              # no manual model, # UNSUPPORTED
-
+      # - ["java.util.concurrent", "CompletableFuture", False, "complete", "(Object)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.CompletableFuture.value]", "value", "manual"]        # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "CompletableFuture", False, "completedFuture", "(Object)", "", "Argument[0]", "ReturnValue.SyntheticField[java.util.concurrent.CompletableFuture.value]", "value", "manual"] # no manual model, # UNSUPPORTED
 
   - addsTo:
       pack: codeql/java-all
@@ -70,6 +71,8 @@ extensions:
       # - ["java.util", "Objects", "hashCode", "(Object)", "manual"]                             # no manual model, # UNSUPPORTED
       # - ["java.util", "Set", "clear", "()", "manual"]                                          # no manual model, # UNSUPPORTED
       # - ["java.util", "Vector", "size", "()", "manual"]                                        # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "Executor", "execute", "(Runnable)", "manual"]                # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "CompletableFuture", "completeExceptionally", "(Throwable)", "manual"] # no manual model, # UNSUPPORTED
 
 
 # ****************************************************************************************************************************************************************************************************
@@ -174,11 +177,11 @@ extensions:
 # - ["java.util", "Vector", False, "add", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                   # SUPPORTED, through `Collection.add` subtyping
 # - ["java.util", "Vector", False, "size", "()", "", "aaa", "aaa", "aaa", "manual"]                                        # no manual model, # UNSUPPORTED
 
-- ["java.util.concurrent", "CompletableFuture", False, "complete", "(Object)", "", "aaa", "aaa", "aaa", "manual"]        # no manual model, # UNSUPPORTED
-- ["java.util.concurrent", "CompletableFuture", False, "completeExceptionally", "(Throwable)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
-- ["java.util.concurrent", "CompletableFuture", False, "completedFuture", "(Object)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
-- ["java.util.concurrent", "ConcurrentHashMap", False, "get", "(Object)", "", "aaa", "aaa", "aaa", "manual"]             # SUPPORTED
-- ["java.util.concurrent", "Executor", False, "execute", "(Runnable)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "CompletableFuture", False, "complete", "(Object)", "", "aaa", "aaa", "aaa", "manual"]        # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "CompletableFuture", False, "completeExceptionally", "(Throwable)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "CompletableFuture", False, "completedFuture", "(Object)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "ConcurrentHashMap", False, "get", "(Object)", "", "aaa", "aaa", "aaa", "manual"]             # SUPPORTED, through `Map.get` subtyping
+# - ["java.util.concurrent", "Executor", False, "execute", "(Runnable)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
 
 # - ["java.util.concurrent.atomic", "AtomicBoolean", False, "AtomicBoolean", "(boolean)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
 # - ["java.util.concurrent.atomic", "AtomicLong", False, "addAndGet", "(long)", "", "aaa", "aaa", "aaa", "manual"]         # no manual model, # UNSUPPORTED

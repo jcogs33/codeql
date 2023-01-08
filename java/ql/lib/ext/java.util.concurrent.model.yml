@@ -17,6 +17,8 @@ extensions:
       - ["java.util.concurrent", "BlockingQueue", True, "poll", "(long,TimeUnit)", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]
       - ["java.util.concurrent", "BlockingQueue", True, "put", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
       - ["java.util.concurrent", "BlockingQueue", True, "take", "()", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]
+      - ["java.util.concurrent", "CompletableFuture", False, "complete", "(Object)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.CompletableFuture.value]", "value", "manual"] # ! not sure about CompleteableFuture ones
+      - ["java.util.concurrent", "CompletableFuture", False, "completedFuture", "(Object)", "", "Argument[0]", "ReturnValue.SyntheticField[java.util.concurrent.CompletableFuture.value]", "value", "manual"]
       - ["java.util.concurrent", "ConcurrentHashMap", True, "elements", "()", "", "Argument[-1].MapValue", "ReturnValue.Element", "value", "manual"]
       - ["java.util.concurrent", "CountDownLatch", False, "CountDownLatch", "(int)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.CountDownLatch.count]", "value", "manual"]
       - ["java.util.concurrent", "CountDownLatch", False, "getCount", "()", "", "Argument[-1].SyntheticField[java.util.concurrent.CountDownLatch.count]", "ReturnValue", "value", "manual"]
@@ -28,4 +30,6 @@ extensions:
       pack: codeql/java-all
       extensible: neutralModel
     data:
+      - ["java.util.concurrent", "CompletableFuture", "completeExceptionally", "(Throwable)", "manual"] # ! summary?
       - ["java.util.concurrent", "CountDownLatch", "countDown", "()", "manual"]
+      - ["java.util.concurrent", "Executor", "execute", "(Runnable)", "manual"]
