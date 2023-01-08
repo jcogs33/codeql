@@ -37,6 +37,8 @@ extensions:
       # - ["java.time", "ZoneId", False, "of", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                    # no manual model, # UNSUPPORTED
       # - ["java.time.chrono", "ChronoZonedDateTime", False, "toInstant", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]               # no manual model, # UNSUPPORTED
       # - ["java.time.format", "DateTimeFormatter", False, "ofPattern", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]           # no manual model, # UNSUPPORTED
+      # - ["java.util", "Calendar", True, "getTimeInMillis", "()", "", "Argument[-1].Field[java.util.Calendar.time]", "ReturnValue", "taint", "manual"]                           # no manual model, # UNSUPPORTED
+      # - ["java.util", "UUID", False, "fromString", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                              # no manual model, # UNSUPPORTED
 
 
   - addsTo:
@@ -57,7 +59,17 @@ extensions:
       # - ["java.util.concurrent.locks", "Lock", "unlock", "()", "manual"]                       # no manual model, # UNSUPPORTED
       # - ["java.nio.file", "Files", "exists", "(Path,LinkOption[])", "manual"]                  # no manual model, # UNSUPPORTED
       # - ["java.sql", "PreparedStatement", "executeUpdate", "()", "manual"]                     # no manual model, # UNSUPPORTED
-
+      # - ["java.util", "ArrayList", "isEmpty", "()", "manual"]                                  # no manual model, # UNSUPPORTED
+      # - ["java.util", "Collections", "sort", "(List,Comparator)", "manual"]                    # no manual model, # UNSUPPORTED
+      # - ["java.util", "Enumeration", "hasMoreElements", "()", "manual"]                        # no manual model, # UNSUPPORTED
+      # - ["java.util", "Collection", "contains", "(Object)", "manual"]                          # no manual model, # UNSUPPORTED
+      # - ["java.util", "Collection", "removeIf", "(Predicate)", "manual"]                       # no manual model, # UNSUPPORTED
+      # - ["java.util", "List", "sort", "(Comparator)", "manual"]                                # no manual model, # UNSUPPORTED
+      # - ["java.util", "List", "indexOf", "(Object)", "manual"]                                 # no manual model, # UNSUPPORTED
+      # - ["java.util", "HashMap", "containsKey", "(Object)", "manual"]                          # no manual model, # UNSUPPORTED
+      # - ["java.util", "Objects", "hashCode", "(Object)", "manual"]                             # no manual model, # UNSUPPORTED
+      # - ["java.util", "Set", "clear", "()", "manual"]                                          # no manual model, # UNSUPPORTED
+      # - ["java.util", "Vector", "size", "()", "manual"]                                        # no manual model, # UNSUPPORTED
 
 
 # ****************************************************************************************************************************************************************************************************
@@ -132,32 +144,35 @@ extensions:
 # - ["java.time.chrono", "ChronoZonedDateTime", False, "toInstant", "()", "", "aaa", "aaa", "aaa", "manual"]               # no manual model, # UNSUPPORTED
 # - ["java.time.format", "DateTimeFormatter", False, "ofPattern", "(String)", "", "aaa", "aaa", "aaa", "manual"]           # no manual model, # UNSUPPORTED
 
-- ["java.util", "ArrayList", False, "addAll", "(Collection)", "", "aaa", "aaa", "aaa", "manual"]                         # SUPPORTED
-- ["java.util", "ArrayList", False, "isEmpty", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
-- ["java.util", "Calendar", False, "getTimeInMillis", "()", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
-- ["java.util", "Collection", False, "contains", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                          # no manual model, # UNSUPPORTED
-- ["java.util", "Collection", False, "removeIf", "(Predicate)", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
-- ["java.util", "Collections", False, "sort", "(List,Comparator)", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model, # UNSUPPORTED
-- ["java.util", "Collections", False, "unmodifiableMap", "(Map)", "", "aaa", "aaa", "aaa", "manual"]                     # SUPPORTED
-- ["java.util", "Enumeration", False, "nextElement", "()", "", "aaa", "aaa", "aaa", "manual"]                            # SUPPORTED
-- ["java.util", "Enumeration", False, "hasMoreElements", "()", "", "aaa", "aaa", "aaa", "manual"]                        # no manual model, # UNSUPPORTED
-- ["java.util", "HashMap", False, "containsKey", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                          # no manual model, # UNSUPPORTED
-- ["java.util", "Hashtable", False, "get", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                # SUPPORTED
-- ["java.util", "LinkedHashMap", False, "get", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                            # SUPPORTED
-- ["java.util", "LinkedHashSet", False, "LinkedHashSet", "(Collection)", "", "aaa", "aaa", "aaa", "manual"]              # SUPPORTED
-- ["java.util", "List", False, "subList", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                                # SUPPORTED
-- ["java.util", "List", False, "set", "(int,Object)", "", "aaa", "aaa", "aaa", "manual"]                                 # SUPPORTED
-- ["java.util", "List", False, "add", "(int,Object)", "", "aaa", "aaa", "aaa", "manual"]                                 # SUPPORTED
-- ["java.util", "List", False, "sort", "(Comparator)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
-- ["java.util", "List", False, "indexOf", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                 # no manual model, # UNSUPPORTED
-- ["java.util", "Map", False, "of", "(Object,Object,Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                  # SUPPORTED
-- ["java.util", "Objects", False, "hashCode", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
-- ["java.util", "Optional", False, "orElseGet", "(Supplier)", "", "aaa", "aaa", "aaa", "manual"]                         # SUPPORTED
-- ["java.util", "Set", False, "clear", "()", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
-- ["java.util", "StringTokenizer", False, "nextToken", "()", "", "aaa", "aaa", "aaa", "manual"]                          # SUPPORTED
-- ["java.util", "UUID", False, "fromString", "(String)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
-- ["java.util", "Vector", False, "add", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                   # SUPPORTED
-- ["java.util", "Vector", False, "size", "()", "", "aaa", "aaa", "aaa", "manual"]                                        # no manual model, # UNSUPPORTED
+# - ["java.util", "ArrayList", False, "addAll", "(Collection)", "", "aaa", "aaa", "aaa", "manual"]                         # SUPPORTED, through `Collaction.addAll` subtyping
+# - ["java.util", "ArrayList", False, "isEmpty", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
+# - ["java.util", "Calendar", False, "getTimeInMillis", "()", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
+# - ["java.util", "Collection", False, "contains", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                          # no manual model, # UNSUPPORTED
+# - ["java.util", "Collection", False, "removeIf", "(Predicate)", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
+# - ["java.util", "Collections", False, "sort", "(List,Comparator)", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model, # UNSUPPORTED
+# - ["java.util", "Collections", False, "unmodifiableMap", "(Map)", "", "aaa", "aaa", "aaa", "manual"]                     # SUPPORTED
+# - ["java.util", "Enumeration", False, "nextElement", "()", "", "aaa", "aaa", "aaa", "manual"]                            # SUPPORTED
+# - ["java.util", "Enumeration", False, "hasMoreElements", "()", "", "aaa", "aaa", "aaa", "manual"]                        # no manual model, # UNSUPPORTED
+
+# - ["java.util", "HashMap", False, "containsKey", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                          # no manual model, # UNSUPPORTED
+# - ["java.util", "Hashtable", False, "get", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                # SUPPORTED, through `Dictionary.get` subtyping
+# - ["java.util", "LinkedHashMap", False, "get", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                            # SUPPORTED, through `Map.get` subtyping
+# - ["java.util", "LinkedHashSet", False, "LinkedHashSet", "(Collection)", "", "aaa", "aaa", "aaa", "manual"]              # SUPPORTED
+# - ["java.util", "List", False, "subList", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                                # SUPPORTED
+# - ["java.util", "List", False, "set", "(int,Object)", "", "aaa", "aaa", "aaa", "manual"]                                 # SUPPORTED
+# - ["java.util", "List", False, "add", "(int,Object)", "", "aaa", "aaa", "aaa", "manual"]                                 # SUPPORTED
+# - ["java.util", "List", False, "sort", "(Comparator)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
+# - ["java.util", "List", False, "indexOf", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                 # no manual model, # UNSUPPORTED
+
+# - ["java.util", "Map", False, "of", "(Object,Object,Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                  # SUPPORTED
+# - ["java.util", "Objects", False, "hashCode", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
+# - ["java.util", "Optional", False, "orElseGet", "(Supplier)", "", "aaa", "aaa", "aaa", "manual"]                         # SUPPORTED
+# - ["java.util", "Set", False, "clear", "()", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
+
+# - ["java.util", "StringTokenizer", False, "nextToken", "()", "", "aaa", "aaa", "aaa", "manual"]                          # SUPPORTED
+# - ["java.util", "UUID", False, "fromString", "(String)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
+# - ["java.util", "Vector", False, "add", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                   # SUPPORTED, through `Collection.add` subtyping
+# - ["java.util", "Vector", False, "size", "()", "", "aaa", "aaa", "aaa", "manual"]                                        # no manual model, # UNSUPPORTED
 
 - ["java.util.concurrent", "CompletableFuture", False, "complete", "(Object)", "", "aaa", "aaa", "aaa", "manual"]        # no manual model, # UNSUPPORTED
 - ["java.util.concurrent", "CompletableFuture", False, "completeExceptionally", "(Throwable)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
