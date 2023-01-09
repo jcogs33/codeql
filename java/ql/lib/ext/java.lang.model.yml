@@ -139,7 +139,7 @@ extensions:
       - ["java.lang", "Class", "getSimpleName", "()", "manual"]
       - ["java.lang", "Class", "isAssignableFrom", "(Class)", "manual"]
       - ["java.lang", "Class", "isInstance", "(Object)", "manual"]
-      - ["java.lang", "Class", "toString", "()", "", "manual"]
+      - ["java.lang", "Class", "toString", "()", "manual"]
       - ["java.lang", "Enum", "Enum", "(String,int)", "manual"]
       - ["java.lang", "Enum", "equals", "(Object)", "manual"]
       - ["java.lang", "Enum", "name", "()", "manual"]
