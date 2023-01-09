@@ -34,20 +34,34 @@ extensions:
       - ["java.lang", "AbstractStringBuilder", True, "toString", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Appendable", True, "append", "", "", "Argument[-1]", "ReturnValue", "value", "manual"]
       - ["java.lang", "Appendable", True, "append", "", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
+      - ["java.lang", "AssertionError", False, "AssertionError", "(Object)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]
+      - ["java.lang", "Boolean", False, "valueOf", "(boolean)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! uninteresting?, switch to neutral?
       - ["java.lang", "CharSequence", True, "charAt", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "CharSequence", True, "subSequence", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "CharSequence", True, "toString", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.lang", "Class", False, "cast", "(Object)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      - ["java.lang", "Class", False, "forName", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! neutral?, type as sanitizer?
+      - ["java.lang", "Class", False, "getMethod", "(String,Class[])", "", "Argument[0..1]", "ReturnValue", "taint", "manual"] # ! neutral?, type as sanitizer?
+      - ["java.lang", "Class", False, "getResource", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! neutral?, type as sanitizer?
+      - ["java.lang", "Class", False, "getResourceAsStream", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! neutral?, type as sanitizer?
+      - ["java.lang", "Double", False, "parseDouble", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Exception", False, "Exception", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]
+      - ["java.lang", "Exception", False, "Exception", "(String,Throwable)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]
+      - ["java.lang", "Exception", False, "Exception", "(String,Throwable)", "", "Argument[1]", "Argument[-1].SyntheticField[java.lang.Throwable.cause]", "value", "manual"]
       - ["java.lang", "IllegalArgumentException", False, "IllegalArgumentException", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]
       - ["java.lang", "IllegalStateException", False, "IllegalStateException", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]
       - ["java.lang", "IndexOutOfBoundsException", False, "IndexOutOfBoundsException", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]
       - ["java.lang", "Integer", False, "intValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Integer", False, "parseInt", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      - ["java.lang", "Integer", False, "toHexString", "(int)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      - ["java.lang", "Integer", False, "toString", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Integer", False, "toString", "(int)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Integer", False, "valueOf", "(int)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Iterable", True, "forEach", "(Consumer)", "", "Argument[-1].Element", "Argument[0].Parameter[0]", "value", "manual"]
       - ["java.lang", "Iterable", True, "iterator", "()", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]
       - ["java.lang", "Iterable", True, "spliterator", "()", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]
+      - ["java.lang", "Long", False, "Long", "(long)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
+      - ["java.lang", "Long", False, "intValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Long", False, "longValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Long", False, "parseLong", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Long", False, "toString", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
@@ -99,13 +113,19 @@ extensions:
       - ["java.lang", "String", False, "valueOf", "(char[],int,int)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "String", False, "valueOf", "(int)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "String", False, "valueOf", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      # ! why do below have subtype=True for constructors?
       - ["java.lang", "StringBuffer", True, "StringBuffer", "(CharSequence)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
       - ["java.lang", "StringBuffer", True, "StringBuffer", "(String)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
       - ["java.lang", "StringBuilder", True, "StringBuilder", "", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
+      - ["java.lang", "StringBuilder", False, "delete", "(int,int)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "System", False, "arraycopy", "", "", "Argument[0]", "Argument[2]", "taint", "manual"]
+      - ["java.lang", "System", False, "getenv", "(String)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"] # ! neutral instead?
+      - ["java.lang", "System", False, "getenv", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]  # ! really unsure about this...; neutral instead?
       - ["java.lang", "System", False, "getProperty", "(String)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]
+      - ["java.lang", "Thread", False, "Thread", "(Runnable)", "", "Argument[0]", "Argument[-1]", "taint", "manual"] # ! neutral instead?
       - ["java.lang", "Throwable", False, "Throwable", "(Throwable)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.cause]", "value", "manual"]
       - ["java.lang", "Throwable", True, "getCause", "()", "", "Argument[-1].SyntheticField[java.lang.Throwable.cause]", "ReturnValue", "value", "manual"]
+      - ["java.lang", "Throwable", True, "getLocalizedMessage", "()", "", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "ReturnValue", "value", "manual"]  # ! should the field used be different?
       - ["java.lang", "Throwable", True, "getMessage", "()", "", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "ReturnValue", "value", "manual"]
 
   - addsTo:
@@ -118,6 +138,8 @@ extensions:
       - ["java.lang", "Class", "getName", "()", "manual"]
       - ["java.lang", "Class", "getSimpleName", "()", "manual"]
       - ["java.lang", "Class", "isAssignableFrom", "(Class)", "manual"]
+      - ["java.lang", "Class", "isInstance", "(Object)", "manual"]
+      - ["java.lang", "Class", "toString", "()", "", "manual"]
       - ["java.lang", "Enum", "Enum", "(String,int)", "manual"]
       - ["java.lang", "Enum", "equals", "(Object)", "manual"]
       - ["java.lang", "Enum", "name", "()", "manual"]
@@ -134,9 +156,13 @@ extensions:
       - ["java.lang", "String", "hashCode", "()", "manual"]
       - ["java.lang", "String", "indexOf", "(String)", "manual"]
       - ["java.lang", "String", "isEmpty", "()", "manual"]
+      - ["java.lang", "String", "lastIndexOf", "(int)", "manual"]
       - ["java.lang", "String", "length", "()", "manual"]
       - ["java.lang", "String", "startsWith", "(String)", "manual"]
       - ["java.lang", "System", "currentTimeMillis", "()", "manual"]
+      - ["java.lang", "System", "exit", "(int)", "manual"]
+      - ["java.lang", "System", "identityHashCode", "(Object)", "manual"]
       - ["java.lang", "System", "nanoTime", "()", "manual"]
       - ["java.lang", "Thread", "currentThread", "()", "manual"]
+      - ["java.lang", "Thread", "interrupt", "()", "manual"]
       - ["java.lang", "Thread", "sleep", "(long)", "manual"]

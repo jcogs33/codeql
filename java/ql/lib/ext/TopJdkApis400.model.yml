@@ -41,6 +41,27 @@ extensions:
       # - ["java.util", "UUID", False, "fromString", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                              # no manual model, # UNSUPPORTED
       # - ["java.util.concurrent", "CompletableFuture", False, "complete", "(Object)", "", "Argument[0]", "Argument[-1].SyntheticField[java.util.concurrent.CompletableFuture.value]", "value", "manual"]        # no manual model, # UNSUPPORTED
       # - ["java.util.concurrent", "CompletableFuture", False, "completedFuture", "(Object)", "", "Argument[0]", "ReturnValue.SyntheticField[java.util.concurrent.CompletableFuture.value]", "value", "manual"] # no manual model, # UNSUPPORTED
+      # - ["java.lang", "StringBuilder", False, "delete", "(int,int)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                        # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Exception", False, "Exception", "(String,Throwable)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]   # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Exception", False, "Exception", "(String,Throwable)", "", "Argument[1]", "Argument[-1].SyntheticField[java.lang.Throwable.cause]", "value", "manual"]
+      # - ["java.lang", "Long", False, "intValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                      # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.lang", "Long", False, "Long", "(long)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                                      # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.lang", "Integer", False, "toString", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                   # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.lang", "Integer", False, "toHexString", "(int)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                             # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.lang", "Double", False, "parseDouble", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                           # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.lang", "AssertionError", False, "AssertionError", "(Object)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]                # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Boolean", False, "valueOf", "(boolean)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                             # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Class", False, "cast", "(Object)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                   # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Class", False, "forName", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Class", False, "getMethod", "(String,Class[])", "", "Argument[0..1]", "ReturnValue", "taint", "manual"]                      # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Class", False, "getResource", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                            # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Class", False, "getResourceAsStream", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                    # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Throwable", True, "getLocalizedMessage", "()", "", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "ReturnValue", "value", "manual"]                      # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Thread", False, "Thread", "(Runnable)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                              # no manual model, # UNSUPPORTED
+      # - ["java.lang", "System", False, "getenv", "(String)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]                                # no manual model, # UNSUPPORTED
+      # - ["java.lang", "System", False, "getenv", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      # - ["java.lang.reflect", "Constructor", False, "newInstance", "(Object[])", "", "Argument[0].ArrayElement", "ReturnValue.Parameter", "value", "manual"]            # no manual model, # UNSUPPORTED
+
 
   - addsTo:
       pack: codeql/java-all
@@ -73,6 +94,12 @@ extensions:
       # - ["java.util", "Vector", "size", "()", "manual"]                                        # no manual model, # UNSUPPORTED
       # - ["java.util.concurrent", "Executor", "execute", "(Runnable)", "manual"]                # no manual model, # UNSUPPORTED
       # - ["java.util.concurrent", "CompletableFuture", "completeExceptionally", "(Throwable)", "manual"] # no manual model, # UNSUPPORTED
+      # - ["java.lang", "String", "lastIndexOf", "(int)", "manual"]                              # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Class", "isInstance", "(Object)", "manual"]                             # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Class", "toString", "()", "", "manual"]                                     # no manual model, # UNSUPPORTED
+      # - ["java.lang", "Thread", "interrupt", "()", "manual"]                                   # no manual model, # UNSUPPORTED
+      # - ["java.lang", "System", "exit", "(int)", "manual"]                                     # no manual model, # UNSUPPORTED
+      # - ["java.lang", "System", "identityHashCode", "(Object)", "manual"]                      # no manual model, # UNSUPPORTED
 
 
 # ****************************************************************************************************************************************************************************************************
@@ -86,36 +113,39 @@ extensions:
 - ["java.io", "StringWriter", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # ! SUPPORTED, look into where/how this is supported if there's no manual model
 - ["java.io", "UncheckedIOException", False, "UncheckedIOException", "(IOException)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
 
-- ["java.lang", "AssertionError", False, "AssertionError", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
-- ["java.lang", "Boolean", False, "valueOf", "(boolean)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
-- ["java.lang", "Class", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
-- ["java.lang", "Class", False, "forName", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
-- ["java.lang", "Class", False, "getMethod", "(String,Class[])", "", "aaa", "aaa", "aaa", "manual"]                      # no manual model, # UNSUPPORTED
-- ["java.lang", "Class", False, "cast", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # UNSUPPORTED
-- ["java.lang", "Class", False, "getResourceAsStream", "(String)", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model, # UNSUPPORTED
-- ["java.lang", "Class", False, "isInstance", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
-- ["java.lang", "Class", False, "getResource", "(String)", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model, # UNSUPPORTED
-- ["java.lang", "Double", False, "parseDouble", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.lang", "Exception", False, "Exception", "(String,Throwable)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
-- ["java.lang", "Integer", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.lang", "Integer", False, "toHexString", "(int)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.lang", "Iterable", False, "iterator", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # SUPPORTED
-- ["java.lang", "Long", False, "intValue", "()", "", "aaa", "aaa", "aaa", "manual"]                                      # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.lang", "Long", False, "Long", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                      # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.lang", "String", False, "replace", "(char,char)", "", "aaa", "aaa", "aaa", "manual"]                            # SUPPORTED
-- ["java.lang", "String", False, "toLowerCase", "(Locale)", "", "aaa", "aaa", "aaa", "manual"]                           # SUPPORTED
-- ["java.lang", "String", False, "lastIndexOf", "(int)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
-- ["java.lang", "String", False, "join", "(CharSequence,CharSequence[])", "", "aaa", "aaa", "aaa", "manual"]             # SUPPORTED
-- ["java.lang", "String", False, "String", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                # SUPPORTED
-- ["java.lang", "StringBuilder", False, "delete", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                        # no manual model, # UNSUPPORTED
-- ["java.lang", "System", False, "exit", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
-- ["java.lang", "System", False, "getenv", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
-- ["java.lang", "System", False, "identityHashCode", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                      # no manual model, # UNSUPPORTED
-- ["java.lang", "Thread", False, "interrupt", "()", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # UNSUPPORTED
-- ["java.lang", "Thread", False, "Thread", "(Runnable)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
-- ["java.lang", "Throwable", False, "getLocalizedMessage", "()", "", "aaa", "aaa", "aaa", "manual"]                      # no manual model, # UNSUPPORTED
+# - ["java.lang", "AssertionError", False, "AssertionError", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
+# - ["java.lang", "Boolean", False, "valueOf", "(boolean)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
+# - ["java.lang", "Class", False, "cast", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # UNSUPPORTED
+# - ["java.lang", "Class", False, "forName", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
+# - ["java.lang", "Class", False, "getMethod", "(String,Class[])", "", "aaa", "aaa", "aaa", "manual"]                      # no manual model, # UNSUPPORTED
+# - ["java.lang", "Class", False, "getResource", "(String)", "", "aaa", "aaa", "aaa", "manual"]                            # no manual model, # UNSUPPORTED
+# - ["java.lang", "Class", False, "getResourceAsStream", "(String)", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model, # UNSUPPORTED
+# - ["java.lang", "Class", False, "isInstance", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
+# - ["java.lang", "Class", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
 
-- ["java.lang.reflect", "Constructor", False, "newInstance", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]            # no manual model, # UNSUPPORTED
+# - ["java.lang", "Double", False, "parseDouble", "(String)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.lang", "Exception", False, "Exception", "(String,Throwable)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
+# - ["java.lang", "Integer", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.lang", "Integer", False, "toHexString", "(int)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.lang", "Iterable", False, "iterator", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # SUPPORTED
+# - ["java.lang", "Long", False, "intValue", "()", "", "aaa", "aaa", "aaa", "manual"]                                      # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.lang", "Long", False, "Long", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                      # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+
+# - ["java.lang", "String", False, "replace", "(char,char)", "", "aaa", "aaa", "aaa", "manual"]                            # SUPPORTED
+# - ["java.lang", "String", False, "toLowerCase", "(Locale)", "", "aaa", "aaa", "aaa", "manual"]                           # SUPPORTED
+# - ["java.lang", "String", False, "lastIndexOf", "(int)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
+# - ["java.lang", "String", False, "join", "(CharSequence,CharSequence[])", "", "aaa", "aaa", "aaa", "manual"]             # SUPPORTED
+# - ["java.lang", "String", False, "String", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                # SUPPORTED
+# - ["java.lang", "StringBuilder", False, "delete", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                        # no manual model, # UNSUPPORTED
+
+# - ["java.lang", "System", False, "exit", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
+# - ["java.lang", "System", False, "getenv", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
+# - ["java.lang", "System", False, "identityHashCode", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                      # no manual model, # UNSUPPORTED
+# - ["java.lang", "Thread", False, "interrupt", "()", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # UNSUPPORTED
+# - ["java.lang", "Thread", False, "Thread", "(Runnable)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
+# - ["java.lang", "Throwable", False, "getLocalizedMessage", "()", "", "aaa", "aaa", "aaa", "manual"]                      # no manual model, # UNSUPPORTED
+
+# - ["java.lang.reflect", "Constructor", False, "newInstance", "(Object[])", "", "aaa", "aaa", "aaa", "manual"]            # no manual model, # UNSUPPORTED
 
 # - ["java.math", "BigDecimal", False, "doubleValue", "()", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
 # - ["java.math", "BigDecimal", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
