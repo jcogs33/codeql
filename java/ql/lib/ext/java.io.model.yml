@@ -64,6 +64,7 @@ extensions:
       - ["java.io", "File", True, "getCanonicalFile", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.io", "File", True, "getCanonicalPath", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.io", "File", True, "getName", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.io", "File", False, "getPath", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"] # ! True versus False (maybe it's private/hidden?).. (and neutral instead?)
       - ["java.io", "File", True, "toPath", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.io", "File", True, "toString", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.io", "File", True, "toURI", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
@@ -84,6 +85,8 @@ extensions:
       - ["java.io", "Reader", True, "read", "", "", "Argument[-1]", "Argument[0]", "taint", "manual"]
       - ["java.io", "Reader", True, "read", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.io", "StringReader", False, "StringReader", "", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
+      - ["java.io", "StringWriter", False, "toString", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"] # ! currently supported by taintPreservingQualifierToMethod?
+      - ["java.io", "UncheckedIOException", False, "UncheckedIOException", "(IOException)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.cause]", "value", "manual"]
       - ["java.io", "Writer", True, "toString", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.io", "Writer", True, "write", "", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
 
@@ -92,3 +95,5 @@ extensions:
       extensible: neutralModel
     data:
       - ["java.io", "File", "exists", "()", "manual"]
+      - ["java.io", "File", "isDirectory", "()", "manual"]
+      - ["java.io", "File", "mkdirs", "()", "manual"]

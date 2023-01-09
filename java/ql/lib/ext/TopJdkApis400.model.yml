@@ -61,6 +61,9 @@ extensions:
       # - ["java.lang", "System", False, "getenv", "(String)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]                                # no manual model, # UNSUPPORTED
       # - ["java.lang", "System", False, "getenv", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       # - ["java.lang.reflect", "Constructor", False, "newInstance", "(Object[])", "", "Argument[0].ArrayElement", "ReturnValue.Parameter", "value", "manual"]            # no manual model, # UNSUPPORTED
+      # - ["java.io", "UncheckedIOException", False, "UncheckedIOException", "(IOException)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.cause]", "value", "manual"] # no manual model, # UNSUPPORTED
+      # - ["java.io", "StringWriter", False, "toString", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                # no manual model, # ! SUPPORTED, look into where/how this is supported if there's no manual model --> taintPreservingQualifierToMethod in TaintTrackingUtil.qll?, lines 309 and 313 specifically?
+      # - ["java.io", "File", False, "getPath", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                         # no manual model, # UNSUPPORTED
 
 
   - addsTo:
@@ -100,18 +103,20 @@ extensions:
       # - ["java.lang", "Thread", "interrupt", "()", "manual"]                                   # no manual model, # UNSUPPORTED
       # - ["java.lang", "System", "exit", "(int)", "manual"]                                     # no manual model, # UNSUPPORTED
       # - ["java.lang", "System", "identityHashCode", "(Object)", "manual"]                      # no manual model, # UNSUPPORTED
+      # - ["java.io", "File", "isDirectory", "()", "manual"]                                     # no manual model, # UNSUPPORTED
+      # - ["java.io", "File", "mkdirs", "()", "manual"]                                          # no manual model, # UNSUPPORTED
 
 
 # ****************************************************************************************************************************************************************************************************
 # ! top-400 ******************************
 # - ["java.awt", "Container", False, "add", "(Component)", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
 
-- ["java.io", "File", False, "getPath", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
-- ["java.io", "File", False, "isDirectory", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
-- ["java.io", "File", False, "mkdirs", "()", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
-- ["java.io", "StringReader", False, "StringReader", "(String)", "", "aaa", "aaa", "aaa", "manual"]                      # SUPPORTED
-- ["java.io", "StringWriter", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # ! SUPPORTED, look into where/how this is supported if there's no manual model
-- ["java.io", "UncheckedIOException", False, "UncheckedIOException", "(IOException)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
+# - ["java.io", "File", False, "getPath", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
+# - ["java.io", "File", False, "isDirectory", "()", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
+# - ["java.io", "File", False, "mkdirs", "()", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
+# - ["java.io", "StringReader", False, "StringReader", "(String)", "", "aaa", "aaa", "aaa", "manual"]                      # SUPPORTED
+# - ["java.io", "StringWriter", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # ! SUPPORTED, look into where/how this is supported if there's no manual model --> taintPreservingQualifierToMethod in TaintTrackingUtil.qll?, lines 309 and 313 specifically?
+# - ["java.io", "UncheckedIOException", False, "UncheckedIOException", "(IOException)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
 
 # - ["java.lang", "AssertionError", False, "AssertionError", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                # no manual model, # UNSUPPORTED
 # - ["java.lang", "Boolean", False, "valueOf", "(boolean)", "", "aaa", "aaa", "aaa", "manual"]                             # no manual model, # UNSUPPORTED
