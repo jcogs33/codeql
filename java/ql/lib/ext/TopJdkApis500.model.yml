@@ -32,6 +32,14 @@ extensions:
       # - ["java.lang", "String", False, "valueOf", "(boolean)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                        # no manual model, # UNSUPPORTED
       # - ["java.lang", "Thread", True, "getName", "()", "", "Argument[-1].SyntheticField[java.lang.Thread.name]", "ReturnValue", "value", "manual"]                                               # no manual model, # UNSUPPORTED
       # - ["java.lang.reflect", "Field", False, "get", "(Object)", "", "Argument[0].Field", "ReturnValue", "value", "manual"]                                      # no manual model, # UNSUPPORTED
+      # - ["java.math", "BigDecimal", False, "intValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                          # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.math", "BigDecimal", False, "multiply", "(BigDecimal)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                # no manual model, # UNSUPPORTED
+      # - ["java.math", "BigDecimal", False, "multiply", "(BigDecimal)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      # - ["java.math", "BigDecimal", False, "subtract", "(BigDecimal)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                # no manual model, # UNSUPPORTED
+      # - ["java.math", "BigDecimal", False, "subtract", "(BigDecimal)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      # - ["java.math", "BigDecimal", False, "toBigInteger", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                      # no manual model, # UNSUPPORTED
+      # - ["java.math", "BigInteger", False, "BigInteger", "(String)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                                  # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+
 
 
   - addsTo:
@@ -121,11 +129,11 @@ extensions:
 # - ["java.lang.invoke", "MethodHandles", False, "lookup", "()", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
 # - ["java.lang.reflect", "Field", False, "get", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                      # no manual model, # UNSUPPORTED
 
-- ["java.math", "BigDecimal", False, "intValue", "()", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
-- ["java.math", "BigDecimal", False, "multiply", "(BigDecimal)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
-- ["java.math", "BigDecimal", False, "subtract", "(BigDecimal)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
-- ["java.math", "BigDecimal", False, "toBigInteger", "()", "", "aaa", "aaa", "aaa", "manual"]                                      # no manual model, # UNSUPPORTED
-- ["java.math", "BigInteger", False, "BigInteger", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.math", "BigDecimal", False, "intValue", "()", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+# - ["java.math", "BigDecimal", False, "multiply", "(BigDecimal)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
+# - ["java.math", "BigDecimal", False, "subtract", "(BigDecimal)", "", "aaa", "aaa", "aaa", "manual"]                                # no manual model, # UNSUPPORTED
+# - ["java.math", "BigDecimal", False, "toBigInteger", "()", "", "aaa", "aaa", "aaa", "manual"]                                      # no manual model, # UNSUPPORTED
+# - ["java.math", "BigInteger", False, "BigInteger", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
 
 - ["java.net", "URL", False, "toURI", "()", "", "aaa", "aaa", "aaa", "manual"]                                                     # no manual model, # UNSUPPORTED
 

@@ -4,8 +4,15 @@ extensions:
       extensible: summaryModel
     data:
       - ["java.math", "BigDecimal", False, "BigDecimal", "(String)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
+      - ["java.math", "BigDecimal", False, "intValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.math", "BigDecimal", False, "multiply", "(BigDecimal)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.math", "BigDecimal", False, "multiply", "(BigDecimal)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      - ["java.math", "BigDecimal", False, "subtract", "(BigDecimal)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.math", "BigDecimal", False, "subtract", "(BigDecimal)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      - ["java.math", "BigDecimal", False, "toBigInteger", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.math", "BigDecimal", False, "valueOf", "(double)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.math", "BigDecimal", False, "valueOf", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      - ["java.math", "BigInteger", False, "BigInteger", "(String)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
 
   - addsTo:
       pack: codeql/java-all

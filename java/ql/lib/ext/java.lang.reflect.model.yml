@@ -3,4 +3,4 @@ extensions:
       pack: codeql/java-all
       extensible: summaryModel
     data:
-      - ["java.lang.reflect", "Field", False, "get", "(Object)", "", "Argument[0].Field", "ReturnValue", "value", "manual"]
+      - ["java.lang.reflect", "Field", False, "get", "(Object)", "", "Argument[0].Field", "ReturnValue", "value", "manual"] # ! very unsure about
