@@ -1,0 +1,9 @@
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: summaryModel
+    data:
+      - ["java.awt", "Insets", False, "Insets", "(int,int,int,int)", "", "Argument[0]", "Argument[-1].Field[java.awt.Insets.top]", "value", "manual"]  # ! these seem like potentially uninteresting flow, maybe switch to neutral?
+      - ["java.awt", "Insets", False, "Insets", "(int,int,int,int)", "", "Argument[1]", "Argument[-1].Field[java.awt.Insets.left]", "value", "manual"]
+      - ["java.awt", "Insets", False, "Insets", "(int,int,int,int)", "", "Argument[2]", "Argument[-1].Field[java.awt.Insets.bottom]", "value", "manual"]
+      - ["java.awt", "Insets", False, "Insets", "(int,int,int,int)", "", "Argument[3]", "Argument[-1].Field[java.awt.Insets.right]", "value", "manual"]
