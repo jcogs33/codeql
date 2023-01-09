@@ -37,6 +37,11 @@ extensions:
       - ["java.lang", "CharSequence", True, "charAt", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "CharSequence", True, "subSequence", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "CharSequence", True, "toString", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.lang", "Class", False, "getDeclaredField", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]  # ! neutral?, type as sanitizer?
+      - ["java.lang", "ClassLoader", True, "getResource", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]   # ! neutral?, type as sanitizer?
+      - ["java.lang", "ClassLoader", True, "getResourceAsStream", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! neutral?, type as sanitizer?
+      - ["java.lang", "Double", False, "doubleToLongBits", "(double)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      - ["java.lang", "Double", False, "valueOf", "(double)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Exception", False, "Exception", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]
       - ["java.lang", "IllegalArgumentException", False, "IllegalArgumentException", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]
       - ["java.lang", "IllegalStateException", False, "IllegalStateException", "(String)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "value", "manual"]
@@ -51,6 +56,12 @@ extensions:
       - ["java.lang", "Long", False, "longValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Long", False, "parseLong", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Long", False, "toString", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.lang", "Math", False, "max", "(long,long)", "", "Argument[0..1]", "ReturnValue", "value", "manual"] # ! make signature unspecified for these
+      - ["java.lang", "Math", False, "min", "(int,int)", "", "Argument[0..1]", "ReturnValue", "value", "manual"]
+      - ["java.lang", "Math", False, "min", "(long,long)", "", "Argument[0..1]", "ReturnValue", "value", "manual"]
+      - ["java.lang", "Number", True, "doubleValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"] # ! remove others that could rely on subtyping through Number instead? (e.g. Double, Integer, etc.)
+      - ["java.lang", "Number", True, "intValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.lang", "Number", True, "longValue", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "Object", True, "clone", "", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]
       - ["java.lang", "Object", True, "clone", "", "", "Argument[-1].MapKey", "ReturnValue.MapKey", "value", "manual"]
       - ["java.lang", "Object", True, "clone", "", "", "Argument[-1].MapValue", "ReturnValue.MapValue", "value", "manual"]
@@ -94,6 +105,7 @@ extensions:
       - ["java.lang", "String", False, "toUpperCase", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "String", False, "translateEscapes", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "String", False, "trim", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.lang", "String", False, "valueOf", "(boolean)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! neutral instead?, uninteresting flow (ask Tony)
       - ["java.lang", "String", False, "valueOf", "(char)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "String", False, "valueOf", "(char[])", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.lang", "String", False, "valueOf", "(char[],int,int)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
@@ -104,6 +116,7 @@ extensions:
       - ["java.lang", "StringBuilder", True, "StringBuilder", "", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
       - ["java.lang", "System", False, "arraycopy", "", "", "Argument[0]", "Argument[2]", "taint", "manual"]
       - ["java.lang", "System", False, "getProperty", "(String)", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]
+      - ["java.lang", "Thread", True, "getName", "()", "", "Argument[-1].SyntheticField[java.lang.Thread.name]", "ReturnValue", "value", "manual"]
       - ["java.lang", "Throwable", False, "Throwable", "(Throwable)", "", "Argument[0]", "Argument[-1].SyntheticField[java.lang.Throwable.cause]", "value", "manual"]
       - ["java.lang", "Throwable", True, "getCause", "()", "", "Argument[-1].SyntheticField[java.lang.Throwable.cause]", "ReturnValue", "value", "manual"]
       - ["java.lang", "Throwable", True, "getMessage", "()", "", "Argument[-1].SyntheticField[java.lang.Throwable.message]", "ReturnValue", "value", "manual"]
@@ -114,7 +127,9 @@ extensions:
     data:
       - ["java.lang", "AbstractStringBuilder", "length", "()", "manual"]
       - ["java.lang", "Boolean", "equals", "(Object)", "manual"]
+      - ["java.lang", "CharSequence", "length", "()", "manual"]
       - ["java.lang", "Class", "getClassLoader", "()", "manual"]
+      - ["java.lang", "Class", "getDeclaredConstructor", "(Class[])", "manual"] # ! type as sanitizer?
       - ["java.lang", "Class", "getName", "()", "manual"]
       - ["java.lang", "Class", "getSimpleName", "()", "manual"]
       - ["java.lang", "Class", "isAssignableFrom", "(Class)", "manual"]
@@ -127,6 +142,7 @@ extensions:
       - ["java.lang", "Object", "getClass", "()", "manual"]
       - ["java.lang", "Object", "hashCode", "()", "manual"]
       - ["java.lang", "Object", "toString", "()", "manual"]
+      - ["java.lang", "Runtime", "getRuntime", "()", "manual"]
       - ["java.lang", "String", "contains", "(CharSequence)", "manual"]
       - ["java.lang", "String", "endsWith", "(String)", "manual"] # ! see question on line 65 above
       - ["java.lang", "String", "equals", "(Object)", "manual"]
@@ -134,9 +150,11 @@ extensions:
       - ["java.lang", "String", "hashCode", "()", "manual"]
       - ["java.lang", "String", "indexOf", "(String)", "manual"]
       - ["java.lang", "String", "isEmpty", "()", "manual"]
+      - ["java.lang", "String", "lastIndexOf", "(String)", "manual"]
       - ["java.lang", "String", "length", "()", "manual"]
       - ["java.lang", "String", "startsWith", "(String)", "manual"]
       - ["java.lang", "System", "currentTimeMillis", "()", "manual"]
       - ["java.lang", "System", "nanoTime", "()", "manual"]
       - ["java.lang", "Thread", "currentThread", "()", "manual"]
+      - ["java.lang", "Thread", "getContextClassLoader", "()", "manual"] # ! summary instead?
       - ["java.lang", "Thread", "sleep", "(long)", "manual"]
