@@ -39,6 +39,8 @@ extensions:
       # - ["java.math", "BigDecimal", False, "subtract", "(BigDecimal)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       # - ["java.math", "BigDecimal", False, "toBigInteger", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                      # no manual model, # UNSUPPORTED
       # - ["java.math", "BigInteger", False, "BigInteger", "(String)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                                  # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
+      # - ["java.net", "URL", False, "toURI", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                                     # no manual model, # UNSUPPORTED
+      # - ["java.nio.file", "Path", False, "getFileName", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                         # no manual model, # UNSUPPORTED
 
 
 
@@ -67,6 +69,7 @@ extensions:
       # - ["java.lang", "String", "lastIndexOf", "(String)", "manual"]                                     # no manual model, # UNSUPPORTED
       # - ["java.lang", "Thread", "getContextClassLoader", "()", "manual"]                                 # no manual model, # UNSUPPORTED
       # - ["java.lang.invoke", "MethodHandles", "lookup", "()", "manual"]                                  # no manual model, # UNSUPPORTED
+      # - ["java.nio", "Buffer", "position", "()", "manual"]                                               # no manual model, # UNSUPPORTED
 
 
 
@@ -135,12 +138,12 @@ extensions:
 # - ["java.math", "BigDecimal", False, "toBigInteger", "()", "", "aaa", "aaa", "aaa", "manual"]                                      # no manual model, # UNSUPPORTED
 # - ["java.math", "BigInteger", False, "BigInteger", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
 
-- ["java.net", "URL", False, "toURI", "()", "", "aaa", "aaa", "aaa", "manual"]                                                     # no manual model, # UNSUPPORTED
+# - ["java.net", "URL", False, "toURI", "()", "", "aaa", "aaa", "aaa", "manual"]                                                     # no manual model, # UNSUPPORTED
 
-- ["java.nio", "Buffer", False, "position", "()", "", "aaa", "aaa", "aaa", "manual"]                                               # no manual model, # UNSUPPORTED
-- ["java.nio", "ByteBuffer", False, "array", "()", "", "aaa", "aaa", "aaa", "manual"]                                              # SUPPORTED
-- ["java.nio.file", "Path", False, "getFileName", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
-- ["java.nio.file", "Path", False, "getParent", "()", "", "aaa", "aaa", "aaa", "manual"]                                           # UNSUPPORTED, # ! why not supported if it supposedly has a manual model?
+# - ["java.nio", "Buffer", False, "position", "()", "", "aaa", "aaa", "aaa", "manual"]                                               # no manual model, # UNSUPPORTED
+# - ["java.nio", "ByteBuffer", False, "array", "()", "", "aaa", "aaa", "aaa", "manual"]                                              # SUPPORTED
+# - ["java.nio.file", "Path", False, "getFileName", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
+# - ["java.nio.file", "Path", False, "getParent", "()", "", "aaa", "aaa", "aaa", "manual"]                                           # UNSUPPORTED, # ! why not supported if it supposedly has a manual model? -- seems to be supported as a manual model in java.nio.file.model.yml, was it added recently?
 
 - ["java.sql", "Connection", False, "createStatement", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
 - ["java.sql", "ResultSet", False, "getInt", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                           # no manual model, # UNSUPPORTED

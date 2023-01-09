@@ -24,7 +24,9 @@ extensions:
     data:
       - ["java.nio.file", "FileSystem", True, "getPath", "", "", "Argument[0]", "ReturnValue", "taint", "manual"]
       - ["java.nio.file", "FileSystem", True, "getRootDirectories", "", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      # ! should Path have subtyping of False for all methods instead? Why is `toFile` different?
       - ["java.nio.file", "Path", True, "getParent", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.nio.file", "Path", False, "getFileName", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"] # ! maybe need more field flow?
       - ["java.nio.file", "Path", True, "normalize", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.nio.file", "Path", True, "resolve", "", "", "Argument[-1..0]", "ReturnValue", "taint", "manual"]
       - ["java.nio.file", "Path", True, "toAbsolutePath", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
