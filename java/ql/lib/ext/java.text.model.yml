@@ -1,6 +1,12 @@
 extensions:
   - addsTo:
       pack: codeql/java-all
+      extensible: summaryModel
+    data:
+      - ["java.text", "Format", True, "format", "(Object)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! would cover DateFormat.format below through subtyping...
+
+  - addsTo:
+      pack: codeql/java-all
       extensible: neutralModel
     data:
       - ["java.text", "DateFormat", "format", "(Date)", "manual"]

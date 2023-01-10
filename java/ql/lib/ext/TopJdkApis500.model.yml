@@ -41,6 +41,8 @@ extensions:
       # - ["java.math", "BigInteger", False, "BigInteger", "(String)", "", "Argument[0]", "Argument[-1]", "taint", "manual"]                                  # no manual model, # SUPPORTED (NumberTaintPreservingCallable)
       # - ["java.net", "URL", False, "toURI", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                                     # no manual model, # UNSUPPORTED
       # - ["java.nio.file", "Path", False, "getFileName", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                         # no manual model, # UNSUPPORTED
+      # - ["java.sql", "ResultSet", True, "getTimestamp", "(String)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                  # no manual model, # UNSUPPORTED
+      # - ["java.text", "Format", True, "format", "(Object)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                          # no manual model, # UNSUPPORTED
 
 
 
@@ -70,7 +72,8 @@ extensions:
       # - ["java.lang", "Thread", "getContextClassLoader", "()", "manual"]                                 # no manual model, # UNSUPPORTED
       # - ["java.lang.invoke", "MethodHandles", "lookup", "()", "manual"]                                  # no manual model, # UNSUPPORTED
       # - ["java.nio", "Buffer", "position", "()", "manual"]                                               # no manual model, # UNSUPPORTED
-
+      # - ["java.sql", "Connection", "createStatement", "()", "manual"]                                    # no manual model, # UNSUPPORTED
+      # - ["java.sql", "ResultSet", "getInt", "(int)", "manual"]                                           # no manual model, # UNSUPPORTED
 
 
 # ****************************************************************************************************************************************************************************************************
@@ -93,8 +96,8 @@ extensions:
 # - ["java.io", "OutputStream", False, "flush", "()", "", "aaa", "aaa", "aaa", "manual"]                                             # no manual model, # UNSUPPORTED
 
 - ["java.lang", "AbstractStringBuilder", False, "charAt", "(int)", "", "aaa", "aaa", "aaa", "manual"]                              # SUPPORTED, # ! not obviously supported by MaD... LOOK INTO MORE...
-- ["java.lang", "AbstractStringBuilder", False, "setCharAt", "(int,char)", "", "aaa", "aaa", "aaa", "manual"]                      # no manual model, # UNSUPPORTED
-- ["java.lang", "AbstractStringBuilder", False, "setLength", "(int)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED
+- ["java.lang", "AbstractStringBuilder", False, "setCharAt", "(int,char)", "", "aaa", "aaa", "aaa", "manual"]                      # no manual model, # UNSUPPORTED # ! internal class, need to find docs
+- ["java.lang", "AbstractStringBuilder", False, "setLength", "(int)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED # ! internal class, need to find docs
 
 # - ["java.lang", "CharSequence", False, "length", "()", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
 # - ["java.lang", "CharSequence", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                        # SUPPORTED
@@ -145,11 +148,11 @@ extensions:
 # - ["java.nio.file", "Path", False, "getFileName", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
 # - ["java.nio.file", "Path", False, "getParent", "()", "", "aaa", "aaa", "aaa", "manual"]                                           # UNSUPPORTED, # ! why not supported if it supposedly has a manual model? -- seems to be supported as a manual model in java.nio.file.model.yml, was it added recently?
 
-- ["java.sql", "Connection", False, "createStatement", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
-- ["java.sql", "ResultSet", False, "getInt", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                           # no manual model, # UNSUPPORTED
-- ["java.sql", "ResultSet", False, "getTimestamp", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
+# - ["java.sql", "Connection", False, "createStatement", "()", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
+# - ["java.sql", "ResultSet", False, "getInt", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                           # no manual model, # UNSUPPORTED
+# - ["java.sql", "ResultSet", False, "getTimestamp", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
 
-- ["java.text", "Format", False, "format", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
+# - ["java.text", "Format", False, "format", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
 
 - ["java.time", "Instant", False, "ofEpochMilli", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
 - ["java.time", "Instant", False, "parse", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED

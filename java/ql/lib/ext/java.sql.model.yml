@@ -23,9 +23,12 @@ extensions:
       - ["java.sql", "PreparedStatement", True, "setString", "(int,String)", "", "Argument[1]", "Argument[-1]", "value", "manual"]
       - ["java.sql", "ResultSet", True, "getInt", "(String)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.sql", "ResultSet", True, "getString", "(String)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.sql", "ResultSet", True, "getTimestamp", "(String)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
 
   - addsTo:
       pack: codeql/java-all
       extensible: neutralModel
     data:
+      - ["java.sql", "Connection", "createStatement", "()", "manual"]
+      - ["java.sql", "ResultSet", "getInt", "(int)", "manual"] # ! maybe summary model depending on outcome of michael/tony discussion on top-200 PR
       - ["java.sql", "ResultSet", "next", "()", "manual"]
