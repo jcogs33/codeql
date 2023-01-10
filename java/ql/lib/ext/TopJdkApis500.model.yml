@@ -43,7 +43,10 @@ extensions:
       # - ["java.nio.file", "Path", False, "getFileName", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                         # no manual model, # UNSUPPORTED
       # - ["java.sql", "ResultSet", True, "getTimestamp", "(String)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                  # no manual model, # UNSUPPORTED
       # - ["java.text", "Format", True, "format", "(Object)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                          # no manual model, # UNSUPPORTED
-
+      # - ["java.time", "Instant", False, "parse", "(CharSequence)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                    # no manual model, # UNSUPPORTED
+      # - ["java.time.format", "DateTimeFormatter", False, "format", "(TemporalAccessor)", "", "Argument[0]", "ReturnValue", "taint", "manual"]              # no manual model, # UNSUPPORTED
+      # - ["java.time", "LocalDate", False, "parse", "(CharSequence)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                  # no manual model, # UNSUPPORTED
+      # - ["java.time", "LocalDate", False, "plusDays", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                       # no manual model, # UNSUPPORTED
 
 
   - addsTo:
@@ -74,6 +77,9 @@ extensions:
       # - ["java.nio", "Buffer", "position", "()", "manual"]                                               # no manual model, # UNSUPPORTED
       # - ["java.sql", "Connection", "createStatement", "()", "manual"]                                    # no manual model, # UNSUPPORTED
       # - ["java.sql", "ResultSet", "getInt", "(int)", "manual"]                                           # no manual model, # UNSUPPORTED
+      # - ["java.time", "Instant", "ofEpochMilli", "(long)", "manual"]                                     # no manual model, # UNSUPPORTED
+      # - ["java.time", "ZoneId", "systemDefault", "()", "manual"]                                         # no manual model, # UNSUPPORTED
+
 
 
 # ****************************************************************************************************************************************************************************************************
@@ -154,12 +160,12 @@ extensions:
 
 # - ["java.text", "Format", False, "format", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
 
-- ["java.time", "Instant", False, "ofEpochMilli", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
-- ["java.time", "Instant", False, "parse", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
-- ["java.time", "LocalDate", False, "parse", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
-- ["java.time", "LocalDate", False, "plusDays", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                       # no manual model, # UNSUPPORTED
-- ["java.time", "ZoneId", False, "systemDefault", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
-- ["java.time.format", "DateTimeFormatter", False, "format", "(TemporalAccessor)", "", "aaa", "aaa", "aaa", "manual"]              # no manual model, # UNSUPPORTED
+# - ["java.time", "Instant", False, "ofEpochMilli", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                     # no manual model, # UNSUPPORTED
+# - ["java.time", "Instant", False, "parse", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]                                    # no manual model, # UNSUPPORTED
+# - ["java.time", "LocalDate", False, "parse", "(CharSequence)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
+# - ["java.time", "LocalDate", False, "plusDays", "(long)", "", "aaa", "aaa", "aaa", "manual"]                                       # no manual model, # UNSUPPORTED
+# - ["java.time", "ZoneId", False, "systemDefault", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
+# - ["java.time.format", "DateTimeFormatter", False, "format", "(TemporalAccessor)", "", "aaa", "aaa", "aaa", "manual"]              # no manual model, # UNSUPPORTED
 
 - ["java.util", "Calendar", False, "add", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
 - ["java.util", "Calendar", False, "setTime", "(Date)", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED

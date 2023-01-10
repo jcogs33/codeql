@@ -1,8 +1,17 @@
 extensions:
   - addsTo:
       pack: codeql/java-all
+      extensible: summaryModel
+    data:
+      - ["java.time", "Instant", False, "parse", "(CharSequence)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! mmaybe should be neutral since time-related?
+      - ["java.time", "LocalDate", False, "parse", "(CharSequence)", "", "Argument[0]", "ReturnValue", "taint", "manual"]
+      - ["java.time", "LocalDate", False, "plusDays", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! double-check if field-flow needed for this
+  - addsTo:
+      pack: codeql/java-all
       extensible: neutralModel
     data:
       - ["java.time", "Instant", "now", "()", "manual"]
+      - ["java.time", "Instant", "ofEpochMilli", "(long)", "manual"] # ! maybe summary model depending on outcome of michael/tony discussion on top-200 PR
       - ["java.time", "LocalDate", "of", "(int,int,int)", "manual"]
       - ["java.time", "ZonedDateTime", "now", "()", "manual"]
+      - ["java.time", "ZoneId", "systemDefault", "()", "manual"]
