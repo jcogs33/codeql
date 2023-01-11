@@ -96,6 +96,8 @@ extensions:
       - ["java.util", "Collections", False, "unmodifiableSortedMap", "(SortedMap)", "", "Argument[0].MapKey", "ReturnValue.MapKey", "value", "manual"]
       - ["java.util", "Collections", False, "unmodifiableSortedMap", "(SortedMap)", "", "Argument[0].MapValue", "ReturnValue.MapValue", "value", "manual"]
       - ["java.util", "Collections", False, "unmodifiableSortedSet", "(SortedSet)", "", "Argument[0].Element", "ReturnValue.Element", "value", "manual"]
+      - ["java.util", "Date", True, "from", "(Instant)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! should Dates just be neutral?
+      - ["java.util", "Date", True, "toInstant", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.util", "Deque", True, "addFirst", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
       - ["java.util", "Deque", True, "addLast", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
       - ["java.util", "Deque", True, "descendingIterator", "()", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]
@@ -124,6 +126,7 @@ extensions:
       - ["java.util", "EnumMap", False, "EnumMap", "(Map)", "", "Argument[0].MapValue", "Argument[-1].MapValue", "value", "manual"]
       - ["java.util", "Enumeration", True, "asIterator", "", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]
       - ["java.util", "Enumeration", True, "nextElement", "", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]
+      - ["java.util", "EventObject", True, "getSource", "()", "", "Argument[-1].Field[java.util.EventObject.source]", "ReturnValue", "value", "manual"]
       - ["java.util", "HashMap", False, "HashMap", "(Map)", "", "Argument[0].MapKey", "Argument[-1].MapKey", "value", "manual"]
       - ["java.util", "HashMap", False, "HashMap", "(Map)", "", "Argument[0].MapValue", "Argument[-1].MapValue", "value", "manual"]
       - ["java.util", "HashSet", False, "HashSet", "(Collection)", "", "Argument[0].Element", "Argument[-1].Element", "value", "manual"]
@@ -160,6 +163,7 @@ extensions:
       - ["java.util", "ListIterator", True, "add", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
       - ["java.util", "ListIterator", True, "previous", "", "", "Argument[-1].Element", "ReturnValue", "value", "manual"]
       - ["java.util", "ListIterator", True, "set", "(Object)", "", "Argument[0]", "Argument[-1].Element", "value", "manual"]
+      - ["java.util", "Locale", False, "forLanguageTag", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! neutral?
       - ["java.util", "Map", True, "computeIfAbsent", "", "", "Argument[-1].MapValue", "ReturnValue", "value", "manual"]
       - ["java.util", "Map", True, "computeIfAbsent", "", "", "Argument[1].ReturnValue", "Argument[-1].MapValue", "value", "manual"]
       - ["java.util", "Map", True, "computeIfAbsent", "", "", "Argument[1].ReturnValue", "ReturnValue", "value", "manual"]
@@ -340,6 +344,7 @@ extensions:
       - ["java.util", "StringTokenizer", False, "StringTokenizer", "", "", "Argument[0]", "Argument[-1]", "taint", "manual"]
       - ["java.util", "StringTokenizer", False, "nextElement", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["java.util", "StringTokenizer", False, "nextToken", "", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - ["java.util", "TimeZone", False, "getTimeZone", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"] # ! neutral since time-related?
       - ["java.util", "TreeMap", False, "TreeMap", "(Map)", "", "Argument[0].MapKey", "Argument[-1].MapKey", "value", "manual"]
       - ["java.util", "TreeMap", False, "TreeMap", "(Map)", "", "Argument[0].MapValue", "Argument[-1].MapValue", "value", "manual"]
       - ["java.util", "TreeMap", False, "TreeMap", "(SortedMap)", "", "Argument[0].MapKey", "Argument[-1].MapKey", "value", "manual"]
@@ -364,13 +369,18 @@ extensions:
     data:
       - ["java.util", "ArrayList", "ArrayList", "(int)", "manual"]
       - ["java.util", "ArrayList", "size", "()", "manual"]
+      - ["java.util", "Calendar", "add", "(int,int)", "manual"] # ! summary ?
+      - ["java.util", "Calendar", "setTime", "(Date)", "manual"] # ! summary ?
       - ["java.util", "Collection", "isEmpty", "()", "manual"]
       - ["java.util", "Collection", "size", "()", "manual"]
       - ["java.util", "Collections", "emptyList", "()", "manual"]
       - ["java.util", "Collections", "emptyMap", "()", "manual"]
       - ["java.util", "Collections", "emptySet", "()", "manual"]
+      - ["java.util", "Collections", "sort", "(List)", "manual"]
       - ["java.util", "Date", "Date", "(long)", "manual"]
       - ["java.util", "Date", "getTime", "()", "manual"]
+      - ["java.util", "HashMap", "size", "()", "manual"]
+      - ["java.util", "HashSet", "HashSet", "(int)", "manual"]
       - ["java.util", "Iterator", "hasNext", "()", "manual"]
       - ["java.util", "List", "clear", "()", "manual"]
       - ["java.util", "List", "contains", "(Object)", "manual"]
@@ -387,6 +397,8 @@ extensions:
       - ["java.util", "Optional", "isPresent", "()", "manual"]
       - ["java.util", "Set", "contains", "(Object)", "manual"]
       - ["java.util", "Set", "isEmpty", "()", "manual"]
+      - ["java.util", "Set", "removeAll", "(Collection)", "manual"] # ! summary
       - ["java.util", "Set", "size", "()", "manual"]
+      - ["java.util", "UUID", "equals", "(Object)", "manual"]
       - ["java.util", "UUID", "randomUUID", "()", "manual"]
       - ["java.util", "UUID", "toString", "()", "manual"]

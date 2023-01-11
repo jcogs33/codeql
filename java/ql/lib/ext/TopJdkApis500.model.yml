@@ -47,6 +47,15 @@ extensions:
       # - ["java.time.format", "DateTimeFormatter", False, "format", "(TemporalAccessor)", "", "Argument[0]", "ReturnValue", "taint", "manual"]              # no manual model, # UNSUPPORTED
       # - ["java.time", "LocalDate", False, "parse", "(CharSequence)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                  # no manual model, # UNSUPPORTED
       # - ["java.time", "LocalDate", False, "plusDays", "(long)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                       # no manual model, # UNSUPPORTED
+      # - ["java.util", "Date", True, "from", "(Instant)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                             # no manual model, # UNSUPPORTED
+      # - ["java.util", "Date", True, "toInstant", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]                                               # no manual model, # UNSUPPORTED
+      # - ["java.util", "EventObject", True, "getSource", "()", "", "Argument[-1].Field[java.util.EventObject.source]", "ReturnValue", "value", "manual"]                                        # no manual model, # UNSUPPORTED
+      # - ["java.util", "Locale", False, "forLanguageTag", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                  # no manual model, # UNSUPPORTED
+      # - ["java.util", "TimeZone", False, "getTimeZone", "(String)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                                   # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "CompletionStage", False, "toCompletableFuture", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]               # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "ExecutorService", True, "submit", "(Runnable)", "", "Argument[0]", "ReturnValue", "taint", "manual"]                    # no manual model, # UNSUPPORTED
+      # - ["java.util.function", "BiFunction", False, "apply", "(Object,Object)", "", "Argument[0..1]", "ReturnValue", "taint", "manual"]                       # no manual model, # UNSUPPORTED
+
 
 
   - addsTo:
@@ -79,6 +88,20 @@ extensions:
       # - ["java.sql", "ResultSet", "getInt", "(int)", "manual"]                                           # no manual model, # UNSUPPORTED
       # - ["java.time", "Instant", "ofEpochMilli", "(long)", "manual"]                                     # no manual model, # UNSUPPORTED
       # - ["java.time", "ZoneId", "systemDefault", "()", "manual"]                                         # no manual model, # UNSUPPORTED
+      # - ["java.util", "Calendar", "add", "(int,int)", "manual"]                                          # no manual model, # UNSUPPORTED
+      # - ["java.util", "Calendar", "setTime", "(Date)", "manual"]                                         # no manual model, # UNSUPPORTED
+      # - ["java.util", "Collections", "sort", "(List)", "manual"]                                         # no manual model, # UNSUPPORTED
+      # - ["java.util", "HashSet", "HashSet", "(int)", "manual"]                                           # no manual model, # UNSUPPORTED
+      # - ["java.util", "HashMap", "size", "()", "manual"]                                                 # no manual model, # UNSUPPORTED
+      # - ["java.util", "UUID", "equals", "(Object)", "manual"]                                            # no manual model, # UNSUPPORTED
+      # - ["java.util", "Set", "removeAll", "(Collection)", "manual"]                                      # no manual model, # UNSUPPORTED
+      # - ["java.util.stream", "IntStream", "mapToObj", "(IntFunction)", "manual"]                         # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent.atomic", "AtomicBoolean", "compareAndSet", "(boolean,boolean)", "manual"] # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent.atomic", "AtomicLong", "incrementAndGet", "()", "manual"]                 # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "CountDownLatch", "await", "()", "manual"]                              # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "CompletableFuture", "isDone", "()", "manual"]                          # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent", "ExecutorService", "shutdown", "()", "manual"]                          # no manual model, # UNSUPPORTED
+      # - ["java.util.concurrent.locks", "Lock", "lock", "()", "manual"]                                   # no manual model, # UNSUPPORTED
 
 
 
@@ -167,45 +190,48 @@ extensions:
 # - ["java.time", "ZoneId", False, "systemDefault", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
 # - ["java.time.format", "DateTimeFormatter", False, "format", "(TemporalAccessor)", "", "aaa", "aaa", "aaa", "manual"]              # no manual model, # UNSUPPORTED
 
-- ["java.util", "Calendar", False, "add", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
-- ["java.util", "Calendar", False, "setTime", "(Date)", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
-- ["java.util", "Collections", False, "sort", "(List)", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
-- ["java.util", "Collections", False, "unmodifiableSet", "(Set)", "", "aaa", "aaa", "aaa", "manual"]                               # SUPPORTED
-- ["java.util", "Date", False, "from", "(Instant)", "", "aaa", "aaa", "aaa", "manual"]                                             # no manual model, # UNSUPPORTED
-- ["java.util", "Date", False, "toInstant", "()", "", "aaa", "aaa", "aaa", "manual"]                                               # no manual model, # UNSUPPORTED
-- ["java.util", "EventObject", False, "getSource", "()", "", "aaa", "aaa", "aaa", "manual"]                                        # no manual model, # UNSUPPORTED
-- ["java.util", "HashSet", False, "HashSet", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                           # no manual model, # UNSUPPORTED
-- ["java.util", "HashMap", False, "entrySet", "()", "", "aaa", "aaa", "aaa", "manual"]                                             # SUPPORTED
-- ["java.util", "HashMap", False, "size", "()", "", "aaa", "aaa", "aaa", "manual"]                                                 # no manual model, # UNSUPPORTED
-- ["java.util", "LinkedList", False, "add", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                         # SUPPORTED
-- ["java.util", "List", False, "toArray", "()", "", "aaa", "aaa", "aaa", "manual"]                                                 # SUPPORTED
-- ["java.util", "Locale", False, "forLanguageTag", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
-- ["java.util", "Optional", False, "filter", "(Predicate)", "", "aaa", "aaa", "aaa", "manual"]                                     # SUPPORTED
-- ["java.util", "Queue", False, "add", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                              # SUPPORTED
-- ["java.util", "Queue", False, "poll", "()", "", "aaa", "aaa", "aaa", "manual"]                                                   # SUPPORTED
-- ["java.util", "Set", False, "of", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                                          # SUPPORTED
-- ["java.util", "Set", False, "removeAll", "(Collection)", "", "aaa", "aaa", "aaa", "manual"]                                      # no manual model, # UNSUPPORTED
-- ["java.util", "TimeZone", False, "getTimeZone", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # UNSUPPORTED
-- ["java.util", "UUID", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                            # no manual model, # UNSUPPORTED
-- ["java.util", "Vector", False, "addElement", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                      # SUPPORTED
+# - ["java.util", "Calendar", False, "add", "(int,int)", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
+# - ["java.util", "Calendar", False, "setTime", "(Date)", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
+# - ["java.util", "Collections", False, "sort", "(List)", "", "aaa", "aaa", "aaa", "manual"]                                         # no manual model, # UNSUPPORTED
+# - ["java.util", "Collections", False, "unmodifiableSet", "(Set)", "", "aaa", "aaa", "aaa", "manual"]                               # SUPPORTED
+# - ["java.util", "Date", False, "from", "(Instant)", "", "aaa", "aaa", "aaa", "manual"]                                             # no manual model, # UNSUPPORTED
+# - ["java.util", "Date", False, "toInstant", "()", "", "aaa", "aaa", "aaa", "manual"]                                               # no manual model, # UNSUPPORTED
+# - ["java.util", "EventObject", False, "getSource", "()", "", "aaa", "aaa", "aaa", "manual"]                                        # no manual model, # UNSUPPORTED
 
-- ["java.util.concurrent", "ExecutorService", False, "shutdown", "()", "", "aaa", "aaa", "aaa", "manual"]                          # no manual model, # UNSUPPORTED
-- ["java.util.concurrent", "ExecutorService", False, "submit", "(Runnable)", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model, # UNSUPPORTED
-- ["java.util.concurrent", "CompletableFuture", False, "isDone", "()", "", "aaa", "aaa", "aaa", "manual"]                          # no manual model, # UNSUPPORTED
-- ["java.util.concurrent", "CompletionStage", False, "toCompletableFuture", "()", "", "aaa", "aaa", "aaa", "manual"]               # no manual model, # UNSUPPORTED
-- ["java.util.concurrent", "ConcurrentHashMap", False, "put", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                # SUPPORTED
-- ["java.util.concurrent", "CountDownLatch", False, "await", "()", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
+# - ["java.util", "HashSet", False, "HashSet", "(int)", "", "aaa", "aaa", "aaa", "manual"]                                           # no manual model, # UNSUPPORTED
+# - ["java.util", "HashMap", False, "entrySet", "()", "", "aaa", "aaa", "aaa", "manual"]                                             # SUPPORTED, subtyping with Map.entrySet
+# - ["java.util", "HashMap", False, "size", "()", "", "aaa", "aaa", "aaa", "manual"]                                                 # no manual model, # UNSUPPORTED
+# - ["java.util", "LinkedList", False, "add", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                         # SUPPORTED, through List/Collection subtyping
+# - ["java.util", "List", False, "toArray", "()", "", "aaa", "aaa", "aaa", "manual"]                                                 # SUPPORTED, through Collection subtyping
 
-- ["java.util.concurrent.atomic", "AtomicBoolean", False, "compareAndSet", "(boolean,boolean)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
-- ["java.util.concurrent.atomic", "AtomicLong", False, "incrementAndGet", "()", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model, # UNSUPPORTED
+# - ["java.util", "Locale", False, "forLanguageTag", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                  # no manual model, # UNSUPPORTED
+# - ["java.util", "Optional", False, "filter", "(Predicate)", "", "aaa", "aaa", "aaa", "manual"]                                     # SUPPORTED
+# - ["java.util", "Queue", False, "add", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                              # SUPPORTED, through Collection subtyping
+# - ["java.util", "Queue", False, "poll", "()", "", "aaa", "aaa", "aaa", "manual"]                                                   # SUPPORTED
+# - ["java.util", "Set", False, "of", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                                          # SUPPORTED
 
-- ["java.util.concurrent.locks", "Lock", False, "lock", "()", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # UNSUPPORTED
-- ["java.util.function", "BiFunction", False, "apply", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
+# - ["java.util", "Set", False, "removeAll", "(Collection)", "", "aaa", "aaa", "aaa", "manual"]                                      # no manual model, # UNSUPPORTED
+# - ["java.util", "TimeZone", False, "getTimeZone", "(String)", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # UNSUPPORTED
+# - ["java.util", "UUID", False, "equals", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                            # no manual model, # UNSUPPORTED
+# - ["java.util", "Vector", False, "addElement", "(Object)", "", "aaa", "aaa", "aaa", "manual"]                                      # SUPPORTED
 
-- ["java.util.stream", "IntStream", False, "mapToObj", "(IntFunction)", "", "aaa", "aaa", "aaa", "manual"]                         # no manual model, # UNSUPPORTED
-- ["java.util.stream", "Stream", False, "allMatch", "(Predicate)", "", "aaa", "aaa", "aaa", "manual"]                              # SUPPORTED
-- ["java.util.stream", "Stream", False, "concat", "(Stream,Stream)", "", "aaa", "aaa", "aaa", "manual"]                            # SUPPORTED
-- ["java.util.stream", "Stream", False, "distinct", "()", "", "aaa", "aaa", "aaa", "manual"]                                       # SUPPORTED
-- ["java.util.stream", "Stream", False, "mapToInt", "(ToIntFunction)", "", "aaa", "aaa", "aaa", "manual"]                          # SUPPORTED
-- ["java.util.stream", "Stream", False, "reduce", "(Object,BinaryOperator)", "", "aaa", "aaa", "aaa", "manual"]                    # SUPPORTED
-- ["java.util.stream", "Stream", False, "sorted", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # SUPPORTED
+# - ["java.util.concurrent", "ExecutorService", False, "shutdown", "()", "", "aaa", "aaa", "aaa", "manual"]                          # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "ExecutorService", False, "submit", "(Runnable)", "", "aaa", "aaa", "aaa", "manual"]                    # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "CompletableFuture", False, "isDone", "()", "", "aaa", "aaa", "aaa", "manual"]                          # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "CompletionStage", False, "toCompletableFuture", "()", "", "aaa", "aaa", "aaa", "manual"]               # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent", "ConcurrentHashMap", False, "put", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                # SUPPORTED, through Map subtyping
+# - ["java.util.concurrent", "CountDownLatch", False, "await", "()", "", "aaa", "aaa", "aaa", "manual"]                              # no manual model, # UNSUPPORTED
+
+# - ["java.util.concurrent.atomic", "AtomicBoolean", False, "compareAndSet", "(boolean,boolean)", "", "aaa", "aaa", "aaa", "manual"] # no manual model, # UNSUPPORTED
+# - ["java.util.concurrent.atomic", "AtomicLong", False, "incrementAndGet", "()", "", "aaa", "aaa", "aaa", "manual"]                 # no manual model, # UNSUPPORTED
+
+# - ["java.util.concurrent.locks", "Lock", False, "lock", "()", "", "aaa", "aaa", "aaa", "manual"]                                   # no manual model, # UNSUPPORTED
+# - ["java.util.function", "BiFunction", False, "apply", "(Object,Object)", "", "aaa", "aaa", "aaa", "manual"]                       # no manual model, # UNSUPPORTED
+
+# - ["java.util.stream", "IntStream", False, "mapToObj", "(IntFunction)", "", "aaa", "aaa", "aaa", "manual"]                         # no manual model, # UNSUPPORTED
+# - ["java.util.stream", "Stream", False, "allMatch", "(Predicate)", "", "aaa", "aaa", "aaa", "manual"]                              # SUPPORTED
+# - ["java.util.stream", "Stream", False, "concat", "(Stream,Stream)", "", "aaa", "aaa", "aaa", "manual"]                            # SUPPORTED
+# - ["java.util.stream", "Stream", False, "distinct", "()", "", "aaa", "aaa", "aaa", "manual"]                                       # SUPPORTED
+# - ["java.util.stream", "Stream", False, "mapToInt", "(ToIntFunction)", "", "aaa", "aaa", "aaa", "manual"]                          # SUPPORTED
+# - ["java.util.stream", "Stream", False, "reduce", "(Object,BinaryOperator)", "", "aaa", "aaa", "aaa", "manual"]                    # SUPPORTED
+# - ["java.util.stream", "Stream", False, "sorted", "()", "", "aaa", "aaa", "aaa", "manual"]                                         # SUPPORTED

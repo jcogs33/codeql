@@ -9,7 +9,7 @@ extensions:
       - ["java.util.stream", "BaseStream", True, "sequential", "()", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]
       - ["java.util.stream", "BaseStream", True, "spliterator", "()", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]
       - ["java.util.stream", "BaseStream", True, "unordered", "()", "", "Argument[-1].Element", "ReturnValue.Element", "value", "manual"]
-      - ["java.util.stream", "Stream", True, "allMatch", "(Predicate)", "", "Argument[-1].Element", "Argument[0].Parameter[0]", "value", "manual"]
+      - ["java.util.stream", "Stream", True, "allMatch", "(Predicate)", "", "Argument[-1].Element", "Argument[0].Parameter[0]", "value", "manual"] # ! neutral instead?
       - ["java.util.stream", "Stream", True, "anyMatch", "(Predicate)", "", "Argument[-1].Element", "Argument[0].Parameter[0]", "value", "manual"]
       - ["java.util.stream", "Stream", True, "collect", "(Supplier,BiConsumer,BiConsumer)", "", "Argument[-1].Element", "Argument[1].Parameter[1]", "value", "manual"]
       - ["java.util.stream", "Stream", True, "collect", "(Supplier,BiConsumer,BiConsumer)", "", "Argument[0].ReturnValue", "Argument[1].Parameter[0]", "value", "manual"]
@@ -96,3 +96,4 @@ extensions:
       - ["java.util.stream", "Collectors", "toList", "()", "manual"]
       - ["java.util.stream", "Collectors", "toMap", "(Function,Function)", "manual"]
       - ["java.util.stream", "Collectors", "toSet", "()", "manual"]
+      - ["java.util.stream", "IntStream", "mapToObj", "(IntFunction)", "manual"] # ! not interesting because Int stream? or summary instead?
