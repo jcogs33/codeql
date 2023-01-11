@@ -126,6 +126,8 @@ extensions:
       extensible: neutralModel
     data:
       - ["java.lang", "AbstractStringBuilder", "length", "()", "manual"]
+      - ["java.lang", "AbstractStringBuilder", "setCharAt", "(int,char)", "manual"] # ! char manipulation not interesting? (or interesting since could set many chars... prbly switch to summary model)
+      - ["java.lang", "AbstractStringBuilder", "setLength", "(int)", "manual"] # ! summary?
       - ["java.lang", "Boolean", "equals", "(Object)", "manual"]
       - ["java.lang", "CharSequence", "length", "()", "manual"]
       - ["java.lang", "Class", "getClassLoader", "()", "manual"]

@@ -102,6 +102,8 @@ extensions:
       # - ["java.util.concurrent", "CompletableFuture", "isDone", "()", "manual"]                          # no manual model, # UNSUPPORTED
       # - ["java.util.concurrent", "ExecutorService", "shutdown", "()", "manual"]                          # no manual model, # UNSUPPORTED
       # - ["java.util.concurrent.locks", "Lock", "lock", "()", "manual"]                                   # no manual model, # UNSUPPORTED
+      # - ["java.lang", "AbstractStringBuilder", "setCharAt", "(int,char)", "manual"]                      # no manual model, # UNSUPPORTED # ! internal class, need to find docs
+      # - ["java.lang", "AbstractStringBuilder", "setLength", "(int)", "manual"]                           # no manual model, # UNSUPPORTED # ! internal class, need to find docs
 
 
 
@@ -124,9 +126,9 @@ extensions:
 # - ["java.io", "InputStreamReader", False, "InputStreamReader", "(InputStream)", "", "aaa", "aaa", "aaa", "manual"]                 # SUPPORTED
 # - ["java.io", "OutputStream", False, "flush", "()", "", "aaa", "aaa", "aaa", "manual"]                                             # no manual model, # UNSUPPORTED
 
-- ["java.lang", "AbstractStringBuilder", False, "charAt", "(int)", "", "aaa", "aaa", "aaa", "manual"]                              # SUPPORTED, # ! not obviously supported by MaD... LOOK INTO MORE...
-- ["java.lang", "AbstractStringBuilder", False, "setCharAt", "(int,char)", "", "aaa", "aaa", "aaa", "manual"]                      # no manual model, # UNSUPPORTED # ! internal class, need to find docs
-- ["java.lang", "AbstractStringBuilder", False, "setLength", "(int)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED # ! internal class, need to find docs
+# - ["java.lang", "AbstractStringBuilder", False, "charAt", "(int)", "", "aaa", "aaa", "aaa", "manual"]                              # SUPPORTED, # * inherits `CharSequence.charAt` so it's supported through that subtyping.
+# - ["java.lang", "AbstractStringBuilder", False, "setCharAt", "(int,char)", "", "aaa", "aaa", "aaa", "manual"]                      # no manual model, # UNSUPPORTED # ! internal class, need to find docs
+# - ["java.lang", "AbstractStringBuilder", False, "setLength", "(int)", "", "aaa", "aaa", "aaa", "manual"]                           # no manual model, # UNSUPPORTED # ! internal class, need to find docs
 
 # - ["java.lang", "CharSequence", False, "length", "()", "", "aaa", "aaa", "aaa", "manual"]                                          # no manual model, # UNSUPPORTED
 # - ["java.lang", "CharSequence", False, "toString", "()", "", "aaa", "aaa", "aaa", "manual"]                                        # SUPPORTED
