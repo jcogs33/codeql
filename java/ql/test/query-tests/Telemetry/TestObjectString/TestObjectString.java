@@ -18,7 +18,11 @@ public class TestObjectString {
         sb.append(str + obj);
         sb.append(obj + str);
         sb.append(obj.toString());
+        sb.append(obj.toString() + obj);
+        sb.append((Object)obj.toString());
+        sb.append((Object)obj.toString() + str);
         sb.append(String.valueOf(obj));
+        sb.append(obj.toString().toString());
 
         // String str2 = "str2";
         // Object obj2 = str2;

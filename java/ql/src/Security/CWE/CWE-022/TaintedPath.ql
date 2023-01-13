@@ -52,13 +52,15 @@ class TaintedPathConfig extends TaintTracking::Configuration {
  * continue to report there; otherwise we report directly at `sink`.
  */
 DataFlow::Node getReportingNode(DataFlow::Node sink) {
-  any(TaintedPathConfig c).hasFlowTo(sink) and
-  if exists(PathCreation pc | pc.getAnInput() = sink.asExpr())
-  then result.asExpr() = any(PathCreation pc | pc.getAnInput() = sink.asExpr())
-  else result = sink
+  // any(TaintedPathConfig c).hasFlowTo(sink) and
+  // if exists(PathCreation pc | pc.getAnInput() = sink.asExpr())
+  // then result.asExpr() = any(PathCreation pc | pc.getAnInput() = sink.asExpr())
+  // else result = sink
+  result = sink
 }
 
 from DataFlow::PathNode source, DataFlow::PathNode sink, TaintedPathConfig conf
 where conf.hasFlowPath(source, sink)
-select getReportingNode(sink.getNode()), source, sink, "This path depends on a $@.",
-  source.getNode(), "user-provided value"
+select getReportingNode(sink.getNode()), source, sink,
+  "This path depends on a $@." + sink.getNode().getLocation(), source.getNode(),
+  "user-provided value"

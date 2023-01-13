@@ -13,6 +13,9 @@ import java.nio.file.FileSystems;
 
 import org.apache.commons.io.output.LockableFileWriter;
 
+import java.util.*;
+import org.apache.lucene.util.IOUtils;
+
 class Test {
 	void doGet1(InetAddress address)
 		throws IOException {
@@ -99,5 +102,26 @@ class Test {
 		new File(new URI(t, null, t, t));
 		new File(new URI(null, null, t, null, null));
 		new File(new URI(null, null, null, 0, t, null, null));
+	}
+
+	// public static void rm(File file) {
+	// 	try {
+	// 		IOUtils.rm(file.toPath());
+	// 	} catch (Throwable ignored) {
+
+	// 	}
+	// }
+	void test(InetAddress address) {
+		// Path[] pathArray = {file.toPath()};
+		String temp = address.getHostName();
+		File file2 = new File(temp);
+		try {
+			// IOUtils.rm(pathArray);
+			//IOUtils.rm(file.toPath());
+			Path p = file2.toPath();
+			IOUtils.rm(p);
+		} catch (Throwable ignored) {
+
+		}
 	}
 }
