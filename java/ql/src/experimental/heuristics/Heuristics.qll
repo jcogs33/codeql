@@ -6,16 +6,21 @@ private class PublicCallable extends Callable {
 }
 
 // ! need to be able to refine this *for each* sink type.
-private Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string paramName) {
+Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string paramName, string paramType) {
   exists(Parameter p |
     p.getName() = paramName and
-    p = result.getParameter(paramIdx)
+    p.getType().toString() = paramType and
+    p = result.getParameter(paramIdx) and
+    // exclude JDK internals for now
+    not isJdkInternal(result.getDeclaringType().getPackage())
   )
 }
 
 // ! maybe expand this for refining?
-private query Callable getAVulnerableParameter(int paramIdx, string paramName, string reason) {
-  result = getAVulnerableParameterNameBasedGuess(paramIdx, paramName) and
+private query Callable getAVulnerableParameter(
+  int paramIdx, string paramName, string paramType, string reason
+) {
+  result = getAVulnerableParameterNameBasedGuess(paramIdx, paramName, paramType) and
   reason = "nameBasedGuess"
 }
 
@@ -32,7 +37,7 @@ private string signatureIfNeeded(PublicCallable c) {
 }
 
 // ! pulled from CaptureModelsSpecific.qll
-private predicate isJdkInternal(Package p) {
+predicate isJdkInternal(Package p) {
   p.getName().matches("org.graalvm%") or
   p.getName().matches("com.sun%") or
   p.getName().matches("javax.swing%") or
@@ -56,15 +61,41 @@ private predicate isJdkInternal(Package p) {
   p.getName() = ""
 }
 
-query string getAVulnerableParameterSpecification() {
-  exists(Callable c, int paramIdx |
-    c = getAVulnerableParameter(paramIdx, "sql", _) and
+query string getAVulnerableParameterSpecification(
+  Callable c, string paramName, string paramType, string existingSink
+) {
+  exists(int paramIdx |
+    c = getAVulnerableParameter(paramIdx, paramName, paramType, _) and
     result =
       "[\"" + c.getDeclaringType().getPackage() + "\", \"" + c.getDeclaringType().getName() + "\", "
         + "True, \"" + c.getName() + "\", \"" + signatureIfNeeded(c) + "\", \"\", \"" + "Argument[" +
         paramIdx + "]\", \"" + "sql" + "\", \"manual\"]" and
-    not isJdkInternal(c.getDeclaringType().getPackage())
+    existingSink = hasExistingSink(c, paramIdx)
   )
+}
+
+// string getProposedSink(Callable callable, int paramIdx, string sinkKind) {
+//   result =
+//     "[\"" + callable.getDeclaringType().getPackage() + "\", \"" +
+//       callable.getDeclaringType().getName() + "\", " + "True, \"" + callable.getName() + "\", \"" +
+//       signatureIfNeeded(callable) + "\", \"\", \"" + "Argument[" + paramIdx + "]\", \"" + sinkKind +
+//       "\", \"manual\"]"
+// }
+bindingset[paramIdx]
+string hasExistingSink(Callable callable, int paramIdx) {
+  if
+    sinkModel(callable.getDeclaringType().getPackage().toString(),
+      callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
+      [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, "manual") // ! may want to allow for finding "generated" as well; also "Name" may be affected for existing queries?.
+  then
+    exists(string existingKind |
+      existingKind =
+        sinkModelKindResult(callable.getDeclaringType().getPackage().toString(),
+          callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
+          [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, "manual") and
+      result = "yes, for sink kind \"" + existingKind + "\""
+    )
+  else result = "no"
 }
 // TODO:
 // 1) label existing sinks in heuristic output so can focus on just new ones (make easy to exclude from output instead as well) // ! complicated for ones that aren't as simple as "sql" (e.g. regex% and jdbc/open-url)

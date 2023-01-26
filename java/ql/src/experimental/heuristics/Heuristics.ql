@@ -5,18 +5,11 @@ private class PublicCallable extends Callable {
   PublicCallable() { this.isPublic() and this.getDeclaringType().isPublic() }
 }
 
-// ! need to be able to refine this *for each* sink type.
 private Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string paramName) {
   exists(Parameter p |
     p.getName() = paramName and
     p = result.getParameter(paramIdx)
   )
-}
-
-// ! maybe expand this for refining?
-private query Callable getAVulnerableParameter(int paramIdx, string paramName, string reason) {
-  result = getAVulnerableParameterNameBasedGuess(paramIdx, paramName) and
-  reason = "nameBasedGuess"
 }
 
 private predicate hasOverloads(PublicCallable c) {
@@ -58,7 +51,7 @@ private predicate isJdkInternal(Package p) {
 
 query string getAVulnerableParameterSpecification() {
   exists(Callable c, int paramIdx |
-    c = getAVulnerableParameter(paramIdx, "sql", _) and
+    c = getAVulnerableParameterNameBasedGuess(paramIdx, "sql") and
     result =
       "[\"" + c.getDeclaringType().getPackage() + "\", \"" + c.getDeclaringType().getName() + "\", "
         + "True, \"" + c.getName() + "\", \"" + signatureIfNeeded(c) + "\", \"\", \"" + "Argument[" +
@@ -71,19 +64,19 @@ from
   Callable c, int paramIdx, string paramName, string kind, string proposedSink, string existingSink //, string existingKind
 where
   // set paramName heuristic
-  //paramName in ["sql"] and
-  paramName.matches(["url%"]) and // ! ssrf
+  paramName in ["sql"] and
+  //paramName.matches(["url%"]) and // ! ssrf
   // set sink kind that you're looking for
-  //kind = "sql" and // ! kind is problematic with regex% sinks
+  kind = "sql" and // ! kind is problematic with regex% sinks
   //kind.matches(["%-url"]) and // ! ssrf, needs to be more precise else doubled
   // (
   //   kind = "jdbc-url" and not kind = "open-url"
   //   or
   //   kind = "open-url" and not kind = "jdbc-url"
   // ) and
-  kind = "%-url" and // ! just do a query for each "kind" type for now, I think that will be easiest.
+  //kind = "%-url" and // ! just do a query for each "kind" type for now, I think that will be easiest.
   // get callable for proposed sink based on heuristics
-  c = getAVulnerableParameter(paramIdx, paramName, _) and
+  c = getAVulnerableParameterNameBasedGuess(paramIdx, paramName) and
   // construct proposed yml for propsed sink (put this in a separate predicate)
   proposedSink =
     "[\"" + c.getDeclaringType().getPackage() + "\", \"" + c.getDeclaringType().getName() + "\", " +

@@ -108,7 +108,7 @@ where
   paramType = callable.getParameterType(paramIdx.toInt()).getErasure().toString() and
   paramName = callable.getParameter(paramIdx.toInt()).getName() and
   //kind in ["pending-intent-sent"] and
-  kind.matches("create-file") and
+  kind.matches("sql") and
   sinkModel(callable.getDeclaringType().getPackage().toString(),
     callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
     [paramsString(callable), ""], _, paramLoc, kind, _) and
