@@ -32,29 +32,54 @@ private predicate isJdkInternal(Package p) {
   p.getName().matches("%internal%") // ! I think it would make sense to add this exclusion (e.g. org.hibernate.engine.jdbc.internal, etc.)
 }
 
+// private predicate sqlHeuristic(Parameter p) {
+//   //p.getName().matches(["sql%", "query%"]) and
+//   //p.getName().regexpMatch("(?i)(sql|query)?") and
+//   p.getName().regexpMatch("(?i)[a-z]*(sql|query)+[a-z]*") and // goes too far without a type constraint as well
+//   not p.hasName([
+//       "sqlType", "SQLType", "sqlState", "SQLState", "queryClass", "queryName", "targetSqlType",
+//       "targetSQLType"
+//     ]) and // these paramNames don't eem to ever be actual qsql queries, may need more exclusions
+//   not p.getType().getErasure().(RefType).hasQualifiedName("java.time.temporal", "TemporalQuery") and
+//   not p.getType() instanceof PrimitiveType and
+//   not p.getType() instanceof BoxedType and
+//   //p.getType() instanceof TypeString and // ! may need to add CriteriaDelete, CriteriaQuery, and CriteriaUpdate, Subquery?,as types as well (for org.hibernate sinks)
+//   not p.getCallable()
+//       .getDeclaringType()
+//       .getSourceDeclaration()
+//       .toString()
+//       .regexpMatch("(?i)[a-z]*(exception)+[a-z]*") // exclude Exceptions for now (ask Tony about this)
+// }
 private predicate sqlHeuristic(Parameter p) {
-  //p.getName().matches(["sql%", "query%"]) and
-  p.getName().regexpMatch("(?i)[a-z]*(sql|query)+[a-z]*") and // ! goes too far without a type constraint as well
-  //p.getName().regexpMatch("(?i)(sql|query)?") and
-  not p.getName().matches(["sqlType", "sqlState", "SQLState", "queryClass"]) and
-  p.getType() instanceof TypeString and // ! may need to add CriteriaDelete, CriteriaQuery, and CriteriaUpdate, Subquery?,as types as well (for org.hibernate sinks)
+  p.getName().regexpMatch("(?i)[a-z]*(sql|query)+[a-z]*") and
+  not p.hasName([
+      "sqlType", "SQLType", "sqlState", "SQLState", "queryClass", "queryName", "targetSqlType",
+      "targetSQLType"
+    ]) and
+  not p.getType().getErasure().(RefType).hasQualifiedName("java.time.temporal", "TemporalQuery") and
+  not p.getType() instanceof PrimitiveType and
+  not p.getType() instanceof BoxedType and
   not p.getCallable()
       .getDeclaringType()
       .getSourceDeclaration()
       .toString()
-      .regexpMatch("(?i)[a-z]*(exception)+[a-z]*") // exclude Exceptions for now
+      .regexpMatch("(?i)[a-z]*(exception)+[a-z]*")
 }
 
 private predicate pathInjectionHeuristic(Parameter p) {
   // * less strict with names and types: (253 results)
-  p.getName()
-      .matches(["file", "fd", "fdObj", "out", "dir", "link", "path", "fileName", "target", "sink"]) and // ! left out "name" and "prefix" for now.
+  p.hasName([
+      "file", "fd", "fdObj", "out", "dir", "link", "path", "fileName", "target", "sink", "destDir",
+      "destFile", "destination", "destinationDir", "files", "outputStream", "targetDirectory",
+      "targetFile"
+    ]) and // ! left out "name" and "prefix" for now.
   (
     p.getType() instanceof TypeFile or
     p.getType() instanceof TypePath or
     p.getType().(Class).hasQualifiedName("java.io", "FileDescriptor") or // ! need to add this as a type in JDK.qll
     p.getType() instanceof TypeString or
-    p.getType().(Class).hasQualifiedName("java.io", "OutputStream") // ! need to add this as a type in JDK.qll
+    p.getType().(Class).hasQualifiedName("java.io", "OutputStream") or // ! need to add this as a type in JDK.qll
+    p.getType().(Array).getComponentType() instanceof TypeFile
   )
   // * pair names and types more strictly: (205 results)
   // * the below probly excludes too much, e.g. ["java.nio.channels", "AsynchronousFileChannel", True, "open", "(Path,OpenOption[])", "", "Argument[0]", "create-file", "manual"] looks like a TP but excluded because paramType=Path and paramName=file
@@ -202,26 +227,30 @@ private string hasExistingSink(Callable callable, int paramIdx) {
   if
     sinkModel(callable.getDeclaringType().getPackage().toString(),
       callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
-      [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, "manual") // ! may want to allow for finding "generated" as well; also "Name" may be affected for existing queries?.
+      [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, _) // ! may want to allow for finding "generated" as well; also "Name" may be affected for existing queries?.
   then
     exists(string existingKind |
       existingKind =
         // ! `sinkModelKindResult` needs to be refactored; should be a simpler way to get this info, hopefully combined with the above
         sinkModelKindResult(callable.getDeclaringType().getPackage().toString(),
           callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
-          [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, "manual") and
+          [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, _) and
       result = "yes, for sink kind \"" + existingKind + "\""
     )
   else result = "no"
 }
 
-string getAVulnerableParameterSpecification(Callable c, string existingSink, string sinkKind) {
+string getAVulnerableParameterSpecification(
+  Callable c, string existingSink, string sinkKind, string paramType, string paramName
+) {
   exists(int paramIdx |
     c = getAVulnerableParameter(paramIdx, sinkKind, _) and
     result =
       "[\"" + c.getDeclaringType().getPackage() + "\", \"" + c.getDeclaringType().getName() + "\", "
         + "True, \"" + c.getName() + "\", \"" + signatureIfNeeded(c) + "\", \"\", \"" + "Argument[" +
         paramIdx + "]\", \"" + sinkKind + "\", \"manual\"]" and
-    existingSink = hasExistingSink(c, paramIdx)
+    existingSink = hasExistingSink(c, paramIdx) and
+    paramType = c.getParameterType(paramIdx).getErasure().toString() and // debugging
+    paramName = c.getParameter(paramIdx).getName() // debugging
   )
 }
