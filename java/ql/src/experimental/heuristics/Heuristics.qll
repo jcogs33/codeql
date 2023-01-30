@@ -32,38 +32,23 @@ private predicate isJdkInternal(Package p) {
   p.getName().matches("%internal%") // ! I think it would make sense to add this exclusion (e.g. org.hibernate.engine.jdbc.internal, etc.)
 }
 
-// private predicate sqlHeuristic(Parameter p) {
-//   //p.getName().matches(["sql%", "query%"]) and
-//   //p.getName().regexpMatch("(?i)(sql|query)?") and
-//   p.getName().regexpMatch("(?i)[a-z]*(sql|query)+[a-z]*") and // goes too far without a type constraint as well
-//   not p.hasName([
-//       "sqlType", "SQLType", "sqlState", "SQLState", "queryClass", "queryName", "targetSqlType",
-//       "targetSQLType"
-//     ]) and // these paramNames don't eem to ever be actual qsql queries, may need more exclusions
-//   not p.getType().getErasure().(RefType).hasQualifiedName("java.time.temporal", "TemporalQuery") and
-//   not p.getType() instanceof PrimitiveType and
-//   not p.getType() instanceof BoxedType and
-//   //p.getType() instanceof TypeString and // ! may need to add CriteriaDelete, CriteriaQuery, and CriteriaUpdate, Subquery?,as types as well (for org.hibernate sinks)
-//   not p.getCallable()
-//       .getDeclaringType()
-//       .getSourceDeclaration()
-//       .toString()
-//       .regexpMatch("(?i)[a-z]*(exception)+[a-z]*") // exclude Exceptions for now (ask Tony about this)
-// }
 private predicate sqlHeuristic(Parameter p) {
-  p.getName().regexpMatch("(?i)[a-z]*(sql|query)+[a-z]*") and
+  //p.getName().matches(["sql%", "query%"]) and
+  //p.getName().regexpMatch("(?i)(sql|query)?") and
+  p.getName().regexpMatch("(?i)[a-z]*(sql|query)+[a-z]*") and // goes too far without a type constraint as well
   not p.hasName([
       "sqlType", "SQLType", "sqlState", "SQLState", "queryClass", "queryName", "targetSqlType",
       "targetSQLType"
-    ]) and
+    ]) and // these paramNames don't eem to ever be actual qsql queries, may need more exclusions
   not p.getType().getErasure().(RefType).hasQualifiedName("java.time.temporal", "TemporalQuery") and
   not p.getType() instanceof PrimitiveType and
   not p.getType() instanceof BoxedType and
+  //p.getType() instanceof TypeString and // ! may need to add CriteriaDelete, CriteriaQuery, and CriteriaUpdate, Subquery?,as types as well (for org.hibernate sinks)
   not p.getCallable()
       .getDeclaringType()
       .getSourceDeclaration()
       .toString()
-      .regexpMatch("(?i)[a-z]*(exception)+[a-z]*")
+      .regexpMatch("(?i)[a-z]*(exception)+[a-z]*") // exclude Exceptions for now (ask Tony about this)
 }
 
 private predicate pathInjectionHeuristic(Parameter p) {
@@ -72,7 +57,7 @@ private predicate pathInjectionHeuristic(Parameter p) {
       "file", "fd", "fdObj", "out", "dir", "link", "path", "fileName", "target", "sink", "destDir",
       "destFile", "destination", "destinationDir", "files", "outputStream", "targetDirectory",
       "targetFile"
-    ]) and // ! left out "name" and "prefix" for now.
+    ]) and // ! leaving "name" and "prefix" out for now since they seem to result in a lot of FPs (102 "prefix" results, 455 "name" results)
   (
     p.getType() instanceof TypeFile or
     p.getType() instanceof TypePath or
