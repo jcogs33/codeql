@@ -1,0 +1,142 @@
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: sinkModel
+    data:
+    # Definite TPs (IMO)
+    - ["java.io", "FilePermission", True, "FilePermission", "", "", "Argument[0]", "create-file", "manual"] #  "Creates a new FilePermission object with the specified actions. path is the pathname of a file or directory, and actions contains a comma-separated list of the desired actions granted on the file or directory. Possible actions are "read", "write", "execute", "delete", and "readlink"." Also, see: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=24895
+    - ["java.lang", "Redirect", True, "appendTo", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.lang", "Redirect", True, "from", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.lang", "Redirect", True, "to", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.channels", "AsynchronousFileChannel", True, "open", "(Path,OpenOption[])", "", "Argument[0]", "create-file", "manual"] # "Opens or creates a file for reading and/or writing, returning an asynchronous file channel to access the file."
+    - ["java.nio.channels", "AsynchronousFileChannel", True, "open", "(Path,Set,ExecutorService,FileAttribute[])", "", "Argument[0]", "create-file", "manual"] # "Opens or creates a file for reading and/or writing, returning an asynchronous file channel to access the file."
+    - ["java.nio.channels", "FileChannel", True, "open", "(Path,OpenOption[])", "", "Argument[0]", "create-file", "manual"] # might subtype from `AsynchronousFileChannel`
+    - ["java.nio.channels", "FileChannel", True, "open", "(Path,Set,FileAttribute[])", "", "Argument[0]", "create-file", "manual"] # might subtype from `AsynchronousFileChannel`
+    - ["java.nio.file", "FileSystems", True, "newFileSystem", "(Path,ClassLoader)", "", "Argument[0]", "create-file", "manual"] # "Constructs a new FileSystem to access the contents of a file as a file system."
+    - ["java.nio.file", "Files", True, "createTempFile", "(Path,String,String,FileAttribute[])", "", "Argument[0]", "create-file", "manual"]	Path	dir	createTempFile	yes, for sink kind "create-file"
+    - ["java.nio.file", "Files", True, "delete", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "lines", "(Path)", "", "Argument[0]", "create-file", "manual"] # "Read all lines from a file as a Stream."
+    - ["java.nio.file", "Files", True, "lines", "(Path,Charset)", "", "Argument[0]", "create-file", "manual"] # "Read all lines from a file as a Stream."
+    - ["java.nio.file", "Files", True, "newBufferedReader", "(Path)", "", "Argument[0]", "create-file", "manual"] # "Opens a file for reading, returning a BufferedReader to read text from the file in an efficient manner."
+    - ["java.nio.file", "Files", True, "newBufferedReader", "(Path,Charset)", "", "Argument[0]", "create-file", "manual"] # "Opens a file for reading, returning a BufferedReader to read text from the file in an efficient manner."
+    - ["java.nio.file", "Files", True, "newByteChannel", "(Path,OpenOption[])", "", "Argument[0]", "create-file", "manual"]	# "Opens or creates a file, returning a seekable byte channel to access the file."
+    - ["java.nio.file", "Files", True, "newByteChannel", "(Path,Set,FileAttribute[])", "", "Argument[0]", "create-file", "manual"] # "Opens or creates a file, returning a seekable byte channel to access the file."
+    - ["java.nio.file", "Files", True, "newDirectoryStream", "(Path)", "", "Argument[0]", "create-file", "manual"] # "Opens a directory,..."
+    - ["java.nio.file", "Files", True, "newDirectoryStream", "(Path,Filter)", "", "Argument[0]", "create-file", "manual"] # "Opens a directory,..."
+    - ["java.nio.file", "Files", True, "newDirectoryStream", "(Path,String)", "", "Argument[0]", "create-file", "manual"] # "Opens a directory,..."
+    - ["java.nio.file", "Files", True, "newInputStream", "", "", "Argument[0]", "create-file", "manual"] # Opens a file, returning an input stream to read from the file."
+    - ["java.nio.file", "Files", True, "readAllBytes", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "readAllLines", "(Path)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "readAllLines", "(Path,Charset)", "", "Argument[0]", "create-file", "manual"]
+
+
+    # Definite TPs, and already modeled (or partially modeled) in PathCreation.qll
+    - ["java.io", "FileInputStream", True, "FileInputStream", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.io", "FileInputStream", True, "FileInputStream", "(FileDescriptor)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.io", "FileReader", True, "FileReader", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.io", "FileReader", True, "FileReader", "(FileDescriptor)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.io", "FileReader", True, "FileReader", "(String)", "", "Argument[0]", "create-file", "manual"]
+
+
+    # Probably TPs (I think)
+    - ["java.io", "ByteArrayOutputStream", True, "writeTo", "", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?, "Writes the complete contents of this byte array output stream to the specified output stream argument"
+    - ["java.lang", "ProcessBuilder", True, "redirectInput", "(File)", "", "Argument[0]", "create-file", "manual"] # seems like a TP, but would it cause overlapping sinks with Redirect.from(file)?
+    - ["java.lang", "ProcessBuilder", True, "redirectOutput", "(File)", "", "Argument[0]", "create-file", "manual"] # seems like a TP, but would it cause overlapping sinks with Redirect.to(file)?
+    - ["java.nio.channels", "Channels", True, "newChannel", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+
+
+    # Constructors that are possibly TPs
+    - ["java.beans", "XMLEncoder", True, "XMLEncoder", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.beans", "XMLEncoder", True, "XMLEncoder", "(OutputStream,String,boolean,int)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "BufferedOutputStream", True, "BufferedOutputStream", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "BufferedOutputStream", True, "BufferedOutputStream", "(OutputStream,int)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "DataOutputStream", True, "DataOutputStream", "", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "FilterOutputStream", True, "FilterOutputStream", "", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "ObjectOutputStream", True, "ObjectOutputStream", "", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "OutputStreamWriter", True, "OutputStreamWriter", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "OutputStreamWriter", True, "OutputStreamWriter", "(OutputStream,Charset)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "OutputStreamWriter", True, "OutputStreamWriter", "(OutputStream,CharsetEncoder)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "OutputStreamWriter", True, "OutputStreamWriter", "(OutputStream,String)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "PrintStream", True, "PrintStream", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "PrintStream", True, "PrintStream", "(OutputStream,boolean)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "PrintStream", True, "PrintStream", "(OutputStream,boolean,String)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "PrintWriter", True, "PrintWriter", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "PrintWriter", True, "PrintWriter", "(OutputStream,boolean)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+
+
+    # Unsure about
+    - ["java.applet", "AppletContext", True, "showDocument", "(URL,String)", "", "Argument[1]", "create-file", "manual"] # FP unless related to URL-traversing?
+    - ["java.lang", "Runtime", True, "exec", "(String,String[],File)", "", "Argument[2]", "create-file", "manual"] # bad to control dir where executed? (Note that Arg[0] is sink for `java/command-line-injection`. See ExternalProcess.qll for model, can maybe convert to MaD?)
+    - ["java.lang", "Runtime", True, "exec", "(String[],String[],File)", "", "Argument[2]", "create-file", "manual"] # bad to control dir where executed? (Note that Arg[0] is sink for `java/command-line-injection`. See ExternalProcess.qll for model, can maybe convert to MaD?)
+    - ["java.net", "URI", True, "URI", "(String,String,String,String)", "", "Argument[2]", "create-file", "manual"] # related to URL-traversing (see OWASP)?
+    - ["java.net", "URI", True, "URI", "(String,String,String,String,String)", "", "Argument[2]", "create-file", "manual"] # related to URL-traversing (see OWASP)?
+    - ["java.net", "URI", True, "URI", "(String,String,String,int,String,String,String)", "", "Argument[4]", "create-file", "manual"] # related to URL-traversing (see OWASP)?
+    - ["java.net", "URL", True, "URL", "(String,String,String)", "", "Argument[2]", "create-file", "manual"] # related to URL-traversing (see OWASP)?
+    - ["java.net", "URL", True, "URL", "(String,String,int,String)", "", "Argument[3]", "create-file", "manual"] # related to URL-traversing (see OWASP)?
+    - ["java.net", "URL", True, "URL", "(String,String,int,String,URLStreamHandler)", "", "Argument[3]", "create-file", "manual"] # related to URL-traversing (see OWASP)?
+    - ["java.nio.file", "Files", True, "createSymbolicLink", "", "", "Argument[1]", "create-file", "manual"] # Existing sink for Arg[0] (Path link); why isn't Path target interesting here?
+    - ["java.nio.file", "Files", True, "getFileStore", "", "", "Argument[0]", "create-file", "manual"] # not sure if I'm clear enough on what a FileStore is...
+
+
+    # Probably FPs
+    - ["java.lang", "SecurityManager", True, "checkDelete", "", "", "Argument[0]", "create-file", "manual"] # FP since I don't think performs the operation, just checks if it's possible?
+    - ["java.lang", "SecurityManager", True, "checkRead", "(FileDescriptor)", "", "Argument[0]", "create-file", "manual"] # FP since I don't think performs the operation, just checks if it's possible?
+    - ["java.lang", "SecurityManager", True, "checkRead", "(String)", "", "Argument[0]", "create-file", "manual"] # FP since I don't think performs the operation, just checks if it's possible?
+    - ["java.lang", "SecurityManager", True, "checkRead", "(String,Object)", "", "Argument[0]", "create-file", "manual"] # FP since I don't think performs the operation, just checks if it's possible?
+    - ["java.lang", "SecurityManager", True, "checkSecurityAccess", "", "", "Argument[0]", "create-file", "manual"] # FP since I don't think performs the operation, just checks if it's possible?
+    - ["java.lang", "SecurityManager", True, "checkWrite", "(FileDescriptor)", "", "Argument[0]", "create-file", "manual"] # FP since I don't think performs the operation, just checks if it's possible?
+    - ["java.lang", "SecurityManager", True, "checkWrite", "(String)", "", "Argument[0]", "create-file", "manual"] # FP since I don't think performs the operation, just checks if it's possible?
+    - ["java.lang", "StackTraceElement", True, "StackTraceElement", "", "", "Argument[2]", "create-file", "manual"] # seems uninteresting to control this fileName?
+    - ["java.net", "FileNameMap", True, "getContentTypeFor", "", "", "Argument[0]", "create-file", "manual"] # seems uninteresting, "A simple interface which provides a mechanism to map between a file name and a MIME type string."
+    - ["java.nio.file", "Files", True, "getAttribute", "", "", "Argument[0]", "create-file", "manual"] # prbly not interesting; might be interesting if could edit attribute?, from docs: "Reads the value of a file attribute."
+    - ["java.nio.file", "Files", True, "getFileAttributeView", "", "", "Argument[0]", "create-file", "manual"] prbly not interesting; might be interesting if could edit attribute?, from docs: "Returns a file attribute view of a given type."
+
+
+    # Exceptions that are probably FPs (unless can get useful info from controlling the exception?)
+    - ["java.nio.file", "AccessDeniedException", True, "AccessDeniedException", "(String)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "AccessDeniedException", True, "AccessDeniedException", "(String,String,String)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "AtomicMoveNotSupportedException", True, "AtomicMoveNotSupportedException", "", "", "Argument[1]", "create-file", "manual"]
+    - ["java.nio.file", "DirectoryNotEmptyException", True, "DirectoryNotEmptyException", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "FileAlreadyExistsException", True, "FileAlreadyExistsException", "(String)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "FileAlreadyExistsException", True, "FileAlreadyExistsException", "(String,String,String)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "FileSystemException", True, "FileSystemException", "(String)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "FileSystemException", True, "FileSystemException", "(String,String,String)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "FileSystemLoopException", True, "FileSystemLoopException", "", "", "Argument[0]", "create-file", "manual"]
+
+
+
+    # Definite FPs
+
+
+
+    # Probably neutrals
+    - ["java.lang", "ProcessBuilder", True, "redirectError", "(File)", "", "Argument[0]", "create-file", "manual"] # redirecting errors not interesting?
+    - ["java.nio.file", "Files", True, "exists", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "getLastModifiedTime", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "getOwner", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "getPosixFilePermissions", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "isDirectory", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "isExecutable", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "isHidden", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "isReadable", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "isRegularFile", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "isSameFile", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "isSameFile", "", "", "Argument[1]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "isSymbolicLink", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "isWritable", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "list", "", "", "Argument[0]", "create-file", "manual"] # not interesting?
+    - ["java.nio.file", "Files", True, "notExists", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "probeContentType", "", "", "Argument[0]", "create-file", "manual"]
+
+    # Probably steps
+    - ["java.lang", "Runtime", True, "getLocalizedOutputStream", "", "", "Argument[0]", "create-file", "manual"] # "This method takes an OutputStream and returns an OutputStream equivalent to the argument in all respects except that it is localized" (deprecated since JDK 1.1. so prbly not that interesting)
+
+
+    # Too complex for MaD? (lambda flow, etc.)
+    - ["java.io", "FilenameFilter", True, "accept", "", "", "Argument[0]", "create-file", "manual"]
+
+
+    # ! Questions:
+     - URLs as Path-Inj sinks or should that have its own query (See OWASP, etc.)? - the existing path-inj query is about attacker *accessing* unexpected resources (e.g. reading, writing/modifying, deleting, etc.)
+     - Can we get rid of the constructors and have more precise sinks instead? And let steps handle getting to those precise sinks??
+     - Exceptions interesting at all?

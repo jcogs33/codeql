@@ -53,11 +53,12 @@ private predicate sqlHeuristic(Parameter p) {
 
 private predicate pathInjectionHeuristic(Parameter p) {
   // * less strict with names and types: (253 results)
-  p.hasName([
-      "file", "fd", "fdObj", "out", "dir", "link", "path", "fileName", "target", "sink", "destDir",
-      "destFile", "destination", "destinationDir", "files", "outputStream", "targetDirectory",
-      "targetFile"
-    ]) and // ! leaving "name" and "prefix" out for now since they seem to result in a lot of FPs (102 "prefix" results, 455 "name" results)
+  p.getName()
+      .matches([
+          "file", "fd", "fdObj", "out", "dir", "link", "path%", "fileName", "target", "sink",
+          "destDir", "destFile", "destination", "destinationDir", "files", "outputStream",
+          "targetDirectory", "targetFile"
+        ]) and // ! leaving "name" and "prefix" out for now since they seem to result in a lot of FPs (102 "prefix" results, 455 "name" results)
   (
     p.getType() instanceof TypeFile or
     p.getType() instanceof TypePath or
