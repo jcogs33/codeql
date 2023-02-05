@@ -28,6 +28,36 @@ extensions:
     - ["java.nio.file", "Files", True, "readAllBytes", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "Files", True, "readAllLines", "(Path)", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "Files", True, "readAllLines", "(Path,Charset)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "readSymbolicLink", "", "", "Argument[0]", "create-file", "manual"] # "Reads the target of a symbolic link"
+    - ["java.nio.file", "Files", True, "setPosixFilePermissions", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "copy", "", "", "Argument[1]", "create-file", "manual"]	Path	target	copy	no
+    # ! check if spi ones are already covered by Files methods since "The methods defined by the Files class will typically delegate to an instance of this class.".
+    - ["java.nio.file.spi", "FileSystemProvider", True, "createDirectory", "", "", "Argument[0]", "create-file", "manual"]	Path	dir	createDirectory	no
+    - ["java.nio.file.spi", "FileSystemProvider", True, "createLink", "", "", "Argument[0]", "create-file", "manual"]	Path	link	createLink	no
+    - ["java.nio.file.spi", "FileSystemProvider", True, "createSymbolicLink", "", "", "Argument[0]", "create-file", "manual"]	Path	link	createSymbolicLink	no
+    - ["java.nio.file.spi", "FileSystemProvider", True, "createSymbolicLink", "", "", "Argument[1]", "create-file", "manual"]	Path	target	createSymbolicLink	no
+    - ["java.nio.file.spi", "FileSystemProvider", True, "delete", "", "", "Argument[0]", "create-file", "manual"]	Path	path	delete	no
+    - ["java.nio.file.spi", "FileSystemProvider", True, "deleteIfExists", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "move", "", "", "Argument[1]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "newAsynchronousFileChannel", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "newByteChannel", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "newDirectoryStream", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "newFileChannel", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "newFileSystem", "(Path,Map)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "newInputStream", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "newOutputStream", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "readSymbolicLink", "", "", "Argument[0]", "create-file", "manual"]
+    # ! need OutputStream and PrintStream params for Formatter as well?
+    - ["java.util", "Formatter", True, "Formatter", "(File)", "", "Argument[0]", "create-file", "manual"] # "...otherwise, a new file will be created...."
+    - ["java.util", "Formatter", True, "Formatter", "(File,String)", "", "Argument[0]", "create-file", "manual"]	# "...otherwise, a new file will be created...."
+    - ["java.util", "Formatter", True, "Formatter", "(File,String,Locale)", "", "Argument[0]", "create-file", "manual"]	# "...otherwise, a new file will be created...."
+    - ["java.util", "Formatter", True, "Formatter", "(String)", "", "Argument[0]", "create-file", "manual"]	# "...otherwise, a new file will be created...."
+    - ["java.util", "Formatter", True, "Formatter", "(String,String)", "", "Argument[0]", "create-file", "manual"]	# "...otherwise, a new file will be created...."
+    - ["java.util", "Formatter", True, "Formatter", "(String,String,Locale)", "", "Argument[0]", "create-file", "manual"] # "...otherwise, a new file will be created...."
+    - ["javax.sound.midi", "MidiSystem", True, "write", "(Sequence,int,File)", "", "Argument[2]", "create-file", "manual"]
+    - ["javax.sound.midi", "MidiSystem", True, "write", "(Sequence,int,OutputStream)", "", "Argument[2]", "create-file", "manual"]
+    - ["javax.sound.midi.spi", "MidiFileWriter", True, "write", "(Sequence,int,File)", "", "Argument[2]", "create-file", "manual"]
+    - ["javax.sound.midi.spi", "MidiFileWriter", True, "write", "(Sequence,int,OutputStream)", "", "Argument[2]", "create-file", "manual"]
 
 
     # Definite TPs, and already modeled (or partially modeled) in PathCreation.qll
@@ -43,7 +73,10 @@ extensions:
     - ["java.lang", "ProcessBuilder", True, "redirectInput", "(File)", "", "Argument[0]", "create-file", "manual"] # seems like a TP, but would it cause overlapping sinks with Redirect.from(file)?
     - ["java.lang", "ProcessBuilder", True, "redirectOutput", "(File)", "", "Argument[0]", "create-file", "manual"] # seems like a TP, but would it cause overlapping sinks with Redirect.to(file)?
     - ["java.nio.channels", "Channels", True, "newChannel", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
-
+    - ["java.nio.file", "Files", True, "setAttribute", "", "", "Argument[0]", "create-file", "manual"] # TP if setting the file attributes is useful for attacker?
+	  - ["java.nio.file", "Files", True, "setOwner", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "setAttribute", "", "", "Argument[0]", "create-file", "manual"]
+    - 	["javax.print", "StreamPrintServiceFactory", True, "getPrintService", "", "", "Argument[0]", "create-file", "manual"]
 
     # Constructors that are possibly TPs
     - ["java.beans", "XMLEncoder", True, "XMLEncoder", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
@@ -62,6 +95,33 @@ extensions:
     - ["java.io", "PrintStream", True, "PrintStream", "(OutputStream,boolean,String)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
     - ["java.io", "PrintWriter", True, "PrintWriter", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
     - ["java.io", "PrintWriter", True, "PrintWriter", "(OutputStream,boolean)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.util.jar", "JarFile", True, "JarFile", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.jar", "JarFile", True, "JarFile", "(File,boolean)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.jar", "JarFile", True, "JarFile", "(File,boolean,int)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.jar", "JarOutputStream", True, "JarOutputStream", "(OutputStream)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.jar", "JarOutputStream", True, "JarOutputStream", "(OutputStream,Manifest)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.logging", "StreamHandler", True, "StreamHandler", "(OutputStream,Formatter)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "CheckedOutputStream", True, "CheckedOutputStream", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "DeflaterOutputStream", True, "DeflaterOutputStream", "(OutputStream)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "DeflaterOutputStream", True, "DeflaterOutputStream", "(OutputStream,Deflater)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "DeflaterOutputStream", True, "DeflaterOutputStream", "(OutputStream,Deflater,boolean)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "DeflaterOutputStream", True, "DeflaterOutputStream", "(OutputStream,Deflater,int)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "DeflaterOutputStream", True, "DeflaterOutputStream", "(OutputStream,Deflater,int,boolean)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "DeflaterOutputStream", True, "DeflaterOutputStream", "(OutputStream,boolean)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "GZIPOutputStream", True, "GZIPOutputStream", "(OutputStream)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "GZIPOutputStream", True, "GZIPOutputStream", "(OutputStream,boolean)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "GZIPOutputStream", True, "GZIPOutputStream", "(OutputStream,int)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "GZIPOutputStream", True, "GZIPOutputStream", "(OutputStream,int,boolean)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "InflaterOutputStream", True, "InflaterOutputStream", "(OutputStream)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "InflaterOutputStream", True, "InflaterOutputStream", "(OutputStream,Inflater)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "InflaterOutputStream", True, "InflaterOutputStream", "(OutputStream,Inflater,int)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "ZipFile", True, "ZipFile", "(File)", "", "Argument[0]", "create-file", "manual"]	# "@param file the ZIP file to be opened for reading"
+    - ["java.util.zip", "ZipFile", True, "ZipFile", "(File,Charset)", "", "Argument[0]", "create-file", "manual"] # "@param file the ZIP file to be opened for reading"
+    - ["java.util.zip", "ZipFile", True, "ZipFile", "(File,int)", "", "Argument[0]", "create-file", "manual"] # "@param file the ZIP file to be opened for reading"
+    - ["java.util.zip", "ZipFile", True, "ZipFile", "(File,int,Charset)", "", "Argument[0]", "create-file", "manual"] # "@param file the ZIP file to be opened for reading"
+    - ["java.util.zip", "ZipOutputStream", True, "ZipOutputStream", "(OutputStream)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util.zip", "ZipOutputStream", True, "ZipOutputStream", "(OutputStream,Charset)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.activation", "MailcapCommandMap", True, "MailcapCommandMap", "(String)", "", "Argument[0]", "create-file", "manual"] # "@param fileName The name of the <i>mailcap</i> file to open"
 
 
     # Unsure about
@@ -76,6 +136,21 @@ extensions:
     - ["java.net", "URL", True, "URL", "(String,String,int,String,URLStreamHandler)", "", "Argument[3]", "create-file", "manual"] # related to URL-traversing (see OWASP)?
     - ["java.nio.file", "Files", True, "createSymbolicLink", "", "", "Argument[1]", "create-file", "manual"] # Existing sink for Arg[0] (Path link); why isn't Path target interesting here?
     - ["java.nio.file", "Files", True, "getFileStore", "", "", "Argument[0]", "create-file", "manual"] # not sure if I'm clear enough on what a FileStore is...
+    - ["java.nio.file", "PathMatcher", True, "matches", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "getFileStore", "", "", "Argument[0]", "create-file", "manual"] # not sure if I'm clear enough on what a FileStore is...
+    - ["java.rmi.server", "LogStream", True, "setOutputStream", "", "", "Argument[0]", "create-file", "manual"] # "Set the stream to which output from this log is sent."
+    - ["java.rmi.server", "RemoteServer", True, "setLog", "", "", "Argument[0]", "create-file", "manual"] # "Log RMI calls to the output stream"
+    - ["java.security", "Builder", True, "newInstance", "(String,Provider,File,ProtectionParameter)", "", "Argument[2]", "create-file", "manual"] # TP? "@param file the File that contains the KeyStore data"
+    - ["java.security", "Builder", True, "newInstance", "(String,Provider,File,ProtectionParameter)", "", "Argument[2]", "create-file", "manual"] # "Generates the extension's DER encoding and writes it to the output stream."
+    - ["java.util.jar", "Manifest", True, "write", "", "", "Argument[0]", "create-file", "manual"] # not sure if Manifest is interesting... "Writes the Manifest to the specified OutputStream."
+    - ["java.util.jar", "Packer", True, "pack", "(JarFile,OutputStream)", "", "Argument[1]", "create-file", "manual"]
+    - ["java.util.jar", "Packer", True, "pack", "(JarInputStream,OutputStream)", "", "Argument[1]", "create-file", "manual"]
+    - ["java.util.prefs", "Preferences", True, "node", "", "", "Argument[0]", "create-file", "manual"] # not sure about Preferences
+    - ["javax.activation", "FileDataSource", True, "FileDataSource", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.security.auth.kerberos", "KeyTab", True, "getInstance", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.security.auth.kerberos", "KeyTab", True, "getInstance", "(KerberosPrincipal,File)", "", "Argument[1]", "create-file", "manual"]
+    - ["javax.security.auth.kerberos", "KeyTab", True, "getUnboundInstance", "(File)", "", "Argument[0]", "create-file", "manual"]
+
 
 
     # Probably FPs
@@ -90,6 +165,17 @@ extensions:
     - ["java.net", "FileNameMap", True, "getContentTypeFor", "", "", "Argument[0]", "create-file", "manual"] # seems uninteresting, "A simple interface which provides a mechanism to map between a file name and a MIME type string."
     - ["java.nio.file", "Files", True, "getAttribute", "", "", "Argument[0]", "create-file", "manual"] # prbly not interesting; might be interesting if could edit attribute?, from docs: "Reads the value of a file attribute."
     - ["java.nio.file", "Files", True, "getFileAttributeView", "", "", "Argument[0]", "create-file", "manual"] prbly not interesting; might be interesting if could edit attribute?, from docs: "Returns a file attribute view of a given type."
+    - ["java.nio.file", "Files", True, "readAttributes", "(Path,Class,LinkOption[])", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "readAttributes", "(Path,String,LinkOption[])", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "checkAccess", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "getFileAttributeView", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "readAttributes", "(Path,Class,LinkOption[])", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "readAttributes", "(Path,String,LinkOption[])", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.activation", "FileTypeMap", True, "getContentType", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.naming.event", "EventContext", True, "addNamingListener", "(String,int,NamingListener)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.naming.event", "EventDirContext", True, "addNamingListener", "(String,String,Object[],SearchControls,NamingListener)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.naming.event", "EventDirContext", True, "addNamingListener", "(String,String,SearchControls,NamingListener)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.sound.midi", "MidiSystem", True, "getMidiFileFormat", "(File)", "", "Argument[0]", "create-file", "manual"]
 
 
     # Exceptions that are probably FPs (unless can get useful info from controlling the exception?)
@@ -102,7 +188,13 @@ extensions:
     - ["java.nio.file", "FileSystemException", True, "FileSystemException", "(String)", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "FileSystemException", True, "FileSystemException", "(String,String,String)", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "FileSystemLoopException", True, "FileSystemLoopException", "", "", "Argument[0]", "create-file", "manual"]
-
+    - ["java.nio.file", "NoSuchFileException", True, "NoSuchFileException", "(String)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "NoSuchFileException", True, "NoSuchFileException", "(String,String,String)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "NotDirectoryException", True, "NotDirectoryException", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "NotLinkException", True, "NotLinkException", "(String)", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "NotLinkException", True, "NotLinkException", "(String,String,String)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.script", "ScriptException", True, "ScriptException", "(String,String,int)", "", "Argument[1]", "create-file", "manual"]
+    - ["javax.script", "ScriptException", True, "ScriptException", "(String,String,int,int)", "", "Argument[1]", "create-file", "manual"]
 
 
     # Definite FPs
@@ -127,6 +219,18 @@ extensions:
     - ["java.nio.file", "Files", True, "list", "", "", "Argument[0]", "create-file", "manual"] # not interesting?
     - ["java.nio.file", "Files", True, "notExists", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "Files", True, "probeContentType", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "setLastModifiedTime", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file", "Files", True, "size", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "isHidden", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "isSameFile", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileSystemProvider", True, "isSameFile", "", "", "Argument[1]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileTypeDetector", True, "probeContentType", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.text", "Collator", True, "compare", "(String,String)", "", "Argument[1]", "create-file", "manual"]
+    - ["java.text", "Collator", True, "equals", "(String,String)", "", "Argument[1]", "create-file", "manual"]
+    - ["java.text", "RuleBasedCollator", True, "compare", "", "", "Argument[1]", "create-file", "manual"]
+    - ["java.util.prefs", "Preferences", True, "nodeExists", "", "", "Argument[0]", "create-file", "manual"]
+
+
 
     # Probably steps
     - ["java.lang", "Runtime", True, "getLocalizedOutputStream", "", "", "Argument[0]", "create-file", "manual"] # "This method takes an OutputStream and returns an OutputStream equivalent to the argument in all respects except that it is localized" (deprecated since JDK 1.1. so prbly not that interesting)
@@ -140,3 +244,6 @@ extensions:
      - URLs as Path-Inj sinks or should that have its own query (See OWASP, etc.)? - the existing path-inj query is about attacker *accessing* unexpected resources (e.g. reading, writing/modifying, deleting, etc.)
      - Can we get rid of the constructors and have more precise sinks instead? And let steps handle getting to those precise sinks??
      - Exceptions interesting at all?
+
+
+    # TODO: make sure correct subtype False/True before fully add these.
