@@ -76,7 +76,19 @@ extensions:
     - ["java.nio.file", "Files", True, "setAttribute", "", "", "Argument[0]", "create-file", "manual"] # TP if setting the file attributes is useful for attacker?
 	  - ["java.nio.file", "Files", True, "setOwner", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file.spi", "FileSystemProvider", True, "setAttribute", "", "", "Argument[0]", "create-file", "manual"]
-    - 	["javax.print", "StreamPrintServiceFactory", True, "getPrintService", "", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.print", "StreamPrintServiceFactory", True, "getPrintService", "", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.sound.sampled", "AudioSystem", True, "getAudioInputStream", "(File)", "", "Argument[0]", "create-file", "manual"] # "Obtains an audio input stream from the provided File."
+    - ["javax.sound.sampled", "AudioSystem", True, "write", "(AudioInputStream,Type,File)", "", "Argument[2]", "create-file", "manual"] # "Writes a stream of bytes representing an audio file of the specified file type to the external file provided."
+    - ["javax.sound.sampled", "AudioSystem", True, "write", "(AudioInputStream,Type,OutputStream)", "", "Argument[2]", "create-file", "manual"]
+    - ["javax.sound.sampled.spi", "AudioFileReader", True, "getAudioInputStream", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.sound.sampled.spi", "AudioFileWriter", True, "write", "(AudioInputStream,Type,File)", "", "Argument[2]", "create-file", "manual"]
+    - ["javax.sound.sampled.spi", "AudioFileWriter", True, "write", "(AudioInputStream,Type,OutputStream)", "", "Argument[2]", "create-file", "manual"]
+    - ["javax.tools", "StandardJavaFileManager", True, "getJavaFileObjects", "(File[])", "", "Argument[0]", "create-file", "manual"] # might be a step instead actually?
+    - ["javax.xml.soap", "SOAPMessage", True, "writeTo", "", "", "Argument[0]", "create-file", "manual"] # "Writes this SOAPMessage object to the given output stream."
+    - ["javax.xml.transform.stream", "StreamResult", True, "StreamResult", "(OutputStream)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.xml.transform.stream", "StreamResult", True, "setOutputStream", "", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.sound.midi", "MidiSystem", True, "getSoundbank", "(File)", "", "Argument[0]", "create-file", "manual"] # "Constructs a Soundbank by reading it from the specified File."
+
 
     # Constructors that are possibly TPs
     - ["java.beans", "XMLEncoder", True, "XMLEncoder", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
@@ -84,6 +96,7 @@ extensions:
     - ["java.io", "BufferedOutputStream", True, "BufferedOutputStream", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
     - ["java.io", "BufferedOutputStream", True, "BufferedOutputStream", "(OutputStream,int)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
     - ["java.io", "DataOutputStream", True, "DataOutputStream", "", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+    - ["java.io", "File", True, "File", "(String)", "", "Argument[0]", "create-file", "manual"]
     - ["java.io", "FilterOutputStream", True, "FilterOutputStream", "", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
     - ["java.io", "ObjectOutputStream", True, "ObjectOutputStream", "", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
     - ["java.io", "OutputStreamWriter", True, "OutputStreamWriter", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
@@ -145,12 +158,16 @@ extensions:
     - ["java.util.jar", "Manifest", True, "write", "", "", "Argument[0]", "create-file", "manual"] # not sure if Manifest is interesting... "Writes the Manifest to the specified OutputStream."
     - ["java.util.jar", "Packer", True, "pack", "(JarFile,OutputStream)", "", "Argument[1]", "create-file", "manual"]
     - ["java.util.jar", "Packer", True, "pack", "(JarInputStream,OutputStream)", "", "Argument[1]", "create-file", "manual"]
+    - ["java.util.prefs", "AbstractPreferences", True, "node", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.util.prefs", "Preferences", True, "node", "", "", "Argument[0]", "create-file", "manual"] # not sure about Preferences
     - ["javax.activation", "FileDataSource", True, "FileDataSource", "(File)", "", "Argument[0]", "create-file", "manual"]
     - ["javax.security.auth.kerberos", "KeyTab", True, "getInstance", "(File)", "", "Argument[0]", "create-file", "manual"]
     - ["javax.security.auth.kerberos", "KeyTab", True, "getInstance", "(KerberosPrincipal,File)", "", "Argument[1]", "create-file", "manual"]
     - ["javax.security.auth.kerberos", "KeyTab", True, "getUnboundInstance", "(File)", "", "Argument[0]", "create-file", "manual"]
-
+    - ["javax.sound.midi.spi", "SoundbankReader", True, "getSoundbank", "(File)", "", "Argument[0]", "create-file", "manual"] # don't understand SoundBank enough; "Obtains a soundbank object from the {@code File} provided."
+    - ["javax.tools", "Tool", True, "run", "", "", "Argument[1]", "create-file", "manual"] # "Run the tool with the given I/O channels and arguments."
+    - ["java.util", "Properties", True, "save", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.util", "Properties", True, "store", "(OutputStream,String)", "", "Argument[0]", "create-file", "manual"]
 
 
     # Probably FPs
@@ -176,6 +193,15 @@ extensions:
     - ["javax.naming.event", "EventDirContext", True, "addNamingListener", "(String,String,Object[],SearchControls,NamingListener)", "", "Argument[0]", "create-file", "manual"]
     - ["javax.naming.event", "EventDirContext", True, "addNamingListener", "(String,String,SearchControls,NamingListener)", "", "Argument[0]", "create-file", "manual"]
     - ["javax.sound.midi", "MidiSystem", True, "getMidiFileFormat", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.sound.sampled", "AudioSystem", True, "getAudioFileFormat", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.sound.sampled.spi", "AudioFileReader", True, "getAudioFileFormat", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.xml.crypto.dsig", "XMLSignatureFactory", True, "newSignatureProperty", "", "", "Argument[1]", "create-file", "manual"] # "@param target the target URI of the Signature that this property applies to"
+    - ["javax.xml.stream", "XMLEventFactory", True, "createProcessingInstruction", "", "", "Argument[0]", "create-file", "manual"] # String target doesn't seem related to a File/Path
+    - ["javax.xml.stream", "XMLStreamWriter", True, "writeProcessingInstruction", "(String)", "", "Argument[0]", "create-file", "manual"] # ProcessingInstruction not interesting I think
+    - ["javax.xml.stream", "XMLStreamWriter", True, "writeProcessingInstruction", "(String,String)", "", "Argument[0]", "create-file", "manual"] # ProcessingInstruction not interesting I think
+    - ["javax.sound.midi", "MidiSystem", True, "getSequence", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.sound.midi.spi", "MidiFileReader", True, "getMidiFileFormat", "(File)", "", "Argument[0]", "create-file", "manual"]
+    - ["javax.sound.midi.spi", "MidiFileReader", True, "getSequence", "(File)", "", "Argument[0]", "create-file", "manual"]
 
 
     # Exceptions that are probably FPs (unless can get useful info from controlling the exception?)
@@ -202,6 +228,8 @@ extensions:
 
 
     # Probably neutrals
+    - ["java.io", "File", True, "compareTo", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.io", "FileFilter", True, "accept", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.lang", "ProcessBuilder", True, "redirectError", "(File)", "", "Argument[0]", "create-file", "manual"] # redirecting errors not interesting?
     - ["java.nio.file", "Files", True, "exists", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "Files", True, "getLastModifiedTime", "", "", "Argument[0]", "create-file", "manual"]
@@ -228,6 +256,7 @@ extensions:
     - ["java.text", "Collator", True, "compare", "(String,String)", "", "Argument[1]", "create-file", "manual"]
     - ["java.text", "Collator", True, "equals", "(String,String)", "", "Argument[1]", "create-file", "manual"]
     - ["java.text", "RuleBasedCollator", True, "compare", "", "", "Argument[1]", "create-file", "manual"]
+    - ["java.util.prefs", "AbstractPreferences", True, "nodeExists", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.util.prefs", "Preferences", True, "nodeExists", "", "", "Argument[0]", "create-file", "manual"]
 
 
