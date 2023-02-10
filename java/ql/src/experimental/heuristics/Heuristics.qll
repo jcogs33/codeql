@@ -103,7 +103,7 @@ private predicate ssrfHeuristic(Parameter p) {
   p.getName().regexpMatch("(?i)[a-z]*(url|uri)+[a-z]*") // version 1.0
   // * Notes for heuristic adjustment based on first round of triage of results
   // *  from running version 1.0 against apache/httpcomponents-core and apache/httpcomponents-client (version 5)
-  // * 0) Add param name of "host" in some form to the heuristic (keep an eye on results since may be FP-prone and may need further restriction to method-name, etc.)
+  // * 0) Add param name of "host" in some form to the heuristic (also "HttpHost target"; maybe restrict to have class name with "host" in it so not too broad) (keep an eye on results since may be FP-prone and may need further restriction to method-name, etc.)
   // * 1) Maybe also add param name of "request" in some form with same caveats as above.
   // * 2) "methodology" discussed with Tony regarding when something should be sink versus step:
   // *    (affects at least the following apis: Builder.setUri, HttpHost.create, RequestLine, URIBuilder)
