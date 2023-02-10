@@ -100,7 +100,7 @@ private predicate regexInjectionHeuristic(Parameter p) {
 
 private predicate ssrfHeuristic(Parameter p) {
   // p.getName().matches(["url"]) // version 0.0, overly simplistic
-  p.getName().regexpMatch("(?i)[a-z]*(url|uri)+[a-z]*") // version 1.0
+  p.getName().regexpMatch("(?i)[a-z]*(url|uri)+[a-z]*") // version 1.0, ran on openjdk, apache httpcomponents-core/client version 5 and 4
   // * Notes for heuristic adjustment based on first round of triage of results
   // *  from running version 1.0 against apache/httpcomponents-core and apache/httpcomponents-client (version 5)
   // * 0) Add param name of "host" in some form to the heuristic (also "HttpHost target"; maybe restrict to have class name with "host" in it so not too broad) (keep an eye on results since may be FP-prone and may need further restriction to method-name, etc.)
@@ -112,7 +112,8 @@ private predicate ssrfHeuristic(Parameter p) {
   // * 5) exclude "test" ones; check if can exclude TestUtils like ExternalApi, etc. ("assert" as method name as well if doesn't fully exlude it).
   // * 6) remove cache ones, prbly best to remove any method names with "cache" in them. (Is CacheKeyGenerator.resolve a step though? and HttpCacheSupport.normalize%?)
   // * 7) require "uri" at beginning or end of param name to avoid when part of other words.
-  // ! look into the following ones more, either TPs or exclude from heuristic: URLEncodedUtils.parse, SSLContextBuilder.loadKey/TrustMaterial
+  //p.getName().regexpMatch("(?i)[a-z]*(url|uri)+[a-z]*") // version 1.1
+  // ! look into the following ones more for version 1.2, either TPs or exclude from heuristic: URLEncodedUtils.parse, SSLContextBuilder.loadKey/TrustMaterial
   // ! also look into PublicSuffixMatcherLoader.load a tiny bit more.
   // ! possibly add p.getType(), etc. to heuristic
 }
