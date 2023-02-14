@@ -100,9 +100,9 @@ private predicate regexInjectionHeuristic(Parameter p) {
 
 private predicate ssrfHeuristic(Parameter p) {
   // p.getName().matches(["url"]) // version 0.0, overly simplistic
-  p.getName().regexpMatch("(?i)[a-z]*(url|uri)+[a-z]*") // version 1.0, ran on openjdk, apache httpcomponents-core/client version 5 and 4
+  //p.getName().regexpMatch("(?i)[a-z]*(url|uri)+[a-z]*") // version 1.0, ran on openjdk, apache httpcomponents-core/client version 5 and 4, returns a good number of TP results, but also some clear FPs.
   // * Notes for heuristic adjustment based on first round of triage of results
-  // *  from running version 1.0 against apache/httpcomponents-core and apache/httpcomponents-client (version 5)
+  // * from running version 1.0 against apache/httpcomponents-core and apache/httpcomponents-client (version 5)
   // * 0) Add param name of "host" in some form to the heuristic (also "HttpHost target"; maybe restrict to have class name with "host" in it so not too broad) (keep an eye on results since may be FP-prone and may need further restriction to method-name, etc.)
   // * 1) Maybe also add param name of "request" in some form with same caveats as above.
   // * 2) "methodology" discussed with Tony regarding when something should be sink versus step:
@@ -112,7 +112,9 @@ private predicate ssrfHeuristic(Parameter p) {
   // * 5) exclude "test" ones; check if can exclude TestUtils like ExternalApi, etc. ("assert" as method name as well if doesn't fully exlude it).
   // * 6) remove cache ones, prbly best to remove any method names with "cache" in them. (Is CacheKeyGenerator.resolve a step though? and HttpCacheSupport.normalize%?)
   // * 7) require "uri" at beginning or end of param name to avoid when part of other words.
-  //p.getName().regexpMatch("(?i)[a-z]*(url|uri)+[a-z]*") // version 1.1
+  p.getName().regexpMatch("(?i)[a-z]*(host)+[a-z]*") // version 1.1
+  or
+  p.getType().toString().regexpMatch("(?i)[a-z]*(host)+[a-z]*")
   // ! look into the following ones more for version 1.2, either TPs or exclude from heuristic: URLEncodedUtils.parse, SSLContextBuilder.loadKey/TrustMaterial
   // ! also look into PublicSuffixMatcherLoader.load a tiny bit more.
   // ! possibly add p.getType(), etc. to heuristic
