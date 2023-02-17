@@ -94,19 +94,42 @@ string getApiName(Callable c) {
 // select apiName, c, n order by apiName
 // //select n
 // * FINAL for question
-predicate allDataFlowNodesModeledAsMadSteps(DataFlow::Node node, Callable callable) {
-  exists(Call call, int paramIdx |
-    call.getCallee() = callable and
-    node.asExpr() = call.getArgument(paramIdx) and
-    summaryModel(callable.getDeclaringType().getPackage().toString(),
-      callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
-      [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, _, _) and
-    not sinkNode(node, _)
-  )
-}
-
-from DataFlow::Node n, Callable c, string apiName
+// predicate allDataFlowNodesModeledAsMadSteps(DataFlow::Node node, Callable callable, Call cll) {
+//   exists(Call call, int paramIdx, string input |
+//     call = cll and
+//     //call.getCaller() = callable and
+//     call.getCallee() = callable and
+//     input.matches("%" + paramIdx + "%") and
+//     (
+//       node.asExpr() = call.getArgument(paramIdx)
+//       or
+//       node.asExpr() = call.getQualifier() and paramIdx = -1
+//     ) and
+//     summaryModel(callable.getDeclaringType().getPackage().toString(),
+//       callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
+//       [paramsString(callable), ""], _, input, _, _, _) and
+//     not sinkNode(node, _)
+//   )
+// }
+// from DataFlow::Node n, Callable c, Call call, string apiName
+// where
+//   c.getDeclaringType().getPackage().toString() = "java.lang" and
+//   c.getDeclaringType().getSourceDeclaration().toString() = "String" and
+//   c.getName() = "replace" and
+//   allDataFlowNodesModeledAsMadSteps(n, c, call) and
+//   apiName = getApiName(c)
+// //select apiName, c, n order by apiName
+// select apiName, c, call.getCallee(), call.getCaller() order by apiName
+// from Callable c, string apiName
+// where
+//   c.getDeclaringType().getPackage().toString() = "java.util" and
+//   c.getDeclaringType().getSourceDeclaration().toString() = "Map" and
+//   c.getName() = "forEach" and
+//   apiName = getApiName(c)
+// select apiName, c order by apiName
+from Call call
 where
-  allDataFlowNodesModeledAsMadSteps(n, c) and
-  apiName = getApiName(c)
-select apiName, c, n order by apiName
+  call.getCallee().getDeclaringType().getPackage().toString() = "java.lang" and
+  call.getCallee().getName() = "getResourceAsStream"
+select call.getCallee().getDeclaringType().getSourceDeclaration(),
+  call.getCallee().getDeclaringType().getName()
