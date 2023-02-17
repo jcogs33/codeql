@@ -229,9 +229,14 @@ extensions:
 
 
     # Probably neutrals
-    - ["java.io", "File", True, "compareTo", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.io", "FileFilter", True, "accept", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.lang", "ProcessBuilder", True, "redirectError", "(File)", "", "Argument[0]", "create-file", "manual"] # redirecting errors not interesting?
+    - ["java.nio.file", "Files", True, "list", "", "", "Argument[0]", "create-file", "manual"] # not interesting?
+    - ["java.nio.file", "Files", True, "probeContentType", "", "", "Argument[0]", "create-file", "manual"]
+    - ["java.nio.file.spi", "FileTypeDetector", True, "probeContentType", "", "", "Argument[0]", "create-file", "manual"]
+
+    # Definite Neutrals (IMO) - adding in own PR on 2/17/2023
+    - ["java.io", "File", True, "compareTo", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "Files", True, "exists", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "Files", True, "getLastModifiedTime", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "Files", True, "getOwner", "", "", "Argument[0]", "create-file", "manual"]
@@ -245,21 +250,17 @@ extensions:
     - ["java.nio.file", "Files", True, "isSameFile", "", "", "Argument[1]", "create-file", "manual"]
     - ["java.nio.file", "Files", True, "isSymbolicLink", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "Files", True, "isWritable", "", "", "Argument[0]", "create-file", "manual"]
-    - ["java.nio.file", "Files", True, "list", "", "", "Argument[0]", "create-file", "manual"] # not interesting?
     - ["java.nio.file", "Files", True, "notExists", "", "", "Argument[0]", "create-file", "manual"]
-    - ["java.nio.file", "Files", True, "probeContentType", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "Files", True, "setLastModifiedTime", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file", "Files", True, "size", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file.spi", "FileSystemProvider", True, "isHidden", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file.spi", "FileSystemProvider", True, "isSameFile", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.nio.file.spi", "FileSystemProvider", True, "isSameFile", "", "", "Argument[1]", "create-file", "manual"]
-    - ["java.nio.file.spi", "FileTypeDetector", True, "probeContentType", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.text", "Collator", True, "compare", "(String,String)", "", "Argument[1]", "create-file", "manual"]
     - ["java.text", "Collator", True, "equals", "(String,String)", "", "Argument[1]", "create-file", "manual"]
     - ["java.text", "RuleBasedCollator", True, "compare", "", "", "Argument[1]", "create-file", "manual"]
     - ["java.util.prefs", "AbstractPreferences", True, "nodeExists", "", "", "Argument[0]", "create-file", "manual"]
     - ["java.util.prefs", "Preferences", True, "nodeExists", "", "", "Argument[0]", "create-file", "manual"]
-
 
 
     # Probably steps
