@@ -32,6 +32,24 @@ private predicate isJdkInternal(Package p) {
   p.getName().matches("%internal%") // ! I think it would make sense to add this exclusion (e.g. org.hibernate.engine.jdbc.internal, etc.)
 }
 
+// ! idea taken from ExternalApi.qll
+/**
+ * A test library.
+ */
+private class TestLibrary extends RefType {
+  TestLibrary() {
+    this.getPackage()
+        .getName()
+        .matches([
+            "org.junit%", "junit.%", "org.mockito%", "org.assertj%",
+            "com.github.tomakehurst.wiremock%", "org.hamcrest%", "org.springframework.mock.%",
+            "org.xmlunit%", "org.mockserver%", "org.powermock%", "org.skyscreamer.jsonassert%",
+            "org.rnorth.visibleassertions", "org.openqa.selenium%",
+            "com.gargoylesoftware.htmlunit%", "%.test%"
+          ])
+  }
+}
+
 private predicate sqlHeuristic(Parameter p) {
   //p.getName().matches(["sql%", "query%"]) and
   //p.getName().regexpMatch("(?i)(sql|query)?") and
@@ -102,22 +120,47 @@ private predicate ssrfHeuristic(Parameter p) {
   // p.getName().matches(["url"]) // version 0.0, overly simplistic
   //p.getName().regexpMatch("(?i)[a-z]*(url|uri)+[a-z]*") // version 1.0, ran on openjdk, apache httpcomponents-core/client version 5 and 4, returns a good number of TP results, but also some clear FPs.
   // * Notes for heuristic adjustment based on first round of triage of results
-  // * from running version 1.0 against apache/httpcomponents-core and apache/httpcomponents-client (version 5)
+  // *    from running version 1.0 against apache/httpcomponents-core and apache/httpcomponents-client (version 5)
+  // EXPAND:
   // * 0) Add param name of "host" in some form to the heuristic (also "HttpHost target"; maybe restrict to have class name with "host" in it so not too broad) (keep an eye on results since may be FP-prone and may need further restriction to method-name, etc.)
   // * 1) Maybe also add param name of "request" in some form with same caveats as above.
-  // * 2) "methodology" discussed with Tony regarding when something should be sink versus step:
-  // *    (affects at least the following apis: Builder.setUri, HttpHost.create, RequestLine, URIBuilder)
-  // * 3) exclude "uriPattern" and "uriPatternType" as param name and/or "register" as a method name.
-  // * 4) Check for subtyping in all the similar classes/methods, and see if can make heuristic smart enough to avoid if so.
-  // * 5) exclude "test" ones; check if can exclude TestUtils like ExternalApi, etc. ("assert" as method name as well if doesn't fully exlude it).
-  // * 6) remove cache ones, prbly best to remove any method names with "cache" in them. (Is CacheKeyGenerator.resolve a step though? and HttpCacheSupport.normalize%?)
-  // * 7) require "uri" at beginning or end of param name to avoid when part of other words.
-  p.getName().regexpMatch("(?i)[a-z]*(host)+[a-z]*") // version 1.1
-  or
-  p.getType().toString().regexpMatch("(?i)[a-z]*(host)+[a-z]*")
-  // ! look into the following ones more for version 1.2, either TPs or exclude from heuristic: URLEncodedUtils.parse, SSLContextBuilder.loadKey/TrustMaterial
-  // ! also look into PublicSuffixMatcherLoader.load a tiny bit more.
-  // ! possibly add p.getType(), etc. to heuristic
+  // * 2) Maybe add types of Uri, Url, HttpHost, etc.?
+  // OTHER:
+  // * NOT EXCLUDING FROM HEURISTIC SINCE STILL WANT THESE RESULTS: "methodology" discussed with Tony regarding when something should be sink versus step:
+  // *    (affects at least the following apis: Builder.setUri, HttpHost.create, RequestLine, URIBuilder) - leave out of heuristic for now
+  // RESTRICT:
+  // * DONE in 1.3: exclude "uriPattern" and "uriPatternType" as param name and/or "register" as a method name.
+  // * DONE in 1.2: exclude when paramType is boolean (maybe exclude all primitives)
+  // * DONE in 1.5: remove cache ones, prbly best to remove any method names with "cache" in them (only affects client ones). (Is CacheKeyGenerator.resolve a step though? and HttpCacheSupport.normalize%?)
+  // * DONE in 1.1: require "uri" at beginning or end of param name to avoid when part of other words.
+  // TODO: look into the following ones more: either TPs or exclude from heuristic: URLEncodedUtils.parse, SSLContextBuilder.loadKey/TrustMaterial
+  // TODO: also look into PublicSuffixMatcherLoader.load a tiny bit more - this one seems harder to exclude from heuristic iin a general way, need to exclude type with "matcher" in name?
+  //p.getName().regexpMatch("(?i)[a-z]*(url|^uri|uri$)+[a-z]*") // version 1.1: uri only at beginning or end of string (maybe extend to url as well eventually)
+  //
+  // p.getName().regexpMatch("(?i)[a-z]*(url|^uri|uri$)+[a-z]*") and // version 1.2: exclude when paramType is boolean (maybe exclude all primitives)
+  // not p.getType() instanceof PrimitiveType
+  //
+  // p.getName().regexpMatch("(?i)[a-z]*(url|^uri|uri$)+[a-z]*") and // version 1.3: exclude "uriPattern" and "uriPatternType" as param name
+  // not p.getType() instanceof PrimitiveType and
+  // not p.getName().regexpMatch("(?i)[a-z]*(pattern)+[a-z]*")
+  //
+  // p.getName().regexpMatch("(?i)[a-z]*(url|^uri|uri$)+[a-z]*") and // version 1.4: exclude TestLibrary from ALL heuristics, and "assert" methods (1.4.1) (see below code)
+  // not p.getType() instanceof PrimitiveType and
+  // not p.getName().regexpMatch("(?i)[a-z]*(pattern)+[a-z]*")
+  //
+  // p.getName().regexpMatch("(?i)[a-z]*(url|^uri|uri$)+[a-z]*") and // version 1.5: remove cache ones (might be erring on side of FNs with this exclusion)
+  // not p.getType() instanceof PrimitiveType and
+  // not p.getName().regexpMatch("(?i)[a-z]*(pattern)+[a-z]*") and
+  // not p.getCallable().getDeclaringType().getPackage().getName().matches("%cache%")
+  //
+  p.getName().regexpMatch("(?i)[a-z]*(host)+[a-z]*") and // version 1.6: add "%host|request%" as a possible param name
+  not p.getType() instanceof PrimitiveType and
+  not p.getName().regexpMatch("(?i)[a-z]*(pattern)+[a-z]*") and
+  not p.getCallable().getDeclaringType().getPackage().getName().matches("%cache%")
+  //
+  // p.getName().regexpMatch("(?i)[a-z]*(host|request)+[a-z]*") // version 1.
+  // or
+  // p.getType().toString().regexpMatch("(?i)[a-z]*(host)+[a-z]*")
 }
 
 private class CryptoKeyType extends Type {
@@ -174,10 +217,16 @@ private predicate usernameHeuristic(Parameter p) {
 }
 
 // should rename this and other predicates
+// * Needs exclusion/adjustment for ALL heuristics:
+// * 1) Check for subtyping in all the similar classes/methods, and see if can make heuristic smart enough to avoid if so.
+// * DONE with `not TestLibrary` addition: exclude "test" ones; check if can exclude TestUtils like ExternalApi, etc. ("assert" as method name as well if doesn't fully exlude it).
+// * 3) BenchmarkConfig$Builder etc. issue, handle in output below...
 private Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string sinkKind) {
   exists(Parameter p |
-    not isJdkInternal(result.getDeclaringType().getPackage()) and // exclude JDK internals for now
     p = result.getParameter(paramIdx) and
+    not isJdkInternal(result.getDeclaringType().getPackage()) and // exclude JDK internals for now
+    not p.getCallable().getDeclaringType() instanceof TestLibrary and // exclude testing packages
+    not p.getCallable().getName().matches("assert%") and // exclude test assertion methods
     // select heuristic to use based on sinkKind
     (
       sinkKind = "sql" and
@@ -225,6 +274,8 @@ private string signatureIfNeeded(PublicCallable c) {
   if hasOverloads(c) then result = paramsString(c) else result = ""
 }
 
+// ! need to refactor all of below to use `getSourceDeclaration`
+// ! and to be able to handle stuff like `BenchmarkConfig$Builder` instead
 bindingset[paramIdx]
 private string hasExistingSink(Callable callable, int paramIdx) {
   if
