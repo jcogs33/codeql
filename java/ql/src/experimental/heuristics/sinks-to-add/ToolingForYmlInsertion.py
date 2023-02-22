@@ -1,6 +1,7 @@
 # Read csv into List of Dicts (where each dict is a model); need "Proposed Sink", "Notes", and "ModelType" as only keys in Dicts (strip package out now or later?)
 # find what yml file it needs to go in based on package name
 
+# https://www.geeksforgeeks.org/load-csv-data-into-list-and-dictionary-using-python/
 from csv import DictReader
 
 # open file in read mode
@@ -68,6 +69,7 @@ for item in files_modified_set:
 # TODO: https://yaml.readthedocs.io/en/latest/detail.html?highlight=comment#adding-replacing-comments
 # ! but still hard to put back in original-looking format... so just append to end of files for now and then copy in...
 
+# https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
 # * need: `pip3 install pyyaml` for `import yaml`
 # import yaml
 # import io
