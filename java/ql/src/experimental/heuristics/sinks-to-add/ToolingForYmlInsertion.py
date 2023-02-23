@@ -112,18 +112,29 @@ import sys
 
 # * with ruamel.yaml
 yaml = ruamel.yaml.YAML()
+
+# settings:
 yaml.preserve_quotes = True # to keep the double-quotes
+yaml.indent(mapping=2, sequence=4, offset=2) # indentation stays the same
+yaml.width = 4096 # yml rows stay on one line (hopefully 4096 is always long enough, can adjust if run into a case where not)
+yaml.boolean_representation = ['False', 'True'] # preserve uppercase for booleans
+
+# read in existing yml file
 with open("java/ql/lib/ext/org.apache.http.model.yml", "r") as f:
     data = yaml.load(f.read())
-print(data)
-for ext in data['extensions']:
-    for row in ext['data']:
-        print(row)
+
+# Debugging prints:
+# print(data)
+# for ext in data['extensions']:
+#     for row in ext['data']:
+#         print(row)
+
+# write out same file with same formatting
 with open("java/ql/src/experimental/heuristics/sinks-to-add/test.yml", "w") as f2:
-    yaml.indent(mapping=2, sequence=4, offset=2) # indentation stays the same
-    yaml.width = 4096 # yml rows stay on one line
     yaml.dump(data, f2) # ! can't use sort_keys=True or default_flow_style=False with this it seems
+
 # DONE: yml rows stay on one line: https://stackoverflow.com/questions/42170709/prevent-long-lines-getting-wrapped-in-ruamel-yaml,
 # DONE: indentation stays the same: https://yaml.readthedocs.io/en/latest/detail.html?highlight=indent#indentation-of-block-sequences
 # DONE: write back same looking file (achieved with `org.apache.http.model.yml` after fixing indentation and line wrap issue)
+# DONE: preserve uppercase for booleans: https://stackoverflow.com/questions/46001328/ruamel-yaml-dump-doesnt-preserve-boolean-value-case
 # TODO: insert row with and without comment: https://yaml.readthedocs.io/en/latest/detail.html?highlight=indent#adding-replacing-comments
