@@ -5,13 +5,14 @@ extensions:
       extensible: sourceModel
     data:
       - ["org.apache.http", "HttpEntity", False, "getContent", "()", "", "ReturnValue", "remote", "manual"]
-      - [org.apache.http, HttpHost, True, HttpHost, (HttpHost), '', 'Argument[0]', '%-url', manual]  # NEW COMMENT
       - ["org.apache.http", "HttpMessage", False, "getParams", "()", "", "ReturnValue", "remote", "manual"]
 
   - addsTo:
       pack: codeql/java-all
       extensible: sinkModel
     data:
+      - [org.apache.http, HttpHost, True, HttpHost, (HttpHost), '', 'Argument[0]', '%-url', manual]  # NEW MODEL,
+      - [org.apache.http, HttpHost, True, HttpHost, '(InetAddress,String,int,String)', '', 'Argument[1]', '%-url', manual] # NEW MODEL, test note
       - ["org.apache.http", "HttpRequest", True, "setURI", "", "", "Argument[0]", "open-url", "manual"]
       #- ["org.apache.hc.core5.http", "HttpRequest", True, "setUri", "", "", "Argument[0]", "open-url", "manual"] # ! I think the above should maybe be this instead? Unless the above need to remain for an older version (4.xx?) or something? --yeah looks like the apckage changed between versions 4 and 5 maybe? (but HttpRequestBase in version 4 had this method, not HttpRequest?)
       - ["org.apache.http", "HttpResponse", True, "setEntity", "(HttpEntity)", "", "Argument[0]", "xss", "manual"]
@@ -32,6 +33,7 @@ extensions:
       - ["org.apache.http", "HttpEntity", True, "getContentEncoding", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["org.apache.http", "HttpEntity", True, "getContentType", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["org.apache.http", "HttpEntityEnclosingRequest", True, "getEntity", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
+      - [org.apache.http, HttpHost, True, HttpHost, '(String,int,String)', '', 'Argument[0]', '%-url', manual]  # NEW MODEL, another note
       - ["org.apache.http", "HttpMessage", True, "getAllHeaders", "()", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["org.apache.http", "HttpMessage", True, "getFirstHeader", "(String)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
       - ["org.apache.http", "HttpMessage", True, "getHeaders", "(String)", "", "Argument[-1]", "ReturnValue", "taint", "manual"]
