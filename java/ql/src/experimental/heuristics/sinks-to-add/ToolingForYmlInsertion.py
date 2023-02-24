@@ -32,7 +32,7 @@
 # *** MAIN CODE ***
 from csv import DictReader
 import ruamel.yaml # need to pip3 install
-# from ruamel.yaml.scalarstring import DoubleQuotedScalarString as dq_str
+from ruamel.yaml.scalarstring import DoubleQuotedScalarString as dq_str
 from ruamel.yaml.comments import CommentedSeq
 import os.path
 import sys
@@ -104,7 +104,7 @@ def create_yml_file(filename, model_str, model_type, extensible_type, comment):
         sys.exit(1)
 
 def insert_model_in_yml(yml_data, yml_filename, model, location, model_type, comment):
-    print(type(yml_data['extensions'][location]['data']))
+    #print(type(yml_data['extensions'][location]['data']))
     yml_data['extensions'][location]['data'].insert(0, model) # insert row at top (maybe change to append to end instead, but need index for adding comment below)
     yml_data['extensions'][location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
     yml_data['extensions'][location]['data'].sort() # seems to work for maintaining alphabetical ordering of models
@@ -147,7 +147,11 @@ def extract_relevant_info(csv_row):
     new_model_str = csv_row["Proposed Sink"]
     new_model_list = new_model_str.strip("][").split(", ") # convert model string to list
     new_model_list = [item.strip('"') for item in new_model_list] # strip quotes from strings
-    new_model_list[2] = eval(new_model_list[2]) # eval to get boolean value of string True/False
+    print(new_model_list)
+    new_model_list_dq = [dq_str(item) if new_model_list.index(item) != 2 else eval(item) for item in new_model_list ] # ! NEW: make all dq_str strings, except boolean at index 2 -- eval to a boolean
+    print(new_model_list_dq)
+    new_model_list[2] = eval(new_model_list[2]) # eval to get boolean value of string True/False # ! merged into above
+    #sys.exit(1)
 
     # extract package name
     package_name = new_model_str.split(",")[0][2:-1]
@@ -156,7 +160,7 @@ def extract_relevant_info(csv_row):
     # TODO: don't hardcode path this much? use os.path instead? (don't need to worry about unless making usable by anyone)
     yml_filename = "java/ql/lib/ext/{}.model.yml".format(package_name)
 
-    return yml_filename, new_model_str, new_model_list, comment
+    return yml_filename, new_model_str, new_model_list, new_model_list_dq, comment
 
 # check that user entered correct number of args, abort if not
 if len(sys.argv) != 2:
@@ -176,7 +180,14 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
     if model_type in ["sink", "source", "summary", "neutral", "sinkOrStep"]:
 
         # extract relevant info from csv row
-        yml_filename, new_model_str, new_model_list, comment = extract_relevant_info(csv_row)
+        yml_filename, new_model_str, new_model_list, new_model_list_dq, comment = extract_relevant_info(csv_row)
+
+        # format model list with CommentedSeq for single-line output
+        cs_model_list = CommentedSeq(new_model_list_dq)
+        cs_model_list.fa.set_flow_style()
+
+        # cs_model_list2 = CommentedSeq(new_model_list)
+        # cs_model_list2.fa.set_flow_style()
 
         # track what files are modified
         # TODO: adjust how this is done, so not continually attempting to add duplicates to set?
@@ -209,7 +220,7 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
 
                 # insert new extensible type with new_model
                 # ! TODO: see above about block-formatting the addsTo dict, but not the model row
-                yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': CommentedSeq([new_model_list])})
+                yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': CommentedSeq([cs_model_list])})
                 yml_data['extensions'][ext_insertion_location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
                 write_yml(yml_filename, yml_data)
                 #sys.exit(0)
@@ -242,13 +253,13 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
 
                 # insert model in correct location in correct block
                 if model_type == "sink" or model_type == "sinkOrStep":
-                    insert_model_in_yml(yml_data, yml_filename, new_model_list, sink_loc, model_type, comment)
+                    insert_model_in_yml(yml_data, yml_filename, cs_model_list, sink_loc, model_type, comment)
                 elif model_type == "source":
-                    insert_model_in_yml(yml_data, yml_filename, new_model_list, source_loc, model_type, comment)
+                    insert_model_in_yml(yml_data, yml_filename, cs_model_list, source_loc, model_type, comment)
                 elif model_type == "summary":
-                    insert_model_in_yml(yml_data, yml_filename, new_model_list, summary_loc, model_type, comment)
+                    insert_model_in_yml(yml_data, yml_filename, cs_model_list, summary_loc, model_type, comment)
                 elif model_type == "neutral":
-                    insert_model_in_yml(yml_data, yml_filename, new_model_list, neutral_loc, model_type, comment)
+                    insert_model_in_yml(yml_data, yml_filename, cs_model_list, neutral_loc, model_type, comment)
                 else:
                     print("ModelType, " + model_type + ", not correct.")
 
@@ -260,7 +271,7 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
             # create file and write initial yml data and first model as string into file
             create_yml_file(yml_filename, new_model_str, model_type, extensible_type, comment)
 
-# ! TODO: fix double-quotes issue either with commentMap as mentioned above, OR by grepping over file (uglier) see Michael's code as well
+# ! DONE: fix double-quotes issue either with commentMap as mentioned above, OR by grepping over file (uglier) see Michael's code as well (NEED TO FIX THIS FOR SORTING PURPOSES...)
 # * NOTE: anything that's not a sink still needs its model adjusted manually (since current query output is sinks), either before or after this script is run
 # TODO: user instructions, dependencies (see imports), warnings, etc.
 
