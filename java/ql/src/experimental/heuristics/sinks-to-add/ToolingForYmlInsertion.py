@@ -75,11 +75,11 @@
 
 # https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
 # * need: `pip3 install pyyaml` for `import yaml`
-import yaml
-import ruamel.yaml
-from ruamel.yaml.scalarstring import DoubleQuotedScalarString as dq_str
-import io
-import sys
+# import yaml
+# import ruamel.yaml
+# from ruamel.yaml.scalarstring import DoubleQuotedScalarString as dq_str
+# import io
+# import sys
 
 # * my original
 # data = dict()
@@ -169,6 +169,7 @@ import sys
 from csv import DictReader
 import ruamel.yaml
 import os.path
+import sys
 
 # yml setup
 yaml = ruamel.yaml.YAML()
@@ -272,7 +273,6 @@ def get_extensible_type(model_type):
     else:
         print("SOMETHING WENT WRONG WITH WHEN GETTING extensible_type! Returned extensible_type='None'.")
 
-# TODO: possibly add a function like the below to get relevant info from csv row
 def extract_relevant_info(csv_row):
     # get notes for comments
     comment = csv_row["Notes"]
@@ -291,12 +291,16 @@ def extract_relevant_info(csv_row):
 
     return yml_filename, new_model_str, new_model_list, comment
 
+# check that user entered correct number of args, abort if not
+if len(sys.argv) != 2:
+    print("Incorrect number of args received.")
+    print("Usage: YmlInsertion.py models.csv")
+    print("models.csv should contain CSV rows of proposed models")
+    sys.exit(1)
+
 files_modified_set = set()
-# package_name = ""
-# yml_filename = ""
 # iterate over all proposed model data
-# TODO: get csv filename from user through sys.argv
-for csv_row in read_csv("java/ql/src/experimental/heuristics/sinks-to-add/TestToolingMaDHeuristics.csv"):
+for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/heuristics/sinks-to-add/TestToolingMaDHeuristics.csv"
 
     # get model type
     model_type = csv_row["ModelType"]
