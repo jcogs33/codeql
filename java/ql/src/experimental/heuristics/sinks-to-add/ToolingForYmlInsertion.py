@@ -253,7 +253,9 @@ def model_type_exists(yml_data, model_type):
             break
     return model_type_in_yml_file
 
-def get_extensible_location(yml_data):
+# get location to insert a new extensible in the given yml_data
+# trying to maintain order of source,sink,summary,neutral in the yml file versus just appending new extensible to the end
+def get_extensible_insertion_location(yml_data, model_type):
     pass
 
 # get extensible type for the given model type
@@ -270,42 +272,50 @@ def get_extensible_type(model_type):
     else:
         print("SOMETHING WENT WRONG WITH WHEN GETTING extensible_type! Returned extensible_type='None'.")
 
+# TODO: possibly add a function like the below to get relevant info from csv row
+def extract_relevant_info(csv_row):
+    # get notes for comments
+    comment = csv_row["Notes"]
+
+    # get and format new model row
+    new_model_str = csv_row["Proposed Sink"]
+    new_model_list = new_model_str.strip("][").split(", ") # convert model string to list
+    new_model_list = [item.strip('"') for item in new_model_list] # strip quotes from strings
+    new_model_list[2] = eval(new_model_list[2]) # eval to get boolean value of string True/False
+
+    # extract package name
+    package_name = new_model_str.split(",")[0][2:-1]
+
+    # get yml filename from package name
+    yml_filename = "java/ql/lib/ext/{}.model.yml".format(package_name) # TODO: don't hardcode path this much? use os.path instead?
+
+    return yml_filename, new_model_str, new_model_list, comment
+
 files_modified_set = set()
-package_name = ""
-yml_filename = ""
+# package_name = ""
+# yml_filename = ""
 # iterate over all proposed model data
 # TODO: get csv filename from user through sys.argv
-for model in read_csv("java/ql/src/experimental/heuristics/sinks-to-add/TestToolingMaDHeuristics.csv"):
+for csv_row in read_csv("java/ql/src/experimental/heuristics/sinks-to-add/TestToolingMaDHeuristics.csv"):
 
     # get model type
-    model_type = model["ModelType"]
-    #print(model_type[0:4])
+    model_type = csv_row["ModelType"]
 
     # only add definite models with this script for now
     if model_type in ["sink", "source", "summary", "neutral", "sinkOrStep"]:
 
-        # get notes for comments
-        comment = model["Notes"]
+        # extract relevant info from csv row
+        yml_filename, new_model_str, new_model_list, comment = extract_relevant_info(csv_row)
 
-        # get and format new model row
-        new_model_str = model["Proposed Sink"]
-        new_model = new_model_str.strip("][").split(", ") # convert model string to list
-        new_model = [item.strip('"') for item in new_model] # strip quotes from strings
-        new_model[2] = eval(new_model[2]) # eval to get boolean value of string True/False
-
-        # get package name
-        package_name = new_model_str.split(",")[0][2:-1]
-
-        # get yml filename from package name
-        yml_filename = "java/ql/lib/ext/{}.model.yml".format(package_name) # TODO: don't hardcode path this much? use os.path instead?
-
-        # track what files are modified, # TODO: adjust how this is done, so not continually attempting to add duplicates to set?
+        # track what files are modified
+        # TODO: adjust how this is done, so not continually attempting to add duplicates to set?
+        # TODO: add only when file-write was succesful?
         files_modified_set.add(yml_filename)
 
         # check if yml_filename exists yet
         if os.path.exists(yml_filename): #if yml_filename == "java/ql/lib/ext/org.apache.http.model.yml":
 
-            # # read existing yml into yml_data structure so can insert into it
+            # read existing yml into yml_data structure so can insert into it
             yml_data = read_yml(yml_filename)
 
             # If model_type NOT exist as extensible_type in yml_filename
@@ -330,7 +340,7 @@ for model in read_csv("java/ql/src/experimental/heuristics/sinks-to-add/TestTool
                 # insert new extensible type with new_model
                 # TODO: see above about block-formatting the addsTo dict, but not the model row
                 # TODO: add comment on this model
-                yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': [new_model]})
+                yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': [new_model_list]})
                 write_yml(yml_filename, yml_data)
                 #sys.exit(0)
 
@@ -362,13 +372,13 @@ for model in read_csv("java/ql/src/experimental/heuristics/sinks-to-add/TestTool
 
                 # insert model in correct location in correct block
                 if model_type == "sink" or model_type == "sinkOrStep":
-                    insert_model_in_yml(yml_data, yml_filename, new_model, sink_loc, model_type, comment)
+                    insert_model_in_yml(yml_data, yml_filename, new_model_list, sink_loc, model_type, comment)
                 elif model_type == "source":
-                    insert_model_in_yml(yml_data, yml_filename, new_model, source_loc, model_type, comment)
+                    insert_model_in_yml(yml_data, yml_filename, new_model_list, source_loc, model_type, comment)
                 elif model_type == "summary":
-                    insert_model_in_yml(yml_data, yml_filename, new_model, summary_loc, model_type, comment)
+                    insert_model_in_yml(yml_data, yml_filename, new_model_list, summary_loc, model_type, comment)
                 elif model_type == "neutral":
-                    insert_model_in_yml(yml_data, yml_filename, new_model, neutral_loc, model_type, comment)
+                    insert_model_in_yml(yml_data, yml_filename, new_model_list, neutral_loc, model_type, comment)
                 else:
                     print("ModelType, " + model_type + ", not correct.") # TODO: make this and all error messages better
 
