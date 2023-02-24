@@ -180,16 +180,102 @@ yaml.default_flow_style = None # force added rows to be single-line format # TOD
 
 # TODO: refactor all of below into functions, etc.
 # TODO: error-handling with try/except blocks, etc.
+# TODO: comments on all functions, etc.
+
+
 # Read csv into List of Dicts (where each dict is a model)
-with open("java/ql/src/experimental/heuristics/sinks-to-add/TestToolingMaDHeuristics.csv", "r") as f:
-    dict_reader = DictReader(f)
-    list_of_dict = list(dict_reader)
+def read_csv(filename):
+    try:
+        with open(filename, "r") as file:
+            dict_reader = DictReader(file)
+            list_of_dicts = list(dict_reader)
+    except Exception as e:
+        print("Failed to read csv:", filename)
+        print(e)
+        sys.exit(1)
+    return list_of_dicts
+
+# read existing yml into data structure so can insert into it
+def read_yml(filename):
+    try:
+        with open(filename, "r") as file:
+            yml_data = yaml.load(file.read())
+    except Exception as e:
+        print("Failed to read yml file:", filename)
+        print(e)
+        sys.exit(1)
+    return yml_data
+
+# write modified yml data to file
+def write_yml(filename, yml_data):
+    try:
+        with open(filename, "w") as file:
+            yaml.dump(yml_data, file)
+    except Exception as e:
+        print("Failed to write to yml file:", filename)
+        print(e)
+        sys.exit(1)
+
+def create_yml_file(filename, model_str, extensible_type):
+    try:
+        # TODO: add comment on this model
+        # create file and write initial yml data and first model as string into file
+        print("CREATING NEW YML FILE for", filename)
+        with open(filename, "w") as file:
+            model = "      - " + model_str
+            data_extensions = f"""extensions:
+  - addsTo:
+      pack: codeql/java-tests
+      extensible: {extensible_type}
+    data:
+{model}
+"""
+            file.write(data_extensions)
+    except Exception as e:
+        print("Failed to create yml file:", filename)
+        print(e)
+        sys.exit(1)
+
+def insert_model_in_yml(yml_data, yml_filename, model, location, model_type, comment):
+    yml_data['extensions'][location]['data'].insert(0, model) # insert row at top (maybe change to append to end instead, but need index for adding comment below)
+    yml_data['extensions'][location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
+    yml_data['extensions'][location]['data'].sort() # seems to work for maintaining alphabetical ordering of models
+    # write modified yml back to same file (separate file during testing)
+    write_yml(yml_filename, yml_data)
+
+# holds if the given model_type DOES exist in the given yml_data
+def model_type_exists(yml_data, model_type):
+    # determine if model_type does NOT exist in yml_filename yet
+    model_type_in_yml_file = False
+    for ext in yml_data['extensions']:
+        if model_type[0:4] == ext['addsTo']['extensible'][0:4]: # TODO: change drop-downs to match extensible names to simplify this?
+            model_type_in_yml_file = True
+            break
+    return model_type_in_yml_file
+
+def get_extensible_location(yml_data):
+    pass
+
+# get extensible type for the given model type
+def get_extensible_type(model_type):
+    # TODO: change drop-downs to match extensible names to simplify this?
+    if model_type[0:4] == "sour":
+        return "sourceModel"
+    elif model_type[0:4] == "sink":
+        return "sinkModel"
+    elif model_type[0:4] == "summ":
+        return "summaryModel"
+    elif model_type[0:4] == "neut":
+        return "neutralModel"
+    else:
+        print("SOMETHING WENT WRONG WITH WHEN GETTING extensible_type! Returned extensible_type='None'.")
 
 files_modified_set = set()
 package_name = ""
 yml_filename = ""
 # iterate over all proposed model data
-for model in list_of_dict:
+# TODO: get csv filename from user through sys.argv
+for model in read_csv("java/ql/src/experimental/heuristics/sinks-to-add/TestToolingMaDHeuristics.csv"):
 
     # get model type
     model_type = model["ModelType"]
@@ -211,7 +297,7 @@ for model in list_of_dict:
         package_name = new_model_str.split(",")[0][2:-1]
 
         # get yml filename from package name
-        yml_filename = "java/ql/lib/ext/{}.model.yml".format(package_name) # TODO: don't hardcode path this much?
+        yml_filename = "java/ql/lib/ext/{}.model.yml".format(package_name) # TODO: don't hardcode path this much? use os.path instead?
 
         # track what files are modified, # TODO: adjust how this is done, so not continually attempting to add duplicates to set?
         files_modified_set.add(yml_filename)
@@ -219,41 +305,33 @@ for model in list_of_dict:
         # check if yml_filename exists yet
         if os.path.exists(yml_filename): #if yml_filename == "java/ql/lib/ext/org.apache.http.model.yml":
 
-            # read existing yml into yml_data structure so can insert into it
-            with open(yml_filename, "r") as f:
-                yml_data = yaml.load(f.read())
+            # # read existing yml into yml_data structure so can insert into it
+            yml_data = read_yml(yml_filename)
 
-            # determine if model_type does NOT exist in yml_filename yet
-            model_type_in_yml_file = False
-            for ext in yml_data['extensions']:
-                if model_type[0:4] == ext['addsTo']['extensible'][0:4]:
-                    model_type_in_yml_file = True
-                    break
-
-            # If model_type NOT exist in yml_filename
-            if not model_type_in_yml_file:
-                # get extension type that needs to be added and its insertion location
+            # If model_type NOT exist as extensible_type in yml_filename
+            if not model_type_exists(yml_data, model_type):
+                # get insertion location for each extensible type
                 # TODO: simplify this; maybe change drop-down labels to match `summaryModel`, etc. in order to simplify here and above further (but then still have issue with "sinkOrStep")
-                extension_type = ""
+                # TODO: insertion location does not work correctly (e.g. if neutral model added to new file, THEN sink, the sink will be at the end...)
                 ext_insertion_location = -1
                 if model_type[0:4] == "sour":
-                    extension_type = "sourceModel"
                     ext_insertion_location = 0
                 elif model_type[0:4] == "sink":
-                    extension_type = "sinkModel"
                     ext_insertion_location = 1
                 elif model_type[0:4] == "summ":
-                    extension_type = "summaryModel"
                     ext_insertion_location = 2
                 elif model_type[0:4] == "neut":
-                    extension_type = "neutralModel"
                     ext_insertion_location = 3
                 else: print("SOMETHING WENT WRONG WITH extension_type or location!")
 
-                # insert new extension type with new_model #TODO: (see above about block-formatting the addsTo dict)
-                yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extension_type}, 'data': [new_model]})
-                with open(yml_filename, "w") as f0:
-                        yaml.dump(yml_data, f0)
+                # get extensible type for the model
+                extensible_type = get_extensible_type(model_type)
+
+                # insert new extensible type with new_model
+                # TODO: see above about block-formatting the addsTo dict, but not the model row
+                # TODO: add comment on this model
+                yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': [new_model]})
+                write_yml(yml_filename, yml_data)
                 #sys.exit(0)
 
             # If model_type DOES exist in yml_filename
@@ -264,7 +342,8 @@ for model in list_of_dict:
                 # TODO: maybe remove ModelType if not sinkOrStep?
 
                 # determine location of block for each model type in the given file
-                # TODO: can maybe simplify this into "determine if model_type does NOT exist in yml_filename yet" part above
+                # TODO: can maybe simplify with "determine if model_type does NOT exist in yml_filename yet" part above
+                # TODO: only need the one that matches the model_type
                 source_loc = -1
                 sink_loc = -1
                 summary_loc = -1
@@ -283,65 +362,23 @@ for model in list_of_dict:
 
                 # insert model in correct location in correct block
                 if model_type == "sink" or model_type == "sinkOrStep":
-                    yml_data['extensions'][sink_loc]['data'].insert(0, new_model) # insert row at top
-                    yml_data['extensions'][sink_loc]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
-                    yml_data['extensions'][sink_loc]['data'].sort() # seems to work for maintaining alphabetical ordering of models
-                    # write modified yml back to same file (separate file during testing)
-                    with open(yml_filename, "w") as f2:
-                        yaml.dump(yml_data, f2)
+                    insert_model_in_yml(yml_data, yml_filename, new_model, sink_loc, model_type, comment)
                 elif model_type == "source":
-                    yml_data['extensions'][source_loc]['data'].insert(0, new_model) # insert row at top
-                    yml_data['extensions'][source_loc]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
-                    yml_data['extensions'][source_loc]['data'].sort() # seems to work for maintaining alphabetical ordering of models
-                    # write modified yml back to same file (separate file during testing)
-                    with open(yml_filename, "w") as f3:
-                        yaml.dump(yml_data, f3)
+                    insert_model_in_yml(yml_data, yml_filename, new_model, source_loc, model_type, comment)
                 elif model_type == "summary":
-                    yml_data['extensions'][summary_loc]['data'].insert(0, new_model) # insert row at top
-                    yml_data['extensions'][summary_loc]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
-                    yml_data['extensions'][summary_loc]['data'].sort() # seems to work for maintaining alphabetical ordering of models
-                    # write modified yml back to same file (separate file during testing)
-                    with open(yml_filename, "w") as f4:
-                        yaml.dump(yml_data, f4)
+                    insert_model_in_yml(yml_data, yml_filename, new_model, summary_loc, model_type, comment)
                 elif model_type == "neutral":
-                    yml_data['extensions'][neutral_loc]['data'].insert(0, new_model) # insert row at top
-                    yml_data['extensions'][neutral_loc]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
-                    yml_data['extensions'][neutral_loc]['data'].sort() # seems to work for maintaining alphabetical ordering of models
-                    # write modified yml back to same file (separate file during testing)
-                    with open(yml_filename, "w") as f5:
-                        yaml.dump(yml_data, f5)
+                    insert_model_in_yml(yml_data, yml_filename, new_model, neutral_loc, model_type, comment)
                 else:
                     print("ModelType, " + model_type + ", not correct.") # TODO: make this and all error messages better
 
         # yml file does not exist
         else:
-            print("CREATING NEW YML FILE for", yml_filename)
-
-            # get extension type for the model
-            # TODO: simplify this with the above
-            extension_type = ""
-            ext_insertion_location = -1
-            if model_type[0:4] == "sour":
-                extension_type = "sourceModel"
-            elif model_type[0:4] == "sink":
-                extension_type = "sinkModel"
-            elif model_type[0:4] == "summ":
-                extension_type = "summaryModel"
-            elif model_type[0:4] == "neut":
-                extension_type = "neutralModel"
-            else: print("SOMETHING WENT WRONG WITH extension_type!")
+            # get extensible type for the model
+            extensible_type = get_extensible_type(model_type)
 
             # create file and write initial yml data and first model as string into file
-            with open(yml_filename, "w") as f:
-                models = "      - " + new_model_str
-                dataextensions = f"""extensions:
-  - addsTo:
-      pack: codeql/java-tests
-      extensible: {extension_type}
-    data:
-{models}
-"""
-                f.write(dataextensions)
+            create_yml_file(yml_filename, new_model_str, extensible_type)
 
 
 # # write modified yml back to same file (separate file during testing)
