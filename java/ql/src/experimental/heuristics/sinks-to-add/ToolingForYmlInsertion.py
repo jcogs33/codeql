@@ -43,7 +43,6 @@ yaml.preserve_quotes = True # to keep the double-quotes
 yaml.indent(mapping=2, sequence=4, offset=2) # indentation stays the same
 yaml.width = 4096 # yml rows stay on one line (hopefully 4096 is always long enough, can adjust if run into a case where not)
 yaml.boolean_representation = ['False', 'True'] # preserve uppercase for booleans
-yaml.default_flow_style = None # force added rows to be single-line format # TODO: only apply to new_model, so rest are block when new `addsTo`, etc. are inserted
 
 # TODO: refactor all of below into functions, etc.
 # TODO: error-handling with try/except blocks, etc., make all error messages better
@@ -106,10 +105,9 @@ def create_yml_file(filename, model_str, model_type, extensible_type, comment):
         sys.exit(1)
 
 def insert_model_in_yml(yml_data, yml_filename, model, location, model_type, comment):
-    #print(type(yml_data['extensions'][location]['data']))
     yml_data['extensions'][location]['data'].insert(0, model) # insert row at top (maybe change to append to end instead, but need index for adding comment below)
     yml_data['extensions'][location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
-    yml_data['extensions'][location]['data'].sort() # seems to work for maintaining alphabetical ordering of models
+    yml_data['extensions'][location]['data'].sort() # maintain alphabetical ordering of models
     # write modified yml back to same file (separate file during testing)
     write_yml(yml_filename, yml_data)
 
@@ -149,11 +147,12 @@ def extract_relevant_info(csv_row):
     new_model_str = csv_row["Proposed Sink"]
     new_model_list = new_model_str.strip("][").split(", ") # convert model string to list
     new_model_list = [item.strip('"') for item in new_model_list] # strip quotes from strings
-    new_model_list = [dq_str(item) if new_model_list.index(item) != 2 else eval(item) for item in new_model_list ] # ! NEW: make all dq_str strings, except boolean at index 2 -- eval to a boolean
+    # TODO: make below more robust against potential future re-ordering of where boolean is placed (e.g. check type of eval in condition instead of hardcoding index number as 2)
+    new_model_list = [dq_str(item) if new_model_list.index(item) != 2 else eval(item) for item in new_model_list ] # make all strings double-quoted strings, and boolean at index 2 a boolean with eval(...)
 
     # format model list with CommentedSeq for single-line output
-    cs_model_list = CommentedSeq(new_model_list)
-    cs_model_list.fa.set_flow_style()
+    cs_model_list = CommentedSeq(new_model_list) # need this after adding dq_str to allow for single-line instead of block-style
+    cs_model_list.fa.set_flow_style()  # forces single-line instead of block-style for new model row, removes need for global `yaml.default_flow_style = None``
 
     # extract package name
     package_name = new_model_str.split(",")[0][2:-1]
@@ -214,11 +213,9 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
                 else: print("SOMETHING WENT WRONG WITH extension_type or location!")
 
                 # insert new extensible type with new_model
-                # ! TODO: see above about block-formatting the addsTo dict, but not the model row
                 yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': CommentedSeq([new_model_list])})
                 yml_data['extensions'][ext_insertion_location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
                 write_yml(yml_filename, yml_data)
-                #sys.exit(0)
 
             # If model_type DOES exist in yml_filename
             else:
@@ -265,8 +262,6 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
 
             # create file and write initial yml data and first model as string into file
             create_yml_file(yml_filename, new_model_str, model_type, extensible_type, comment)
-
-
 
 # tell user what files modified, print any errors, etc.
 print("FILES MODIFIED:")
