@@ -3,7 +3,7 @@ Proposed Sink,ParamType,ParamName,Callable/MethodName,Existing Sink?,Notes,Model
 "[""org.apache.http"", ""HttpHost"", True, ""HttpHost"", ""(InetAddress,String,int,String)"", """", ""Argument[1]"", ""%-url"", ""manual""]",String,hostname,[object Object],no,test note,sinkOrStep
 "[""org.apache.http"", ""HttpHost"", True, ""HttpHost"", ""(String)"", """", ""Argument[0]"", ""%-url"", ""manual""]",String,hostname,[object Object],no,,neutral
 "[""org.apache.http"", ""HttpHost"", True, ""HttpHost"", ""(String,int)"", """", ""Argument[0]"", ""%-url"", ""manual""]",String,hostname,[object Object],no,,FP
-"[""org.apache.http"", ""HttpHost"", True, ""HttpHost"", ""(String,int,String)"", """", ""Argument[0]"", ""%-url"", ""manual""]",String,hostname,[object Object],no,another note,step
+"[""org.apache.http"", ""HttpHost"", True, ""HttpHost"", ""(String,int,String)"", """", ""Argument[0]"", ""%-url"", ""manual""]",String,hostname,[object Object],no,another note,summary
 "[""org.apache.http.impl.pool"", ""BasicConnFactory"", True, ""create"", """", """", ""Argument[0]"", ""%-url"", ""manual""]",HttpHost,host,[object Object],no,,sink
 "[""org.apache.http.nio.reactor.ssl"", ""SSLIOSession"", True, ""SSLIOSession"", ""(IOSession,SSLMode,HttpHost,SSLContext,SSLSetupHandler)"", """", ""Argument[2]"", ""%-url"", ""manual""]",HttpHost,host,[object Object],no,,unsure
 "[""org.apache.http.nio.reactor.ssl"", ""SSLIOSession"", True, ""SSLIOSession"", ""(IOSession,SSLMode,HttpHost,SSLContext,SSLSetupHandler,SSLBufferManagementStrategy)"", """", ""Argument[2]"", ""%-url"", ""manual""]",HttpHost,host,[object Object],no,more notes,unsurePrblySink
