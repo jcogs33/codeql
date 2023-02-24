@@ -33,6 +33,7 @@
 from csv import DictReader
 import ruamel.yaml # need to pip3 install
 # from ruamel.yaml.scalarstring import DoubleQuotedScalarString as dq_str
+from ruamel.yaml.comments import CommentedSeq
 import os.path
 import sys
 
@@ -45,9 +46,10 @@ yaml.boolean_representation = ['False', 'True'] # preserve uppercase for boolean
 yaml.default_flow_style = None # force added rows to be single-line format # TODO: only apply to new_model, so rest are block when new `addsTo`, etc. are inserted
 
 # TODO: refactor all of below into functions, etc.
-# TODO: error-handling with try/except blocks, etc.
-# TODO: comments on all functions, etc.
+# TODO: error-handling with try/except blocks, etc., make all error messages better
+# TODO: python comments on all functions, etc.
 # TODO: related to error-handling: tell user what models not placed if any?
+# TODO: change drop-downs to match extensible names to simplify anywhere I have `model_type[0:4]` (problematic with "sinkOrStep")
 
 # Read csv into List of Dicts (where each dict is a model)
 def read_csv(filename):
@@ -82,13 +84,12 @@ def write_yml(filename, yml_data):
         print(e)
         sys.exit(1)
 
-def create_yml_file(filename, model_str, extensible_type):
+def create_yml_file(filename, model_str, model_type, extensible_type, comment):
     try:
-        # TODO: add comment on this model
         # create file and write initial yml data and first model as string into file
         print("CREATING NEW YML FILE for", filename)
         with open(filename, "w") as file:
-            model = "      - " + model_str
+            model = "      - " + model_str + " # ! ModelType: " + model_type + ", Notes: " + comment
             data_extensions = f"""extensions:
   - addsTo:
       pack: codeql/java-tests
@@ -103,6 +104,7 @@ def create_yml_file(filename, model_str, extensible_type):
         sys.exit(1)
 
 def insert_model_in_yml(yml_data, yml_filename, model, location, model_type, comment):
+    print(type(yml_data['extensions'][location]['data']))
     yml_data['extensions'][location]['data'].insert(0, model) # insert row at top (maybe change to append to end instead, but need index for adding comment below)
     yml_data['extensions'][location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
     yml_data['extensions'][location]['data'].sort() # seems to work for maintaining alphabetical ordering of models
@@ -114,7 +116,7 @@ def model_type_exists(yml_data, model_type):
     # determine if model_type does NOT exist in yml_filename yet
     model_type_in_yml_file = False
     for ext in yml_data['extensions']:
-        if model_type[0:4] == ext['addsTo']['extensible'][0:4]: # TODO: change drop-downs to match extensible names to simplify this?
+        if model_type[0:4] == ext['addsTo']['extensible'][0:4]:
             model_type_in_yml_file = True
             break
     return model_type_in_yml_file
@@ -126,7 +128,6 @@ def get_extensible_insertion_location(yml_data, model_type):
 
 # get extensible type for the given model type
 def get_extensible_type(model_type):
-    # TODO: change drop-downs to match extensible names to simplify this?
     if model_type[0:4] == "sour":
         return "sourceModel"
     elif model_type[0:4] == "sink":
@@ -152,7 +153,8 @@ def extract_relevant_info(csv_row):
     package_name = new_model_str.split(",")[0][2:-1]
 
     # get yml filename from package name
-    yml_filename = "java/ql/lib/ext/{}.model.yml".format(package_name) # TODO: don't hardcode path this much? use os.path instead?
+    # TODO: don't hardcode path this much? use os.path instead? (don't need to worry about unless making usable by anyone)
+    yml_filename = "java/ql/lib/ext/{}.model.yml".format(package_name)
 
     return yml_filename, new_model_str, new_model_list, comment
 
@@ -178,20 +180,22 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
 
         # track what files are modified
         # TODO: adjust how this is done, so not continually attempting to add duplicates to set?
-        # TODO: add only when file-write was succesful?
+        # TODO: add only when file-write was successful?
         files_modified_set.add(yml_filename)
 
         # check if yml_filename exists yet
-        if os.path.exists(yml_filename): #if yml_filename == "java/ql/lib/ext/org.apache.http.model.yml":
+        if os.path.exists(yml_filename):
 
             # read existing yml into yml_data structure so can insert into it
             yml_data = read_yml(yml_filename)
 
+            # get extensible type for the model
+            extensible_type = get_extensible_type(model_type)
+
             # If model_type NOT exist as extensible_type in yml_filename
             if not model_type_exists(yml_data, model_type):
                 # get insertion location for each extensible type
-                # TODO: simplify this; maybe change drop-down labels to match `summaryModel`, etc. in order to simplify here and above further (but then still have issue with "sinkOrStep")
-                # TODO: insertion location does not work correctly (e.g. if neutral model added to new file, THEN sink, the sink will be at the end...)
+                # ! TODO: insertion location does not work correctly (e.g. if neutral model added to new file, THEN sink, the sink will be at the end...)
                 ext_insertion_location = -1
                 if model_type[0:4] == "sour":
                     ext_insertion_location = 0
@@ -203,20 +207,17 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
                     ext_insertion_location = 3
                 else: print("SOMETHING WENT WRONG WITH extension_type or location!")
 
-                # get extensible type for the model
-                extensible_type = get_extensible_type(model_type)
-
                 # insert new extensible type with new_model
-                # TODO: see above about block-formatting the addsTo dict, but not the model row
-                # TODO: add comment on this model
-                yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': [new_model_list]})
+                # ! TODO: see above about block-formatting the addsTo dict, but not the model row
+                yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': CommentedSeq([new_model_list])})
+                yml_data['extensions'][ext_insertion_location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
                 write_yml(yml_filename, yml_data)
                 #sys.exit(0)
 
             # If model_type DOES exist in yml_filename
             else:
                 # insert new_model into yml data structure
-                # TODO: check for duplicates with existing models and don't insert if so
+                # ! TODO: check for duplicates with existing models and don't insert if so
                 # TODO: only add "Notes" comments `if model["Notes"] not in ["", " "]:`
                 # TODO: maybe remove ModelType if not sinkOrStep?
 
@@ -249,7 +250,7 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
                 elif model_type == "neutral":
                     insert_model_in_yml(yml_data, yml_filename, new_model_list, neutral_loc, model_type, comment)
                 else:
-                    print("ModelType, " + model_type + ", not correct.") # TODO: make this and all error messages better
+                    print("ModelType, " + model_type + ", not correct.")
 
         # yml file does not exist
         else:
@@ -257,15 +258,10 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
             extensible_type = get_extensible_type(model_type)
 
             # create file and write initial yml data and first model as string into file
-            create_yml_file(yml_filename, new_model_str, extensible_type)
+            create_yml_file(yml_filename, new_model_str, model_type, extensible_type, comment)
 
-
-# # write modified yml back to same file (separate file during testing)
-# with open("java/ql/src/experimental/heuristics/sinks-to-add/test.yml", "w") as f2:
-#     yaml.dump(yml_data, f2)
-
-# TODO: fix double-quotes issue either with commentMap as mentioned above, OR by grepping over file (uglier)
-# ! NOTE: anything that's not a sink still needs its model adjusted manually (since current query output is sinks), either before or after this script is run
+# ! TODO: fix double-quotes issue either with commentMap as mentioned above, OR by grepping over file (uglier) see Michael's code as well
+# * NOTE: anything that's not a sink still needs its model adjusted manually (since current query output is sinks), either before or after this script is run
 # TODO: user instructions, dependencies (see imports), warnings, etc.
 
 # tell user what files modified, print any errors, etc.
