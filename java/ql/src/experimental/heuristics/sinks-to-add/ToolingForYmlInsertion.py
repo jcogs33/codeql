@@ -143,15 +143,11 @@ def get_extensible_insertion_location(yml_data, model_type):
 
             # 3: sour, (sink at 1), summ, neut
         # TODO: can simplify below
-        if len(current_extensible_types) == 3:
-            return 1
-        elif len(current_extensible_types) == 2:
+        if len(current_extensible_types) == 3: return 1
+        elif len(current_extensible_types) == 2 or len(current_extensible_types) == 1:
             if "sourceModel" in current_extensible_types: return 1
             else: return 0
-        elif len(current_extensible_types) == 1:
-            if "sourceModel" in current_extensible_types: return 1
-            else: return 0
-        else: print("shouldn't reach here")
+        else: print("Incorrect number of extensibles in existing yml file. Failed when trying to insert new sinkModel.")
     elif model_type[0:4] == "summ":
         # options:
             # 1: sour, (summ at 1)
@@ -164,15 +160,14 @@ def get_extensible_insertion_location(yml_data, model_type):
 
             # 3: sour, sink, (summ at 2), neut
         # TODO: can simplify below
-        if len(current_extensible_types) == 3:
-            return 2
+        if len(current_extensible_types) == 3: return 2
         elif len(current_extensible_types) == 2:
             if "neutralModel" in current_extensible_types: return 1
             else: return 2
         elif len(current_extensible_types) == 1:
             if "neutralModel" in current_extensible_types: return 0
             else: return 1
-        else: print("shouldn't reach here")
+        else: print("Incorrect number of extensibles in existing yml file. Failed when trying to insert new summaryModel.")
     elif model_type[0:4] == "neut":
         return len(current_extensible_types) # neutral will always need to go at the end, which should always be possible in this situation
     else:
@@ -252,23 +247,11 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
             # If model_type NOT exist as extensible_type in yml_filename
             if not model_type_exists(yml_data, model_type):
                 # get insertion location for each extensible type
-                # ! TODO: insertion location does not work correctly (e.g. if neutral model added to new file, THEN sink, the sink will be at the end...)
-                # ext_insertion_location = -1
-                # if model_type[0:4] == "sour":
-                #     ext_insertion_location = 0
-                # elif model_type[0:4] == "sink":
-                #     ext_insertion_location = 1
-                # elif model_type[0:4] == "summ":
-                #     ext_insertion_location = 2
-                # elif model_type[0:4] == "neut":
-                #     ext_insertion_location = 3
-                # else: print("SOMETHING WENT WRONG WITH extension_type or location!")
-
                 ext_insertion_location = get_extensible_insertion_location(yml_data, model_type)
 
                 # insert new extensible type with new_model
-                print("extensible_type:", extensible_type)
-                print("ext_insertion_location:", ext_insertion_location)
+                # print("extensible_type:", extensible_type)
+                # print("ext_insertion_location:", ext_insertion_location)
                 yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': CommentedSeq([new_model_list])})
                 yml_data['extensions'][ext_insertion_location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
                 write_yml(yml_filename, yml_data)
@@ -278,7 +261,7 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
                 # insert new_model into yml data structure
                 # ! TODO: check for duplicates with existing models and don't insert if so
                 # TODO: only add "Notes" comments `if model["Notes"] not in ["", " "]:`
-                # TODO: maybe remove ModelType if not sinkOrStep?
+                # TODO: maybe remove ModelType comment if not sinkOrStep?
 
                 # determine location of block for each model type in the given file
                 # TODO: can maybe simplify with "determine if model_type does NOT exist in yml_filename yet" part above
@@ -300,6 +283,7 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
                         print("FAILURE IN YML DATA LOCATION/TYPE DETERMINATION!")
 
                 # insert model in correct location in correct block
+                # TODO: move if/elifs/else into insert_model_in_yml function
                 if model_type == "sink" or model_type == "sinkOrStep":
                     insert_model_in_yml(yml_data, yml_filename, new_model_list, sink_loc, model_type, comment)
                 elif model_type == "source":
