@@ -29,7 +29,6 @@
 #       - commentmap might work: https://stackoverflow.com/questions/70852345/force-string-quoting-while-saving-flow-style
 
 
-# *** MAIN CODE ***
 from csv import DictReader
 import ruamel.yaml # need to pip3 install
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString as dq_str
@@ -52,6 +51,7 @@ yaml.boolean_representation = ['False', 'True'] # preserve uppercase for boolean
 # * NOTE: anything that's not a sink still needs its model adjusted manually (since current query output is sinks), either before or after this script is run
 # TODO: user instructions, dependencies (see imports), warnings, etc.
 
+# *** FUNCTIONS ***
 # Read csv into List of Dicts (where each dict is a model)
 def read_csv(filename):
     try:
@@ -105,23 +105,30 @@ def create_yml_file(filename, model_str, model_type, extensible_type, comment):
         sys.exit(1)
 
 def insert_model_in_yml(yml_data, yml_filename, model, location, model_type, comment):
+    # ! TODO: check for duplicates with existing models and don't insert if so
+    # TODO: only add "Notes" comments `if model["Notes"] not in ["", " "]:`
+    # TODO: maybe remove ModelType comment if not sinkOrStep?
     yml_data['extensions'][location]['data'].insert(0, model) # insert row at top (maybe change to append to end instead, but need index for adding comment below)
     yml_data['extensions'][location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
     yml_data['extensions'][location]['data'].sort() # maintain alphabetical ordering of models
     # write modified yml back to same file (separate file during testing)
     write_yml(yml_filename, yml_data)
 
-# holds if the given model_type DOES exist in the given yml_data
-def model_type_exists(yml_data, model_type):
+# holds if the extensible type for the given model_type DOES exist in the given yml_data
+# returns a boolean AND the index of that extensible if it exists
+# returns -1 as the extensible index if it doesn't exist
+def extensible_type_exists(yml_data, model_type):
     # determine if model_type does NOT exist in yml_filename yet
     model_type_in_yml_file = False
-    for ext in yml_data['extensions']:
+    extensible_location = -1
+    for i, ext in enumerate(yml_data['extensions']):
         if model_type[0:4] == ext['addsTo']['extensible'][0:4]:
             model_type_in_yml_file = True
+            extensible_location = i
             break
-    return model_type_in_yml_file
+    return model_type_in_yml_file, extensible_location
 
-# get location to insert a new extensible in the given yml_data
+# get location to insert a *new* extensible in the given yml_data
 # trying to maintain order of source,sink,summary,neutral in the yml file versus just appending new extensible to the end
 def get_extensible_insertion_location(yml_data, model_type):
     # determine which extensible types already exist in the given yml_data
@@ -142,7 +149,7 @@ def get_extensible_insertion_location(yml_data, model_type):
             # 2: (sink at 0), summ, neut
 
             # 3: sour, (sink at 1), summ, neut
-        # TODO: can simplify below
+        # TODO: can simplify below?
         if len(current_extensible_types) == 3: return 1
         elif len(current_extensible_types) == 2 or len(current_extensible_types) == 1:
             if "sourceModel" in current_extensible_types: return 1
@@ -159,7 +166,7 @@ def get_extensible_insertion_location(yml_data, model_type):
             # 2: sink, (summ at 1), neut
 
             # 3: sour, sink, (summ at 2), neut
-        # TODO: can simplify below
+        # TODO: can simplify below?
         if len(current_extensible_types) == 3: return 2
         elif len(current_extensible_types) == 2:
             if "neutralModel" in current_extensible_types: return 1
@@ -174,6 +181,7 @@ def get_extensible_insertion_location(yml_data, model_type):
          print("Error in get_extensible_insertion_location!")
 
 # get extensible type for the given model type
+# TODO: combine with `extensible_type_exists`?
 def get_extensible_type(model_type):
     if model_type[0:4] == "sour":
         return "sourceModel"
@@ -210,11 +218,15 @@ def extract_relevant_info(csv_row):
 
     return yml_filename, new_model_str, cs_model_list, comment
 
+
+# *** MAIN PROGRAM ***
+# TODO: wrap into main function?: https://stackoverflow.com/questions/4041238/why-use-def-main, "will be possible to run tests against that code."
+
 # check that user entered correct number of args, abort if not
 if len(sys.argv) != 2:
     print("Incorrect number of args received.")
     print("Usage: YmlInsertion.py models.csv")
-    print("models.csv should contain CSV rows of proposed models")
+    print("models.csv should contain models to add as data extension rows.")
     sys.exit(1)
 
 files_modified_set = set()
@@ -230,28 +242,31 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
         # extract relevant info from csv row
         yml_filename, new_model_str, new_model_list, comment = extract_relevant_info(csv_row)
 
+        # get extensible type for the model
+        extensible_type = get_extensible_type(model_type)
+
         # track what files are modified
         # TODO: adjust how this is done, so not continually attempting to add duplicates to set?
         # TODO: add only when file-write was successful?
         files_modified_set.add(yml_filename)
 
-        # check if yml_filename exists yet
+        # if yml file exists already
         if os.path.exists(yml_filename):
 
-            # read existing yml into yml_data structure so can insert into it
+            # read existing yml into yml_data structure so can modify it
             yml_data = read_yml(yml_filename)
 
-            # get extensible type for the model
-            extensible_type = get_extensible_type(model_type)
+            # check if the extensible type for the model_type already exists in the yml_data
+            # and get its location/index if it exists
+            model_type_in_yml_file, extensible_location = extensible_type_exists(yml_data, model_type)
 
-            # If model_type NOT exist as extensible_type in yml_filename
-            if not model_type_exists(yml_data, model_type):
-                # get insertion location for each extensible type
+            # TODO: could prbly wrap the below if/else into insert_model_in_yml
+            # If extensible type for the model_type does NOT already exist in the yml_data
+            if not model_type_in_yml_file:
+                # get proper insertion location/index for the extensible type
                 ext_insertion_location = get_extensible_insertion_location(yml_data, model_type)
 
-                # insert new extensible type with new_model
-                # print("extensible_type:", extensible_type)
-                # print("ext_insertion_location:", ext_insertion_location)
+                # insert new extensible type (addsTo: pack, extensible...) along with the new_model
                 yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': CommentedSeq([new_model_list])})
                 yml_data['extensions'][ext_insertion_location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
                 write_yml(yml_filename, yml_data)
@@ -259,47 +274,10 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
             # If model_type DOES exist in yml_filename
             else:
                 # insert new_model into yml data structure
-                # ! TODO: check for duplicates with existing models and don't insert if so
-                # TODO: only add "Notes" comments `if model["Notes"] not in ["", " "]:`
-                # TODO: maybe remove ModelType comment if not sinkOrStep?
+                insert_model_in_yml(yml_data, yml_filename, new_model_list, extensible_location, model_type, comment)
 
-                # determine location of block for each model type in the given file
-                # TODO: can maybe simplify with "determine if model_type does NOT exist in yml_filename yet" part above
-                # TODO: only need the one that matches the model_type
-                source_loc = -1
-                sink_loc = -1
-                summary_loc = -1
-                neutral_loc = -1
-                for i, ext in enumerate(yml_data['extensions']):
-                    if ext['addsTo']['extensible'] == 'sourceModel':
-                        source_loc = i
-                    elif ext['addsTo']['extensible'] == 'sinkModel':
-                        sink_loc = i
-                    elif ext['addsTo']['extensible'] == 'summaryModel':
-                        summary_loc = i
-                    elif ext['addsTo']['extensible'] == 'neutralModel':
-                        neutral_loc = i
-                    else:
-                        print("FAILURE IN YML DATA LOCATION/TYPE DETERMINATION!")
-
-                # insert model in correct location in correct block
-                # TODO: move if/elifs/else into insert_model_in_yml function
-                if model_type == "sink" or model_type == "sinkOrStep":
-                    insert_model_in_yml(yml_data, yml_filename, new_model_list, sink_loc, model_type, comment)
-                elif model_type == "source":
-                    insert_model_in_yml(yml_data, yml_filename, new_model_list, source_loc, model_type, comment)
-                elif model_type == "summary":
-                    insert_model_in_yml(yml_data, yml_filename, new_model_list, summary_loc, model_type, comment)
-                elif model_type == "neutral":
-                    insert_model_in_yml(yml_data, yml_filename, new_model_list, neutral_loc, model_type, comment)
-                else:
-                    print("ModelType, " + model_type + ", not correct.")
-
-        # yml file does not exist
+        # if yml file does not exist
         else:
-            # get extensible type for the model
-            extensible_type = get_extensible_type(model_type)
-
             # create file and write initial yml data and first model as string into file
             create_yml_file(yml_filename, new_model_str, model_type, extensible_type, comment)
 
