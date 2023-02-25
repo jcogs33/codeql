@@ -124,7 +124,59 @@ def model_type_exists(yml_data, model_type):
 # get location to insert a new extensible in the given yml_data
 # trying to maintain order of source,sink,summary,neutral in the yml file versus just appending new extensible to the end
 def get_extensible_insertion_location(yml_data, model_type):
-    pass
+    # determine which extensible types already exist in the given yml_data
+    # based on those types, know where need to insert new extensible
+    current_extensible_types = []
+    for ext in yml_data['extensions']:
+        current_extensible_types.append(ext['addsTo']['extensible'])
+    if model_type[0:4] == "sour":
+        return 0 # source will always need to go at position 0, which should always exist in this scenario
+    elif model_type[0:4] == "sink":
+        # options:
+            # 1: sour, (sink at 1)
+            # 1: (sink at 0), summ
+            # 1: (sink at 0), neut
+
+            # 2: sour, (sink at 1), summ
+            # 2: sour, (sink at 1), neut
+            # 2: (sink at 0), summ, neut
+
+            # 3: sour, (sink at 1), summ, neut
+        # TODO: can simplify below
+        if len(current_extensible_types) == 3:
+            return 1
+        elif len(current_extensible_types) == 2:
+            if "sourceModel" in current_extensible_types: return 1
+            else: return 0
+        elif len(current_extensible_types) == 1:
+            if "sourceModel" in current_extensible_types: return 1
+            else: return 0
+        else: print("shouldn't reach here")
+    elif model_type[0:4] == "summ":
+        # options:
+            # 1: sour, (summ at 1)
+            # 1: sink, (summ at 1)
+            # 1:(summ at 0), neut
+
+            # 2: sour, sink, (summ at 2)
+            # 2: sour, (summ at 1), neut
+            # 2: sink, (summ at 1), neut
+
+            # 3: sour, sink, (summ at 2), neut
+        # TODO: can simplify below
+        if len(current_extensible_types) == 3:
+            return 2
+        elif len(current_extensible_types) == 2:
+            if "neutralModel" in current_extensible_types: return 1
+            else: return 2
+        elif len(current_extensible_types) == 1:
+            if "neutralModel" in current_extensible_types: return 0
+            else: return 1
+        else: print("shouldn't reach here")
+    elif model_type[0:4] == "neut":
+        return len(current_extensible_types) # neutral will always need to go at the end, which should always be possible in this situation
+    else:
+         print("Error in get_extensible_insertion_location!")
 
 # get extensible type for the given model type
 def get_extensible_type(model_type):
@@ -201,18 +253,22 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
             if not model_type_exists(yml_data, model_type):
                 # get insertion location for each extensible type
                 # ! TODO: insertion location does not work correctly (e.g. if neutral model added to new file, THEN sink, the sink will be at the end...)
-                ext_insertion_location = -1
-                if model_type[0:4] == "sour":
-                    ext_insertion_location = 0
-                elif model_type[0:4] == "sink":
-                    ext_insertion_location = 1
-                elif model_type[0:4] == "summ":
-                    ext_insertion_location = 2
-                elif model_type[0:4] == "neut":
-                    ext_insertion_location = 3
-                else: print("SOMETHING WENT WRONG WITH extension_type or location!")
+                # ext_insertion_location = -1
+                # if model_type[0:4] == "sour":
+                #     ext_insertion_location = 0
+                # elif model_type[0:4] == "sink":
+                #     ext_insertion_location = 1
+                # elif model_type[0:4] == "summ":
+                #     ext_insertion_location = 2
+                # elif model_type[0:4] == "neut":
+                #     ext_insertion_location = 3
+                # else: print("SOMETHING WENT WRONG WITH extension_type or location!")
+
+                ext_insertion_location = get_extensible_insertion_location(yml_data, model_type)
 
                 # insert new extensible type with new_model
+                print("extensible_type:", extensible_type)
+                print("ext_insertion_location:", ext_insertion_location)
                 yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': CommentedSeq([new_model_list])})
                 yml_data['extensions'][ext_insertion_location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
                 write_yml(yml_filename, yml_data)
