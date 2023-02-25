@@ -28,27 +28,31 @@
 # DONE: maintain double-quotes on *inserted* rows: https://stackoverflow.com/questions/39262556/preserve-quotes-and-also-add-data-with-quotes-in-ruamel, https://stackoverflow.com/questions/38784766/adding-quotes-using-ruamel-yaml
 #       - weirdly hard to do this while maintaining the `yaml.default_flow_style = None`..., maybe worth abandoning double-quotes in all yml files due to this?
 #       - commentmap might work: https://stackoverflow.com/questions/70852345/force-string-quoting-while-saving-flow-style
+# DONE: check for duplicates with existing models and don't insert if so: https://stackoverflow.com/questions/62038753/parse-yaml-file-to-find-duplicate-values-using-python
 
 
 from csv import DictReader
-import ruamel.yaml # need to pip3 install
-from ruamel.yaml.scalarstring import DoubleQuotedScalarString as dq_str
+import ruamel.yaml
+from ruamel.yaml.scalarstring import DoubleQuotedScalarString
 from ruamel.yaml.comments import CommentedSeq
 import os.path
 import sys
 
-# yml setup
+# yml settings
 yaml = ruamel.yaml.YAML()
-yaml.preserve_quotes = True # to keep the double-quotes
-yaml.indent(mapping=2, sequence=4, offset=2) # indentation stays the same
-yaml.width = 4096 # yml rows stay on one line (hopefully 4096 is always long enough, can adjust if run into a case where not)
-yaml.boolean_representation = ['False', 'True'] # preserve uppercase for booleans
+yaml.preserve_quotes = True                     # keeps the existing double-quotes
+yaml.indent(mapping=2, sequence=4, offset=2)    # keeps indentation the same
+yaml.width = 4096                               # prevents line-wrapping at 80 chars (Note: 4096 was chosen randomly, can be adjusted as needed)
+yaml.boolean_representation = ['False', 'True'] # preserves uppercase for booleans
 
 # TODO: error-handling with try/except blocks, etc., make all error messages better
 # TODO: python comments on all functions, etc. -- make better (https://peps.python.org/pep-0008/#documentation-strings, https://peps.python.org/pep-0257/)
 # TODO: related to error-handling: tell user what models not placed if any?
-# TODO: change drop-downs to match extensible names to simplify anywhere I have `model_type[0:4]` (problematic with "sinkOrStep")
-# TODO: user instructions, dependencies (see imports), warnings, etc.
+# ! TODO: change drop-downs to match extensible names to simplify anywhere I have `model_type[0:4]` (problematic with "sinkOrStep")
+# TODO: user instructions, dependencies (see imports, need to pip3 install ruamel.yaml, etc.), warnings, etc.
+# TODO: only add "Notes" comments `if model["Notes"] not in ["", " "]:`?
+# TODO: maybe remove ModelType comment if not sinkOrStep?
+# TODO?: check for "potential" duplicate models, e.g. only matches on some of the columns (package, type, methodname, etc.)
 # * NOTE: anything that's not a sink still needs its model adjusted manually (since current query output is sinks), either before or after this script is run
 
 def read_csv(filename):
@@ -66,7 +70,6 @@ def read_csv(filename):
         sys.exit(1)
     return list_of_dicts
 
-# read existing yml into data structure so can insert into it
 def read_yml(filename):
     """
     Read yml data from the file specified by `filename`.
@@ -82,7 +85,10 @@ def read_yml(filename):
     return yml_data
 
 def write_yml(filename, yml_data):
-    """Write the given `yml_data` into the file specified by `filename`."""
+    """
+    Write the given `yml_data` into the file
+    specified by `filename`.
+    """
     try:
         with open(filename, "w") as file:
             yaml.dump(yml_data, file)
@@ -113,15 +119,25 @@ def create_yml_file(filename, model_str, model_type, extensible_type, comment):
         print(e)
         sys.exit(1)
 
+def duplicate_exists(yml_data, model, location):
+    """
+    Holds if the given `model` already exists in
+    the given `yml_data`.
+    """
+    dup_exists = False
+    for row in yml_data['extensions'][location]['data']:
+        if model == row:
+            dup_exists = True
+    return dup_exists
+
 def insert_model_in_yml(yml_data, yml_filename, model, location, model_type, comment):
-    # ! TODO: check for duplicates with existing models and don't insert if so
-    # TODO: only add "Notes" comments `if model["Notes"] not in ["", " "]:`?
-    # TODO: maybe remove ModelType comment if not sinkOrStep?
-    yml_data['extensions'][location]['data'].insert(0, model) # insert row at top (maybe change to append to end instead, but need index for adding comment below)
-    yml_data['extensions'][location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
-    yml_data['extensions'][location]['data'].sort() # maintain alphabetical ordering of models
-    # write modified yml back to same file (separate file during testing)
-    write_yml(yml_filename, yml_data)
+    if not duplicate_exists(yml_data, model, location):
+        yml_data['extensions'][location]['data'].insert(0, model) # insert row at top (index=0) (maybe change to append to end instead, but need index for adding comment below)
+        yml_data['extensions'][location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
+        yml_data['extensions'][location]['data'].sort() # maintain alphabetical ordering of models
+        # write modified yml back to same file (separate file during testing)
+        write_yml(yml_filename, yml_data)
+    else: print("DUPLICATE MODEL:", model)
 
 # holds if the extensible type for the given model_type DOES exist in the given yml_data
 # returns a boolean AND the index of that extensible if it exists
@@ -206,7 +222,8 @@ def extract_relevant_info(csv_row):
     Extracts information necessary for model insertion from the given `csv_row`.
     Returns
         - the name of the yml file where the model needs to be inserted
-        - the model as a string and as a formatted list
+        - the model as a string for insertion into newly created yml files
+        - the model as a CommentedSeq list for insertion into pre-existing yml files
         - any comments associated with the model
     """
     # get notes for comments
@@ -216,11 +233,11 @@ def extract_relevant_info(csv_row):
     new_model_str = csv_row["Proposed Sink"]
     new_model_list = new_model_str.strip("][").split(", ") # convert model string to list
     new_model_list = [item.strip('"') for item in new_model_list] # strip quotes from strings
-    # TODO: make below more robust against potential future re-ordering of where boolean is placed (e.g. check type of eval in condition instead of hardcoding index number as 2)
-    new_model_list = [dq_str(item) if new_model_list.index(item) != 2 else eval(item) for item in new_model_list ] # make all strings double-quoted strings, and boolean at index 2 a boolean with eval(...)
+    # ! TODO: need to do this since will break neutral models that don't have a bool (if format neutral in advance) ---> make below more robust against potential future re-ordering of where boolean is placed (e.g. check type of eval in condition instead of hardcoding index number as 2)
+    new_model_list = [DoubleQuotedScalarString(item) if new_model_list.index(item) != 2 else eval(item) for item in new_model_list ] # make all strings double-quoted strings, and boolean at index 2 a boolean with eval(...)
 
     # format model list with CommentedSeq for single-line output
-    cs_model_list = CommentedSeq(new_model_list) # need this after adding dq_str to allow for single-line instead of block-style
+    cs_model_list = CommentedSeq(new_model_list) # need this after adding DoubleQuotedScalarString to allow for single-line instead of block-style
     cs_model_list.fa.set_flow_style()  # forces single-line instead of block-style for new model row, removes need for global `yaml.default_flow_style = None``
 
     # extract package name
