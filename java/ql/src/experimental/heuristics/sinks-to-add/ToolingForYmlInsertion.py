@@ -1,4 +1,5 @@
 
+# TODO: make "references" section at the bottom (or top) for any of the below links that you ended up actually using info from.
 # *** NOTES ***
 # * https://www.geeksforgeeks.org/load-csv-data-into-list-and-dictionary-using-python/
 
@@ -24,7 +25,7 @@
 # DONE: maintain alphabetical ordering of models: https://stackoverflow.com/questions/39307956/insert-a-key-using-ruamel
 # DONE: force added rows to be single-line format: https://stackoverflow.com/questions/62058034/how-to-define-a-style-of-new-dictionary-in-ruamel-yaml, https://stackoverflow.com/questions/56937691/making-yaml-ruamel-yaml-always-dump-lists-inline
 # DONE: add eol_comment to added row: https://yaml.readthedocs.io/en/latest/detail.html?highlight=comment#adding-replacing-comments
-# TODO: maintain double-quotes on *inserted* rows: https://stackoverflow.com/questions/39262556/preserve-quotes-and-also-add-data-with-quotes-in-ruamel, https://stackoverflow.com/questions/38784766/adding-quotes-using-ruamel-yaml
+# DONE: maintain double-quotes on *inserted* rows: https://stackoverflow.com/questions/39262556/preserve-quotes-and-also-add-data-with-quotes-in-ruamel, https://stackoverflow.com/questions/38784766/adding-quotes-using-ruamel-yaml
 #       - weirdly hard to do this while maintaining the `yaml.default_flow_style = None`..., maybe worth abandoning double-quotes in all yml files due to this?
 #       - commentmap might work: https://stackoverflow.com/questions/70852345/force-string-quoting-while-saving-flow-style
 
@@ -43,17 +44,18 @@ yaml.indent(mapping=2, sequence=4, offset=2) # indentation stays the same
 yaml.width = 4096 # yml rows stay on one line (hopefully 4096 is always long enough, can adjust if run into a case where not)
 yaml.boolean_representation = ['False', 'True'] # preserve uppercase for booleans
 
-# TODO: refactor all of below into functions, etc.
 # TODO: error-handling with try/except blocks, etc., make all error messages better
-# TODO: python comments on all functions, etc.
+# TODO: python comments on all functions, etc. -- make better (https://peps.python.org/pep-0008/#documentation-strings, https://peps.python.org/pep-0257/)
 # TODO: related to error-handling: tell user what models not placed if any?
 # TODO: change drop-downs to match extensible names to simplify anywhere I have `model_type[0:4]` (problematic with "sinkOrStep")
-# * NOTE: anything that's not a sink still needs its model adjusted manually (since current query output is sinks), either before or after this script is run
 # TODO: user instructions, dependencies (see imports), warnings, etc.
+# * NOTE: anything that's not a sink still needs its model adjusted manually (since current query output is sinks), either before or after this script is run
 
-# *** FUNCTIONS ***
-# Read csv into List of Dicts (where each dict is a model)
 def read_csv(filename):
+    """
+    Read csv data from the file specified by `filename`.
+    Returns the csv data as a list of dictionaries.
+    """
     try:
         with open(filename, "r") as file:
             dict_reader = DictReader(file)
@@ -66,6 +68,10 @@ def read_csv(filename):
 
 # read existing yml into data structure so can insert into it
 def read_yml(filename):
+    """
+    Read yml data from the file specified by `filename`.
+    Returns the yml data.
+    """
     try:
         with open(filename, "r") as file:
             yml_data = yaml.load(file.read())
@@ -75,8 +81,8 @@ def read_yml(filename):
         sys.exit(1)
     return yml_data
 
-# write modified yml data to file
 def write_yml(filename, yml_data):
+    """Write the given `yml_data` into the file specified by `filename`."""
     try:
         with open(filename, "w") as file:
             yaml.dump(yml_data, file)
@@ -86,8 +92,11 @@ def write_yml(filename, yml_data):
         sys.exit(1)
 
 def create_yml_file(filename, model_str, model_type, extensible_type, comment):
+    """
+    Creates a new yml file for the given `filename`,
+    and inserts a model as a string into the file.
+    """
     try:
-        # create file and write initial yml data and first model as string into file
         print("CREATING NEW YML FILE for", filename)
         with open(filename, "w") as file:
             model = "      - " + model_str + " # ! ModelType: " + model_type + ", Notes: " + comment
@@ -106,7 +115,7 @@ def create_yml_file(filename, model_str, model_type, extensible_type, comment):
 
 def insert_model_in_yml(yml_data, yml_filename, model, location, model_type, comment):
     # ! TODO: check for duplicates with existing models and don't insert if so
-    # TODO: only add "Notes" comments `if model["Notes"] not in ["", " "]:`
+    # TODO: only add "Notes" comments `if model["Notes"] not in ["", " "]:`?
     # TODO: maybe remove ModelType comment if not sinkOrStep?
     yml_data['extensions'][location]['data'].insert(0, model) # insert row at top (maybe change to append to end instead, but need index for adding comment below)
     yml_data['extensions'][location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + comment, 0) # add eol_comment to added row
@@ -149,7 +158,6 @@ def get_extensible_insertion_location(yml_data, model_type):
             # 2: (sink at 0), summ, neut
 
             # 3: sour, (sink at 1), summ, neut
-        # TODO: can simplify below?
         if len(current_extensible_types) == 3: return 1
         elif len(current_extensible_types) == 2 or len(current_extensible_types) == 1:
             if "sourceModel" in current_extensible_types: return 1
@@ -166,7 +174,6 @@ def get_extensible_insertion_location(yml_data, model_type):
             # 2: sink, (summ at 1), neut
 
             # 3: sour, sink, (summ at 2), neut
-        # TODO: can simplify below?
         if len(current_extensible_types) == 3: return 2
         elif len(current_extensible_types) == 2:
             if "neutralModel" in current_extensible_types: return 1
@@ -181,7 +188,7 @@ def get_extensible_insertion_location(yml_data, model_type):
          print("Error in get_extensible_insertion_location!")
 
 # get extensible type for the given model type
-# TODO: combine with `extensible_type_exists`?
+# TODO: combine with `extensible_type_exists`? (or if change csv data to have model_type==extensible_type already)
 def get_extensible_type(model_type):
     if model_type[0:4] == "sour":
         return "sourceModel"
@@ -195,6 +202,13 @@ def get_extensible_type(model_type):
         print("SOMETHING WENT WRONG WITH WHEN GETTING extensible_type! Returned extensible_type='None'.")
 
 def extract_relevant_info(csv_row):
+    """
+    Extracts information necessary for model insertion from the given `csv_row`.
+    Returns
+        - the name of the yml file where the model needs to be inserted
+        - the model as a string and as a formatted list
+        - any comments associated with the model
+    """
     # get notes for comments
     comment = csv_row["Notes"]
 
@@ -213,7 +227,7 @@ def extract_relevant_info(csv_row):
     package_name = new_model_str.split(",")[0][2:-1]
 
     # get yml filename from package name
-    # TODO: don't hardcode path this much? use os.path instead? (don't need to worry about unless making usable by anyone)
+    # ! TODO: don't hardcode path this much? use os.path instead? (don't need to worry about unless making usable by anyone)
     yml_filename = "java/ql/lib/ext/{}.model.yml".format(package_name)
 
     return yml_filename, new_model_str, cs_model_list, comment
@@ -233,6 +247,7 @@ files_modified_set = set()
 # iterate over all proposed model data
 for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/heuristics/sinks-to-add/TestToolingMaDHeuristics.csv"
 
+    # TODO: could technically wrap ALL of the below into an `add_new_model` function... (it might be more readable to NOT do this though...)
     # get model type
     model_type = csv_row["ModelType"]
 
@@ -247,17 +262,18 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
 
         # track what files are modified
         # TODO: adjust how this is done, so not continually attempting to add duplicates to set?
-        # TODO: add only when file-write was successful?
+        # TODO: add only when file-write was successful? (e.g. call this right after call `insert_model_in_yml` and `create_yml_file` (or call at the end of these functions?))
         files_modified_set.add(yml_filename)
 
         # if yml file exists already
+        # TODO: could prbly wrap this if/else into insert_model_in_yml or similar function...
         if os.path.exists(yml_filename):
 
             # read existing yml into yml_data structure so can modify it
             yml_data = read_yml(yml_filename)
 
             # check if the extensible type for the model_type already exists in the yml_data
-            # and get its location/index if it exists
+            #   and get its location/index if it exists
             model_type_in_yml_file, extensible_location = extensible_type_exists(yml_data, model_type)
 
             # TODO: could prbly wrap the below if/else into insert_model_in_yml
