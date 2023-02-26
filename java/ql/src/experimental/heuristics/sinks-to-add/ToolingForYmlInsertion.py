@@ -133,37 +133,50 @@ def duplicate_exists(yml_data, model, location):
 
 def insert_model_in_yml(yml_data, yml_filename, model, model_type, notes):
     """
-    Inserts the given `model` into the given `yml_data` at the specified `location`
-    and with a comment containing the `model_type` and `notes`.
+    Inserts the given `model` into the given `yml_data`with
+    a comment containing the `model_type` and `notes`.
+
     Writes the modified `yml_data` to the specified `yml_filename`.
     """
     # check if the extensible type for the model_type already exists in
     # the yml_data and get its location/index if it exists
     extensible_type_in_yml_file, extensible_location = extensible_type_exists(yml_data, model_type)
-    # TODO: redo this, can use extensible_location as a boolean essentially instead of having extensible_type_in_yml_file variable...
-    if extensible_location != -1 and not duplicate_exists(yml_data, model, extensible_location):
-        # insert model into `yml_data`
-        if not extensible_type_in_yml_file: # if extensible type for the model_type does NOT already exist in the yml_data
-            # get proper insertion location/index for the extensible type
-            ext_insertion_location = get_extensible_insertion_location(yml_data, model_type)
-            # insert new extensible type (addsTo: pack, extensible...) along with the new_model
-            yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': CommentedSeq([new_model_list])})
-            yml_data['extensions'][ext_insertion_location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + notes, 0) # add eol_comment to added row
 
-        else: # If extensible type for model_type DOES exist in yml_filename
+    # insert model into `yml_data`
+    if not extensible_type_in_yml_file: # if extensible type for the model_type does NOT already exist in the yml_data
+        # get proper insertion location/index for the extensible type
+        ext_insertion_location = get_extensible_insertion_location(yml_data, model_type)
+        # insert new extensible type (addsTo: pack, extensible...) along with the new_model
+        yml_data['extensions'].insert(ext_insertion_location, {'addsTo': {'pack': 'codeql/java-all', 'extensible': extensible_type}, 'data': CommentedSeq([new_model_list])})
+        yml_data['extensions'][ext_insertion_location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + notes, 0) # add eol_comment to added row
+
+        # write the modified `yml_data` to the specified `yml_filename`
+        write_yml(yml_filename, yml_data)
+
+    else: # If extensible type for model_type DOES exist in yml_filename
+        # check for exact duplicate
+        if not duplicate_exists(yml_data, model, extensible_location):
+
             # insert new_model into yml data structure
             yml_data['extensions'][extensible_location]['data'].insert(0, model) # insert row at top (index=0) (maybe change to append to end instead, but need index for adding comment below)
             yml_data['extensions'][extensible_location]['data'].yaml_add_eol_comment('! ModelType: ' + model_type + ', Notes: ' + notes, 0) # add eol_comment to added row
             yml_data['extensions'][extensible_location]['data'].sort() # maintain alphabetical ordering of models
 
-      # write the modified `yml_data` to the specified `yml_filename`
-        write_yml(yml_filename, yml_data)
-    else: print("DUPLICATE MODEL:", model)
+            # write the modified `yml_data` to the specified `yml_filename`
+            write_yml(yml_filename, yml_data)
+
+        # don't modify/write yml if duplicate exists
+        else:
+            print("DUPLICATE MODEL:", model)
+
+
 
 # holds if the extensible type for the given model_type DOES exist in the given yml_data
 # returns a boolean AND the index of that extensible if it exists
 # returns -1 as the extensible index if it doesn't exist
 def extensible_type_exists(yml_data, model_type):
+    # TODO: redo this, can use extensible_location as a boolean essentially instead of having model_type_in_yml_file variable...
+    """get_existing_extensible_index"""
     # determine if model_type does NOT exist in yml_filename yet
     model_type_in_yml_file = False
     extensible_location = -1
@@ -177,6 +190,7 @@ def extensible_type_exists(yml_data, model_type):
 # get location to insert a *new* extensible in the given yml_data
 # trying to maintain order of source,sink,summary,neutral in the yml file versus just appending new extensible to the end
 def get_extensible_insertion_location(yml_data, model_type):
+    """get_new_extensible_index"""
     # determine which extensible types already exist in the given yml_data
     # based on those types, know where need to insert new extensible
     current_extensible_types = []
@@ -238,6 +252,19 @@ def get_extensible_type(model_type):
     else:
         print("SOMETHING WENT WRONG WITH WHEN GETTING extensible_type! Returned extensible_type='None'.")
 
+def format_mad_column(column_info):
+    # strip quotes from strings
+    column_info = column_info.strip('"')
+    # convert boolean string to bool type
+    if column_info == 'True':
+        column_info = True
+    elif column_info == 'False':
+        column_info = False
+    # convert regular string to DoubleQuotedScalarString for any non-bools
+    else:
+        column_info = DoubleQuotedScalarString(column_info)
+    return column_info
+
 def extract_relevant_info(csv_row):
     """
     Extracts information necessary for model insertion from the given `csv_row`.
@@ -250,14 +277,14 @@ def extract_relevant_info(csv_row):
     # get notes for comments
     notes = csv_row["Notes"]
 
-    # get and format new model row
+    # get new model row as string
     new_model_str = csv_row["Proposed Sink"]
-    new_model_list = new_model_str.strip("][").split(", ") # convert model string to list
-    new_model_list = [item.strip('"') for item in new_model_list] # strip quotes from strings
-    # ! TODO: need to do this since will break neutral models that don't have a bool (if format neutral in advance) ---> make below more robust against potential future re-ordering of where boolean is placed (e.g. check type of eval in condition instead of hardcoding index number as 2)
-    new_model_list = [DoubleQuotedScalarString(item) if new_model_list.index(item) != 2 else eval(item) for item in new_model_list ] # make all strings double-quoted strings, and boolean at index 2 a boolean with eval(...)
+    # convert model string to list
+    new_model_list = new_model_str.strip("][").split(", ")
+    # format elements of the list
+    new_model_list = [format_mad_column(element) for element in new_model_list]
 
-    # format model list with CommentedSeq for single-line output
+    # format model list as a CommentedSeq for single-line output
     cs_model_list = CommentedSeq(new_model_list) # need this after adding DoubleQuotedScalarString to allow for single-line instead of block-style
     cs_model_list.fa.set_flow_style()  # forces single-line instead of block-style for new model row, removes need for global `yaml.default_flow_style = None``
 
@@ -278,28 +305,31 @@ def extract_relevant_info(csv_row):
 if len(sys.argv) != 2:
     print("Incorrect number of args received.")
     print("Usage: YmlInsertion.py models.csv")
-    print("models.csv should contain models to add as data extension rows.")
+    print("models.csv should contain models to add as data extension rows. The required csv columns are...")
     sys.exit(1)
 
-files_modified_set = set() # TODO: adjust how this is done, so not continually attempting to add duplicates to set?
+# store names of modified files
+files_modified_set = set()
+
 # iterate over all proposed model data
 for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/heuristics/sinks-to-add/TestToolingMaDHeuristics.csv"
 
-    # TODO: could technically wrap ALL of the below into an `add_new_model` function... (it might be more readable to NOT do this though...)
+    # TODO: could technically wrap ALL of the below into an `add_new_model(csv_row)` function... (it might be more readable to NOT do this though...)
     # get model type
     model_type = csv_row["ModelType"]
 
     # only add definite models with this script for now
-    if model_type in ["sink", "source", "summary", "neutral", "sinkOrStep"]:
+    if model_type in {"sink", "source", "summary", "neutral", "sinkOrStep"}:
 
         # extract relevant info from csv row
         yml_filename, new_model_str, new_model_list, notes = extract_relevant_info(csv_row)
 
         # get extensible type for the model
-        # TODO: put below in `extract_relevant_info`?
+        # TODO: put below in `extract_relevant_info`? or remove if model_type==extensible_type
         extensible_type = get_extensible_type(model_type)
 
         # TODO: could prbly wrap this if/else into insert_model_in_yml or similar function...
+        # TODO: need functions: insert_model_in_yml_data > insert_data_in_yml_file, add_new_model
         if os.path.exists(yml_filename): # if yml file exists already
             # read existing yml into yml_data structure so can modify it
             yml_data = read_yml(yml_filename)
@@ -310,10 +340,10 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
             # create file and write initial yml data and first model as string into file
             create_yml_file(yml_filename, new_model_str, model_type, extensible_type, notes)
 
-        # track which file was modified
+        # track which files were modified
         files_modified_set.add(yml_filename)
 
 # tell user what files modified, print any errors, etc.
 print("FILES MODIFIED:")
-for item in files_modified_set:
+for item in sorted(files_modified_set):
     print("  " + item)
