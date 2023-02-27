@@ -135,7 +135,6 @@ def insert_model_in_yml(yml_data, yml_filename, model, model_type, notes):
     """
     Inserts the given `model` into the given `yml_data`with
     a comment containing the `model_type` and `notes`.
-
     Writes the modified `yml_data` to the specified `yml_filename`.
     """
     # check if the extensible type for the model_type already exists in
@@ -292,9 +291,7 @@ def extract_relevant_info(csv_row):
     package_name = new_model_str.split(",")[0][2:-1]
 
     # get yml filename from package name
-    # ! TODO: don't hardcode path this much? use os.path instead? (don't need to worry about unless making usable by anyone)
-    yml_filename = "java/ql/lib/ext/{}.model.yml".format(package_name)
-
+    yml_filename = os.path.join(sys.argv[2], package_name + ".model.yml")
     return yml_filename, new_model_str, cs_model_list, notes
 
 
@@ -302,14 +299,17 @@ def extract_relevant_info(csv_row):
 # TODO: wrap into main function?: https://stackoverflow.com/questions/4041238/why-use-def-main, "will be possible to run tests against that code."
 
 # check that user entered correct number of args, abort if not
-if len(sys.argv) != 2:
+if len(sys.argv) != 3:
     print("Incorrect number of args received.")
-    print("Usage: YmlInsertion.py models.csv")
+    print("Usage: YmlInsertion.py models.csv extDir")
     print("models.csv should contain models to add as data extension rows. The required csv columns are...")
+    print("extDir should point to your local checkout of the 'semmle-code/ql/java/ql/lib/ext' directory (for standard insertion). (or to any other directory where you want to add data extension models)")
     sys.exit(1)
 
-# store names of modified files
+# store names of modified/created files
+# TODO: add to these inside write functions AFTER writing, else when running into dups and not actually modeifying file as a result, will still count file as modified...
 files_modified_set = set()
+files_created_set = set()
 
 # iterate over all proposed model data
 for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/heuristics/sinks-to-add/TestToolingMaDHeuristics.csv"
@@ -329,21 +329,28 @@ for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/he
         extensible_type = get_extensible_type(model_type)
 
         # TODO: could prbly wrap this if/else into insert_model_in_yml or similar function...
-        # TODO: need functions: insert_model_in_yml_data > insert_data_in_yml_file, add_new_model
+        # TODO: need functions: insert_model_in_yml_data > insert_data_in_yml_file, add_new_model?
         if os.path.exists(yml_filename): # if yml file exists already
             # read existing yml into yml_data structure so can modify it
             yml_data = read_yml(yml_filename)
             # insert new_model into yml data structure
             insert_model_in_yml(yml_data, yml_filename, new_model_list, model_type, notes)
 
+            # track which files were modified
+            files_modified_set.add(yml_filename)
+
         else: # if yml file does not exist
             # create file and write initial yml data and first model as string into file
             create_yml_file(yml_filename, new_model_str, model_type, extensible_type, notes)
 
-        # track which files were modified
-        files_modified_set.add(yml_filename)
+            # track which files were created
+            files_created_set.add(yml_filename)
+
 
 # tell user what files modified, print any errors, etc.
+print("FILES CREATED:")
+for item in sorted(files_created_set):
+    print("  " + item)
 print("FILES MODIFIED:")
 for item in sorted(files_modified_set):
     print("  " + item)
