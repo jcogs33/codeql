@@ -48,7 +48,7 @@ yaml.boolean_representation = ['False', 'True'] # preserves uppercase for boolea
 # TODO: error-handling with try/except blocks, etc., make all error messages better
 # TODO: python comments on all functions, etc. -- make better (https://peps.python.org/pep-0008/#documentation-strings, https://peps.python.org/pep-0257/)
 # TODO: related to error-handling: tell user what models not placed if any?
-# ! TODO: change drop-downs to match extensible names to simplify anywhere I have `model_type[0:4]` (problematic with "sinkOrStep")
+# TODO?: change drop-downs to match extensible names to simplify anywhere I have `model_type[0:4]` (problematic with "sinkOrStep")
 # TODO: user instructions, dependencies (see imports, need to pip3 install ruamel.yaml, etc.), warnings, etc.
 # TODO: only add "Notes" comments `if model["Notes"] not in ["", " "]:`?
 # TODO: maybe remove ModelType comment if not sinkOrStep?
@@ -249,7 +249,7 @@ def get_extensible_type(model_type):
     elif model_type[0:4] == "neut":
         return "neutralModel"
     else:
-        print("SOMETHING WENT WRONG WITH WHEN GETTING extensible_type! Returned extensible_type='None'.")
+        print("SOMETHING WENT WRONG WHEN GETTING extensible_type! Returned extensible_type='None'.")
 
 def format_mad_column(column_info):
     # strip quotes from strings
@@ -307,12 +307,12 @@ if len(sys.argv) != 3:
     sys.exit(1)
 
 # store names of modified/created files
-# TODO: add to these inside write functions AFTER writing, else when running into dups and not actually modeifying file as a result, will still count file as modified...
+# TODO: add to these inside write functions AFTER writing, else when running into dups and not actually modifying file as a result, will still count file as modified...
 files_modified_set = set()
 files_created_set = set()
 
 # iterate over all proposed model data
-for csv_row in read_csv(sys.argv[1]): # test file = "java/ql/src/experimental/heuristics/sinks-to-add/TestToolingMaDHeuristics.csv"
+for csv_row in read_csv(sys.argv[1]):
 
     # TODO: could technically wrap ALL of the below into an `add_new_model(csv_row)` function... (it might be more readable to NOT do this though...)
     # get model type
