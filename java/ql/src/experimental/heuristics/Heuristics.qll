@@ -217,10 +217,10 @@ private predicate usernameHeuristic(Parameter p) {
 }
 
 // should rename this and other predicates
-// * Needs exclusion/adjustment for ALL heuristics:
-// * 1) Check for subtyping in all the similar classes/methods, and see if can make heuristic smart enough to avoid if so.
-// * DONE with `not TestLibrary` addition: exclude "test" ones; check if can exclude TestUtils like ExternalApi, etc. ("assert" as method name as well if doesn't fully exlude it).
-// * 3) BenchmarkConfig$Builder etc. issue, handle in output below...
+// ! Needs exclusion/adjustment for ALL heuristics:
+// ! 1) Check for subtyping in all the similar classes/methods, and see if can make heuristic smart enough to avoid if so.
+// DONE with `not TestLibrary` addition: exclude "test" ones; check if can exclude TestUtils like ExternalApi, etc. ("assert" as method name as well if doesn't fully exlude it).
+// ! 3) BenchmarkConfig$Builder etc. issue, handle in output below...
 private Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string sinkKind) {
   exists(Parameter p |
     p = result.getParameter(paramIdx) and
