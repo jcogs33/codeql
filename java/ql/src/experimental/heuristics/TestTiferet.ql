@@ -5,6 +5,7 @@ import semmle.code.java.dataflow.FlowSummary
 import semmle.code.java.dataflow.internal.DataFlowPrivate
 import utils.modelgenerator.internal.CaptureModels
 import semmle.code.java.dataflow.internal.FlowSummaryImpl as FlowSummaryImpl
+private import utils.modelgenerator.internal.CaptureModelsSpecific as CMS
 
 string getApiName(Callable c) {
   result =
@@ -127,9 +128,26 @@ string getApiName(Callable c) {
 //   c.getName() = "forEach" and
 //   apiName = getApiName(c)
 // select apiName, c order by apiName
+// * testing:
+// from Call call
+// where
+//   call.getCallee().getDeclaringType().getPackage().toString() = "java.lang" and
+//   call.getCallee().getName() = "getResourceAsStream"
+// select call.getCallee().getDeclaringType().getSourceDeclaration(),
+//   call.getCallee().getDeclaringType().getName(), call.getCallee().getDeclaringType().nestedName(),
+//   call.getCallee().getDeclaringType().getSourceDeclaration().nestedName() //, CMS::asPartialModel(call.getCallee())
+/*
+ *  c.getDeclaringType().getPackage()
+ *  vs c.getDeclaringType().getPackage().getName()
+ *  vs c.getDeclaringType().getCompilationUnit().getPackage().getName()
+ */
+
 from Call call
-where
-  call.getCallee().getDeclaringType().getPackage().toString() = "java.lang" and
-  call.getCallee().getName() = "getResourceAsStream"
-select call.getCallee().getDeclaringType().getSourceDeclaration(),
-  call.getCallee().getDeclaringType().getName()
+where call.getCallee().getDeclaringType().getSourceDeclaration().nestedName() = "Map$Entry"
+//call.getCallee().getDeclaringType().getPackage().toString() = "java.lang" and
+//call.getCallee().getName() = "getResourceAsStream"
+select call.getCallee(),
+  call.getCallee().getDeclaringType(), //, call.getCallee().getDeclaringType().getPackage() //,
+  // call.getCallee().getDeclaringType().getPackage().getName()
+  call.getCallee().getDeclaringType().getCompilationUnit().getPackage().getName()
+//callable.getDeclaringType().getCompilationUnit().getPackage()
