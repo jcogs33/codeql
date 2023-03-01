@@ -184,8 +184,19 @@ import utils.modelgenerator.internal.CaptureModelsSpecific as CMS
 // where m.getName() = "add" and m.getDeclaringType().toString() = "List"
 // select m.getAnOverride(), m.getAnOverride().getDeclaringType()
 // *
-from Callable c
-where c.getName() = "add" and c.getDeclaringType().toString() = "List"
-select c.getDeclaringType()
-      //c.getQualifiedName(), c.getSourceDeclaration(), c.getDeclaringType().getAnAncestor(),
-      .getASupertype()
+// from Callable c
+// where c.getName() = "add" and c.getDeclaringType().toString() = "List"
+// select c.getDeclaringType()
+//       //c.getQualifiedName(), c.getSourceDeclaration(), c.getDeclaringType().getAnAncestor(),
+//       .getASupertype()
+// * delete below when done
+from Call call
+where
+  call.getCallee().getDeclaringType().getPackage().getName() = "java.util" and
+  call.getCallee().getSourceDeclaration().getName() = "getKey"
+select call.getCallee().getDeclaringType().getName(), // tiferet original
+  call.getCallee().getDeclaringType().getSourceDeclaration(), // me/ExternalApi original
+  call.getCallee().getDeclaringType().nestedName(), // tiferet switched to nestedNamed -- still has <> issue
+  call.getCallee().getDeclaringType().getSourceDeclaration().nestedName(), // mine with nestedName added -- looks good
+  call.getCallee().getDeclaringType().getErasure(), // seems same as getSourceDeclaration
+  call.getCallee().getDeclaringType().getErasure().(RefType).nestedName() // seems same as call.getCallee().getDeclaringType().getSourceDeclaration().nestedName()
