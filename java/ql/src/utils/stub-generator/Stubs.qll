@@ -6,6 +6,7 @@
  */
 
 import java
+import TopJdkApis
 
 /** Holds if `id` is a valid Java identifier. */
 bindingset[id]
@@ -14,8 +15,8 @@ private predicate isValidIdentifier(string id) { id.regexpMatch("[\\w_$]+") }
 /** A type that should be in the generated code. */
 abstract private class GeneratedType extends ClassOrInterface {
   GeneratedType() {
-    not this instanceof AnonymousClass and
-    not this.isLocal() and
+    //not this instanceof AnonymousClass and
+    //not this.isLocal() and
     not this.getPackage() instanceof ExcludedPackage and
     isValidIdentifier(this.getName())
   }
@@ -64,7 +65,7 @@ abstract private class GeneratedType extends ClassOrInterface {
   private RefType getAnInterestingBaseType() {
     result = this.getASupertype() and
     not result instanceof TypeObject and
-    not this instanceof EnumType and
+    //not this instanceof EnumType and
     // generic types have their source declaration (the corresponding raw type) as a supertype of themselves
     result.getSourceDeclaration() != this
   }
@@ -182,7 +183,7 @@ abstract class ExcludedPackage extends Package { }
 
 /** Exclude types from the standard library. */
 private class DefaultLibs extends ExcludedPackage {
-  DefaultLibs() { this.getName().matches(["java.%", "jdk.%", "sun.%"]) }
+  DefaultLibs() { this.getName().matches([/*"java.%", "jdk.%",*/ "sun.%"]) }
 }
 
 private string stubAccessibility(Member m) {
@@ -392,16 +393,30 @@ private string stubEnumConstants(RefType t) {
 
 // Holds if the member is to be excluded from stubMember
 private predicate excludedMember(Member m) {
-  m instanceof EnumConstant
-  or
-  m.(Method).getDeclaringType() instanceof EnumType and
-  m.hasName(["values", "valueOf"]) and
-  m.isStatic()
-  or
-  exists(Parameter p |
-    p = m.(Method).getAParameter() and
-    p.getType().fromSource() and
-    not p.getType().(RefType).isPublic()
+  // m instanceof EnumConstant
+  // or
+  // m.(Method).getDeclaringType() instanceof EnumType and
+  // m.hasName(["values", "valueOf"]) and
+  // m.isStatic()
+  // or
+  // exists(Parameter p |
+  //   p = m.(Method).getAParameter() and
+  //   p.getType().fromSource() and
+  //   not p.getType().(RefType).isPublic()
+  // )
+  // or
+  not exists(TopJdkApi topApi | topApi.asCallable() = m) // I ADDED
+}
+
+private string summaryOrNeutral(Member m) {
+  exists(TopJdkApi topApi |
+    topApi.asCallable() = m and
+    if topApi.hasManualSummary()
+    then result = " // manual summary"
+    else
+      if topApi.hasManualNeutral()
+      then result = " // manual neutral"
+      else result = " // NOT MODELED"
   )
 }
 
@@ -412,12 +427,12 @@ private string stubMember(Member m) {
     result =
       "    " + stubModifiers(m) + stubGenericCallableParams(m) +
         stubTypeName(m.(Method).getReturnType()) + " " + m.getName() + "(" + stubParameters(m) + ")"
-        + stubImplementation(m) + "\n"
+        + stubImplementation(m) + summaryOrNeutral(m) + "\n"
     or
     m instanceof Constructor and
     result =
       "    " + stubModifiers(m) + stubGenericCallableParams(m) + m.getName() + "(" +
-        stubParameters(m) + ")" + stubImplementation(m) + "\n"
+        stubParameters(m) + ")" + stubImplementation(m) + summaryOrNeutral(m) + "\n"
     or
     result =
       "    " + stubModifiers(m) + stubTypeName(m.(Field).getType()) + " " + m.getName() + " = " +

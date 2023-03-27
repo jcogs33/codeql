@@ -235,9 +235,10 @@ class Callable extends StmtParent, Member, @callable {
    * from left to right, up to (and including) the `n`-th parameter.
    */
   private string paramUpTo(int n) {
-    n = 0 and result = this.getParameterType(0).toString()
+    n = 0 and result = this.getParameterType(0).toString() + " " + this.getParameter(0) // added this.getParameter to get param name
     or
-    n > 0 and result = this.paramUpTo(n - 1) + ", " + this.getParameterType(n)
+    n > 0 and
+    result = this.paramUpTo(n - 1) + ", " + this.getParameterType(n) + " " + this.getParameter(n) // added this.getParameter to get param name
   }
 
   /**
