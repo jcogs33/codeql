@@ -3,7 +3,11 @@ private import semmle.code.java.dataflow.ExternalFlow
 private import utils.modelgenerator.internal.CaptureModelsSpecific as CMS
 
 private class PublicCallable extends Callable {
-  PublicCallable() { this.isPublic() and this.getDeclaringType().isPublic() }
+  PublicCallable() {
+    this.isPublic() and
+    this.getDeclaringType().isPublic() and
+    this.fromSource() // I added; Chris' code only had the above two
+  }
 }
 
 // pulled from CaptureModelsSpecific.qll

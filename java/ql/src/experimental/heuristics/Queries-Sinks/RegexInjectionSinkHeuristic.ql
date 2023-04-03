@@ -1,5 +1,5 @@
 import java
-import Heuristics
+import experimental.heuristics.Heuristics
 
 from
   Callable callable, string sinkKind, string proposedSink, string existingSink, string paramType,

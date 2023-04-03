@@ -1,11 +1,11 @@
 import java
-import Heuristics
+import experimental.heuristics.Heuristics
 
 from
   Callable callable, string sinkKind, string proposedSink, string existingSink, string paramType,
   string paramName
 where
-  sinkKind = "sql" and
+  sinkKind = "password" and
   proposedSink =
     getAVulnerableParameterSpecification(callable, existingSink, sinkKind, paramType, paramName)
 select proposedSink, paramType, paramName, callable, existingSink order by proposedSink
