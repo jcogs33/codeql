@@ -222,10 +222,10 @@ private predicate usernameHeuristic(Parameter p) {
 }
 
 // should rename this and other predicates
-// ! Needs exclusion/adjustment for ALL heuristics:
-// ! 1) Check for subtyping in all the similar classes/methods, and see if can make heuristic smart enough to avoid if so.
+// Needs exclusion/adjustment for ALL heuristics:
+// 1) Check for subtyping in all the similar classes/methods, and see if can make heuristic smart enough to avoid if so.
 // DONE with `not TestLibrary` addition: exclude "test" ones; check if can exclude TestUtils like ExternalApi, etc. ("assert" as method name as well if doesn't fully exlude it).
-// ! 3) BenchmarkConfig$Builder etc. issue, handle in output below...
+// DONE BenchmarkConfig$Builder etc. issue, handle in output below...
 private Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string sinkKind) {
   exists(Parameter p |
     p = result.getParameter(paramIdx) and
@@ -243,7 +243,7 @@ private Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string sink
       sinkKind = "xpath" and
       xPathInjectionHeuristic(p)
       or
-      sinkKind = "%-url" and // ! need to look at package-name, etc. to determine if jdbc-url versus others
+      sinkKind = "%-url" and // need to look at package-name, etc. to determine if jdbc-url versus others - hopefully not needed after sink revamp
       ssrfHeuristic(p)
       or
       sinkKind = "regex" and
@@ -267,28 +267,19 @@ private Callable getAVulnerableParameter(int paramIdx, string sinkKind, string r
   reason = "nameBasedGuess"
 }
 
-// private predicate hasOverloads(PublicCallable c) {
-//   exists(PublicCallable other |
-//     other.getDeclaringType() = c.getDeclaringType() and
-//     other.getName() = c.getName() and
-//     other != c
-//   )
-// }
-// private string signatureIfNeeded(PublicCallable c) {
-//   if hasOverloads(c) then result = paramsString(c) else result = ""
-// }
-// ! need to refactor all of below to use `getSourceDeclaration`
-// ! and to be able to handle stuff like `BenchmarkConfig$Builder` instead
+// refactor all of below to use `getSourceDeclaration`?
+// and to be able nestedTypes (e.g. `BenchmarkConfig$Builder`)?
 bindingset[paramIdx]
 private string hasExistingSink(Callable callable, int paramIdx) {
   if
     sinkModel(callable.getDeclaringType().getPackage().toString(),
       callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
-      [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, _) // ! may want to allow for finding "generated" as well; also "Name" may be affected for existing queries?.
+      [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, _) // may want to allow for finding "generated" as well; also "Name" may be affected for existing queries?.
   then
     exists(string existingKind |
       existingKind =
-        // ! `sinkModelKindResult` needs to be refactored; should be a simpler way to get this info, hopefully combined with the above
+        // `sinkModelKindResult` needs to be refactored; should be a simpler way to get this info, hopefully combined with the above
+        // Also, should add check for ANY existing model for the API (e.g. summary, etc.), and make sure that subtyping is taken into account.
         sinkModelKindResult(callable.getDeclaringType().getPackage().toString(),
           callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
           [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, _) and
@@ -297,16 +288,8 @@ private string hasExistingSink(Callable callable, int paramIdx) {
   else result = "no"
 }
 
-private Method superImpl(Method m) {
-  result = m.getAnOverride() and
-  not exists(result.getAnOverride()) and
-  not m instanceof ToStringMethod and // and
-  // m.isOverridable() and
-  m.overrides(m)
-}
-
-// ! not sure why I had changed the below PublicCallable to a Callable... need to retest all heuristics to see how this affects them...
-// ! also should probably ust switch to DataFlowTargetApi or TargetApiSpecific anyways.
+// DONE - not affected: not sure why I had changed the below PublicCallable to a Callable... need to retest all heuristics to see how this affects them...
+// also should probably switch to DataFlowTargetApi or TargetApiSpecific anyways - wait until create new `Api` class for models that Michael suggested...
 string getAVulnerableParameterSpecification(
   PublicCallable c, string existingSink, string sinkKind, string paramType, string paramName
 ) {
