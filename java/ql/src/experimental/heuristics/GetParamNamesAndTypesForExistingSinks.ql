@@ -1,5 +1,6 @@
 import java
 import semmle.code.java.dataflow.ExternalFlow
+import semmle.code.java.dataflow.DataFlow
 
 // my attempt without dataflow (to see if it's even necessary: most results can be found without dataflow it seems)
 class PublicCallable extends Callable {
@@ -66,5 +67,60 @@ query string getASqlInjectionVulnerableParameterSpecification() {
     not isJdkInternal(c.getDeclaringType().getPackage())
   )
 }
+
 // ! Notes:
 // TODO: look into `java.sql;Connection;false;nativeSQL;;;Argument[0];sql` more -- seems like this should at least be a summary if not a sink
+// from existingSink
+// where existingSink is of kind ____
+// select "(" + existingSink.getParameter(input arg position).getName()
+// from DataFlow::Node sink
+// where sinkNode(sink, "sql")
+// select sink.asExpr()
+// from Callable c, string kind
+// where
+//   kind = "sql" and
+//   sinkModel(c.getDeclaringType().getPackage().toString(),
+//     c.getDeclaringType().getSourceDeclaration().toString(), _, c.getName(), paramsString(c), _, _,
+//     kind, _)
+// * final draft 1
+// from Callable c, string paramIdx, string kind
+// where
+//   // c.getDeclaringType().getSourceDeclaration().toString() = "Connection" and
+//   // c.getName() = "prepareCall" and
+//   kind in ["create-file"] and
+//   sinkModel(c.getDeclaringType().getPackage().toString(),
+//     c.getDeclaringType().getSourceDeclaration().toString(), _, c.getName(), _, _,
+//     "Argument[" + paramIdx + "]", kind, _) // ! can't do `paramsString(c)` since may have "" signature
+// // select c, c.getParameter(paramIdx.toInt()).getName(), paramsString(c)
+// select c, c.getParameter(paramIdx.toInt()).getName(), paramsString(c)
+string getApiName(Callable c) {
+  result =
+    c.getDeclaringType().getPackage() + "." + c.getDeclaringType().getSourceDeclaration() + "#" +
+      c.getName() + paramsString(c)
+}
+
+from
+  Callable callable, string paramsString, string paramIdx, string paramLoc, string paramType,
+  string paramName, string kind, string apiName
+where
+  paramsString = paramsString(callable) and
+  paramLoc = "Argument[" + paramIdx + "]" and
+  paramType = callable.getParameterType(paramIdx.toInt()).getErasure().toString() and
+  paramName = callable.getParameter(paramIdx.toInt()).getName() and
+  //kind in ["pending-intent-sent"] and
+  kind.matches("create-file") and
+  sinkModel(callable.getDeclaringType().getPackage().toString(),
+    callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
+    [paramsString(callable), ""], _, paramLoc, kind, _) and
+  not isJdkInternal(callable.getDeclaringType().getPackage()) and
+  apiName = getApiName(callable)
+select paramType, paramName, apiName, paramLoc, paramsString, callable order by
+    paramType, paramName, apiName
+// from Callable callable, string apiName
+// where
+//   sinkModel(callable.getDeclaringType().getPackage().toString(),
+//     callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
+//     [paramsString(callable), ""], _, _, "create-file", _) and
+//   not isJdkInternal(callable.getDeclaringType().getPackage()) and
+//   apiName = getApiName(callable)
+// select apiName, callable order by apiName

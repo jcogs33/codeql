@@ -6,17 +6,15 @@ class PublicCallable extends Callable {
   PublicCallable() { this.isPublic() and this.getDeclaringType().isPublic() }
 }
 
-Callable getASqlInjectionVulnerableParameterNameBasedGuess(int paramIdx) {
+Callable getAPathInjectionVulnerableParameterNameBasedGuess(int paramIdx) {
   exists(Parameter p |
-    //p.getName() = "sql" and
-    //p.getName().matches(["sql%", "query%"]) and // ! seems FP prone (sqlType, etc.) -- but sqlType is an int, so can maybe use parameter-type to restrict more...
-    p.getName() in ["sql", "sqlString", "queryString"] and
+    p.getName() in ["file", "fd", "fdObj", "out", "dir", "link", "path", "fileName"] and // ! left out "sink", "name", "target", and "prefix" for now; this will prbably be FP-prone as-is.
     p = result.getParameter(paramIdx)
   )
 }
 
-query Callable getASqlInjectionVulnerableParameter(int paramIdx, string reason) {
-  result = getASqlInjectionVulnerableParameterNameBasedGuess(paramIdx) and
+query Callable getAPathInjectionVulnerableParameter(int paramIdx, string reason) {
+  result = getAPathInjectionVulnerableParameterNameBasedGuess(paramIdx) and
   reason = "nameBasedGuess"
 }
 
@@ -56,15 +54,15 @@ private predicate isJdkInternal(Package p) {
   p.getName() = ""
 }
 
-query string getASqlInjectionVulnerableParameterSpecification() {
+query string getAPathInjectionVulnerableParameterSpecification() {
   exists(Callable c, int paramIdx |
-    c = getASqlInjectionVulnerableParameter(paramIdx, _) and
+    c = getAPathInjectionVulnerableParameter(paramIdx, _) and
     result =
       c.getDeclaringType().getPackage() + ";" + c.getDeclaringType().getName() + ";" + "false;" +
-        c.getName() + ";" + signatureIfNeeded(c) + ";;" + "Argument[" + paramIdx + "];" + "sql" +
-        ";PARAMS-INFO: " + c.getParameter(0).getName() and
+        c.getName() + ";" + signatureIfNeeded(c) + ";;" + "Argument[" + paramIdx + "];" +
+        "create-file" and
     not isJdkInternal(c.getDeclaringType().getPackage())
   )
 }
 // ! Notes:
-// TODO: look into `java.sql;Connection;false;nativeSQL;;;Argument[0];sql` more -- seems like this should at least be a summary if not a sink
+// TODO:
