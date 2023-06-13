@@ -142,12 +142,19 @@ string getApiName(Callable c) {
  *  vs c.getDeclaringType().getCompilationUnit().getPackage().getName()
  */
 
-from Call call
-where call.getCallee().getDeclaringType().getSourceDeclaration().nestedName() = "Map$Entry"
-//call.getCallee().getDeclaringType().getPackage().toString() = "java.lang" and
-//call.getCallee().getName() = "getResourceAsStream"
-select call.getCallee(),
-  call.getCallee().getDeclaringType(), //, call.getCallee().getDeclaringType().getPackage() //,
-  // call.getCallee().getDeclaringType().getPackage().getName()
-  call.getCallee().getDeclaringType().getCompilationUnit().getPackage().getName()
-//callable.getDeclaringType().getCompilationUnit().getPackage()
+// from Call call
+// where call.getCallee().getDeclaringType().getSourceDeclaration().nestedName() = "Map$Entry"
+// //call.getCallee().getDeclaringType().getPackage().toString() = "java.lang" and
+// //call.getCallee().getName() = "getResourceAsStream"
+// select call.getCallee(),
+//   call.getCallee().getDeclaringType(), //, call.getCallee().getDeclaringType().getPackage() //,
+//   // call.getCallee().getDeclaringType().getPackage().getName()
+//   call.getCallee().getDeclaringType().getCompilationUnit().getPackage().getName()
+// //callable.getDeclaringType().getCompilationUnit().getPackage()
+from CMS::TargetApiSpecific tas
+where
+  //tas.getDeclaringType().getCompilationUnit().getPackage().getName() = "java.util" and
+  tas.getName() = "keySet"
+select tas.getDeclaringType().nestedName(),
+  tas.getDeclaringType().getSourceDeclaration().nestedName(),
+  tas.getDeclaringType().getErasure().(RefType).nestedName()
