@@ -161,20 +161,6 @@ string sinkModelKindResult(
   string input, string kind, string provenance
 ) {
   (
-    exists(string row |
-      sinkModelInternal(row) and
-      row.splitAt(";", 0) = package and
-      row.splitAt(";", 1) = type and
-      row.splitAt(";", 2) = subtypes.toString() and
-      subtypes = [true, false] and
-      row.splitAt(";", 3) = name and
-      row.splitAt(";", 4) = signature and
-      row.splitAt(";", 5) = ext and
-      row.splitAt(";", 6) = input and
-      row.splitAt(";", 7) = kind and
-      row.splitAt(";", 8) = provenance
-    )
-    or
     Extensions::sinkModel(package, type, subtypes, name, signature, ext, input, kind, provenance)
     or
     any(ActiveExperimentalModels q)
