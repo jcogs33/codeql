@@ -5,5 +5,5 @@ extensions:
     data:
       - ["org.hibernate", "Session", True, "createQuery", "", "", "Argument[0]", "sql-injection", "manual"]
       - ["org.hibernate", "Session", True, "createSQLQuery", "", "", "Argument[0]", "sql-injection", "manual"]
-      - ["org.hibernate", "SharedSessionContract", True, "createQuery", "", "", "Argument[0]", "sql-injection", "manual"]
+      - ["org.hibernate", "SharedSessionContract", True, "createQuery", "", "", "Argument[0]", "sql-injection", "manual"] # ! not in my database at `hibernate-orm/hibernate-core/src/main/java/org/hibernate/SharedSessionContract.java` for some reason, I'm getting AbstractSharedSessionContract instead.
       - ["org.hibernate", "SharedSessionContract", True, "createSQLQuery", "", "", "Argument[0]", "sql-injection", "manual"]

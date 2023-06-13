@@ -5,43 +5,13 @@ private class PublicCallable extends Callable {
   PublicCallable() { this.isPublic() and this.getDeclaringType().isPublic() }
 }
 
-// ! need to be able to refine this *for each* sink type.
-Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string paramName, string paramType) {
-  exists(Parameter p |
-    p.getName() = paramName and
-    p.getType().toString() = paramType and
-    p = result.getParameter(paramIdx) and
-    // exclude JDK internals for now
-    not isJdkInternal(result.getDeclaringType().getPackage())
-  )
-}
-
-// ! maybe expand this for refining?
-private query Callable getAVulnerableParameter(
-  int paramIdx, string paramName, string paramType, string reason
-) {
-  result = getAVulnerableParameterNameBasedGuess(paramIdx, paramName, paramType) and
-  reason = "nameBasedGuess"
-}
-
-private predicate hasOverloads(PublicCallable c) {
-  exists(PublicCallable other |
-    other.getDeclaringType() = c.getDeclaringType() and
-    other.getName() = c.getName() and
-    other != c
-  )
-}
-
-private string signatureIfNeeded(PublicCallable c) {
-  if hasOverloads(c) then result = paramsString(c) else result = ""
-}
-
-// ! pulled from CaptureModelsSpecific.qll
-predicate isJdkInternal(Package p) {
+// pulled from CaptureModelsSpecific.qll
+// ! shouldn't PublicCallable handle these already?, are the "com.sun..." ones that I'm seeing actualy of interest after all?
+private predicate isJdkInternal(Package p) {
   p.getName().matches("org.graalvm%") or
   p.getName().matches("com.sun%") or
-  p.getName().matches("javax.swing%") or
-  p.getName().matches("java.awt%") or
+  //p.getName().matches("javax.swing%") or // remooving GUI packages for now
+  //p.getName().matches("java.awt%") or
   p.getName().matches("sun%") or
   p.getName().matches("jdk%") or
   p.getName().matches("java2d%") or
@@ -61,28 +31,41 @@ predicate isJdkInternal(Package p) {
   p.getName() = ""
 }
 
-query string getAVulnerableParameterSpecification(
-  Callable c, string paramName, string paramType, string existingSink
-) {
-  exists(int paramIdx |
-    c = getAVulnerableParameter(paramIdx, paramName, paramType, _) and
-    result =
-      "[\"" + c.getDeclaringType().getPackage() + "\", \"" + c.getDeclaringType().getName() + "\", "
-        + "True, \"" + c.getName() + "\", \"" + signatureIfNeeded(c) + "\", \"\", \"" + "Argument[" +
-        paramIdx + "]\", \"" + "sql" + "\", \"manual\"]" and
-    existingSink = hasExistingSink(c, paramIdx)
+private Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string sinkKind) {
+  /*, string paramName, string paramType*/
+  exists(Parameter p |
+    // sql heuristic (move this to other predicate)
+    sinkKind = "sql" and
+    p.getName().matches(["sql%", "query%"]) and
+    p.getType() instanceof TypeString and // add parameter type to the heuristic
+    p = result.getParameter(paramIdx) and
+    not isJdkInternal(result.getDeclaringType().getPackage()) // exclude JDK internals for now
+    // OR other heuristics below (move these to other predicates)
   )
 }
 
-// string getProposedSink(Callable callable, int paramIdx, string sinkKind) {
-//   result =
-//     "[\"" + callable.getDeclaringType().getPackage() + "\", \"" +
-//       callable.getDeclaringType().getName() + "\", " + "True, \"" + callable.getName() + "\", \"" +
-//       signatureIfNeeded(callable) + "\", \"\", \"" + "Argument[" + paramIdx + "]\", \"" + sinkKind +
-//       "\", \"manual\"]"
-// }
+// below isn't really necessary, but keeping for now in case want to expand to use `reason`
+private query Callable getAVulnerableParameter(
+  int paramIdx, string sinkKind, /*string paramName, string paramType,*/ string reason
+) {
+  result = getAVulnerableParameterNameBasedGuess(paramIdx, sinkKind) and
+  /*, paramName, paramType*/ reason = "nameBasedGuess"
+}
+
+private predicate hasOverloads(PublicCallable c) {
+  exists(PublicCallable other |
+    other.getDeclaringType() = c.getDeclaringType() and
+    other.getName() = c.getName() and
+    other != c
+  )
+}
+
+private string signatureIfNeeded(PublicCallable c) {
+  if hasOverloads(c) then result = paramsString(c) else result = ""
+}
+
 bindingset[paramIdx]
-string hasExistingSink(Callable callable, int paramIdx) {
+private string hasExistingSink(Callable callable, int paramIdx) {
   if
     sinkModel(callable.getDeclaringType().getPackage().toString(),
       callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
@@ -90,6 +73,7 @@ string hasExistingSink(Callable callable, int paramIdx) {
   then
     exists(string existingKind |
       existingKind =
+        // ! `sinkModelKindResult` needs to be refactored; should be a simpler way to get this info, hopefully combined with the above
         sinkModelKindResult(callable.getDeclaringType().getPackage().toString(),
           callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
           [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, "manual") and
@@ -97,12 +81,18 @@ string hasExistingSink(Callable callable, int paramIdx) {
     )
   else result = "no"
 }
-// TODO:
-// 1) label existing sinks in heuristic output so can focus on just new ones (make easy to exclude from output instead as well) // ! complicated for ones that aren't as simple as "sql" (e.g. regex% and jdbc/open-url)
-// DONE 2) Include callable in output so can easily view the source code for the API and have a MaDMan-esque experience.
-// DONE 3) Make models YML-formatted so can copy-paste what you need more easily.
-// 4) (Add more accurate True/False subtype label?)
-// 5) (Can *maybe* make a Python script that inserts models into proper place in yml files after collecting a bunch instead of copy-pasting individually)
-// 6) After major refactor, make each query more precise if necessary (more complicated heuristics, etc.)
-//    a) need to make sure easy to make more precise *for each* query after refactor
-//    b) and test more strategically on different frameworks. In approximate order of: path-inj, xpath-inj, sql-inj, ssrf, sensitive apis, regex inj.
+
+bindingset[sinkKind]
+string getAVulnerableParameterSpecification(
+  Callable c, /*string paramName, string paramType,*/ string existingSink, string sinkKind
+) {
+  exists(int paramIdx |
+    c = getAVulnerableParameter(paramIdx, sinkKind, /*paramName, paramType,*/ _) and
+    // yml-formatted result
+    result =
+      "[\"" + c.getDeclaringType().getPackage() + "\", \"" + c.getDeclaringType().getName() + "\", "
+        + "True, \"" + c.getName() + "\", \"" + signatureIfNeeded(c) + "\", \"\", \"" + "Argument[" +
+        paramIdx + "]\", \"" + sinkKind + "\", \"manual\"]" and
+    existingSink = hasExistingSink(c, paramIdx)
+  )
+}
