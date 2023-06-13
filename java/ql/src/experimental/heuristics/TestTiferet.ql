@@ -5,14 +5,13 @@ import semmle.code.java.dataflow.FlowSummary
 import semmle.code.java.dataflow.internal.DataFlowPrivate
 import utils.modelgenerator.internal.CaptureModels
 import semmle.code.java.dataflow.internal.FlowSummaryImpl as FlowSummaryImpl
-private import utils.modelgenerator.internal.CaptureModelsSpecific as CMS
+import utils.modelgenerator.internal.CaptureModelsSpecific as CMS
 
-string getApiName(Callable c) {
-  result =
-    c.getDeclaringType().getPackage() + "." + c.getDeclaringType().getSourceDeclaration() + "#" +
-      c.getName() + paramsString(c)
-}
-
+// string getApiName(Callable c) {
+//   result =
+//     c.getDeclaringType().getPackage() + "." + c.getDeclaringType().getSourceDeclaration() + "#" +
+//       c.getName() + paramsString(c)
+// }
 // predicate getAllDataFlowNodesModeledAsMaDSteps() {
 // }
 // * write a predicate that detects all dataflow nodes that are modeled as MaD taint steps.
@@ -151,10 +150,42 @@ string getApiName(Callable c) {
 //   // call.getCallee().getDeclaringType().getPackage().getName()
 //   call.getCallee().getDeclaringType().getCompilationUnit().getPackage().getName()
 // //callable.getDeclaringType().getCompilationUnit().getPackage()
-from CMS::TargetApiSpecific tas
-where
-  //tas.getDeclaringType().getCompilationUnit().getPackage().getName() = "java.util" and
-  tas.getName() = "keySet"
-select tas.getDeclaringType().nestedName(),
-  tas.getDeclaringType().getSourceDeclaration().nestedName(),
-  tas.getDeclaringType().getErasure().(RefType).nestedName()
+// * type with TargetApiSpecific
+// from CMS::TargetApiSpecific tas, RefType type
+// where
+//   tas.getDeclaringType().getCompilationUnit().getPackage().getName() = "jdk.internal.access" and
+//   tas.getName() = "registerCleanup" and
+//   type = tas.getDeclaringType()
+// select type.getSourceDeclaration(), type.nestedName(), type.getSourceDeclaration().nestedName(),
+//   type.getErasure().(RefType).nestedName(), type.getErasure()
+// * package with TargetApiSpecific
+// from CMS::TargetApiSpecific tas, RefType type
+// where
+//   tas.getDeclaringType().getCompilationUnit().getPackage().getName() = "jdk.internal.access" and
+//   tas.getName() = "registerCleanup" and
+//   type = tas.getDeclaringType()
+// select tas, tas.getDeclaringType(), tas.getDeclaringType().getPackage(),
+//   tas.getDeclaringType().getPackage().getName(),
+//   tas.getDeclaringType().getCompilationUnit().getPackage().getName()
+// * with PublicCallable
+// private class PublicCallable extends Callable {
+//   PublicCallable() { this.isPublic() and this.getDeclaringType().isPublic() }
+// }
+// from PublicCallable callable, RefType type
+// where
+//   //callable.fromSource() and
+//   callable.getDeclaringType().getCompilationUnit().getPackage().getName() = "java.util" and
+//   callable.getName() = "keySet" and
+//   type = callable.getDeclaringType()
+// select type.getSourceDeclaration(), type.nestedName(), type.getSourceDeclaration().nestedName(),
+//   type.getErasure().(RefType).nestedName(), type.getErasure()
+// * attempt at subtyping test
+// from Method m
+// where m.getName() = "add" and m.getDeclaringType().toString() = "List"
+// select m.getAnOverride(), m.getAnOverride().getDeclaringType()
+// *
+from Callable c
+where c.getName() = "add" and c.getDeclaringType().toString() = "List"
+select c.getDeclaringType()
+      //c.getQualifiedName(), c.getSourceDeclaration(), c.getDeclaringType().getAnAncestor(),
+      .getASupertype()

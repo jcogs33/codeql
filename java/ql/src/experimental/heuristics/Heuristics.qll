@@ -263,18 +263,16 @@ private Callable getAVulnerableParameter(int paramIdx, string sinkKind, string r
   reason = "nameBasedGuess"
 }
 
-private predicate hasOverloads(PublicCallable c) {
-  exists(PublicCallable other |
-    other.getDeclaringType() = c.getDeclaringType() and
-    other.getName() = c.getName() and
-    other != c
-  )
-}
-
-private string signatureIfNeeded(PublicCallable c) {
-  if hasOverloads(c) then result = paramsString(c) else result = ""
-}
-
+// private predicate hasOverloads(PublicCallable c) {
+//   exists(PublicCallable other |
+//     other.getDeclaringType() = c.getDeclaringType() and
+//     other.getName() = c.getName() and
+//     other != c
+//   )
+// }
+// private string signatureIfNeeded(PublicCallable c) {
+//   if hasOverloads(c) then result = paramsString(c) else result = ""
+// }
 // ! need to refactor all of below to use `getSourceDeclaration`
 // ! and to be able to handle stuff like `BenchmarkConfig$Builder` instead
 bindingset[paramIdx]
@@ -295,15 +293,26 @@ private string hasExistingSink(Callable callable, int paramIdx) {
   else result = "no"
 }
 
+private Method superImpl(Method m) {
+  result = m.getAnOverride() and
+  not exists(result.getAnOverride()) and
+  not m instanceof ToStringMethod and // and
+  // m.isOverridable() and
+  m.overrides(m)
+}
+
+// ! not sure why I had changed the below PublicCallable to a Callable... need to retest all heuristics to see how this affects them...
+// ! also should probably ust switch to DataFlowTargetApi or TargetApiSpecific anyways.
 string getAVulnerableParameterSpecification(
-  Callable c, string existingSink, string sinkKind, string paramType, string paramName
+  PublicCallable c, string existingSink, string sinkKind, string paramType, string paramName
 ) {
   exists(int paramIdx |
     c = getAVulnerableParameter(paramIdx, sinkKind, _) and
     result =
-      "[\"" + c.getDeclaringType().getPackage() + "\", \"" + c.getDeclaringType().getName() + "\", "
-        + "True, \"" + c.getName() + "\", \"" + signatureIfNeeded(c) + "\", \"\", \"" + "Argument[" +
-        paramIdx + "]\", \"" + sinkKind + "\", \"manual\"]" + " \n " + CMS::asPartialModel(c) and
+      "[\"" + c.getDeclaringType().getCompilationUnit().getPackage().getName() + "\", \"" +
+        c.getDeclaringType().getSourceDeclaration().nestedName() + "\", " + "True, \"" + c.getName()
+        + "\", \"" + paramsString(c) + "\", \"\", \"" + "Argument[" + paramIdx + "]\", \"" +
+        sinkKind + "\", \"manual\"]" and
     existingSink = hasExistingSink(c, paramIdx) and
     paramType = c.getParameterType(paramIdx).getErasure().toString() and // debugging
     paramName = c.getParameter(paramIdx).getName() // debugging
