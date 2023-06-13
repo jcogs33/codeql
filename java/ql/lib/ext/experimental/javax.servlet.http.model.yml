@@ -13,4 +13,3 @@ extensions:
       - ["javax.servlet.http", "HttpServletRequest", False, "getRequestURI", "()", "", "ReturnValue", "uri-path", "manual", "permissive-dot-regex-query"]
       - ["javax.servlet.http", "HttpServletRequest", False, "getRequestURL", "()", "", "ReturnValue", "uri-path", "manual", "permissive-dot-regex-query"]
       - ["javax.servlet.http", "HttpServletRequest", False, "getServletPath", "()", "", "ReturnValue", "uri-path", "manual", "permissive-dot-regex-query"]
-# ! Why two sourceModels in this file? Why not just combine them? Should one be a sinkModel instead?
