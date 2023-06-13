@@ -185,29 +185,29 @@ private Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string sink
     not p.getCallable().getName().matches("assert%") and // exclude test assertion methods
     // select heuristic to use based on sinkKind
     (
-      sinkKind = "sql" and
+      sinkKind = "sql-injection" and // AI-related
       sqlHeuristic(p)
       or
-      sinkKind = "create-file" and
-      pathInjectionHeuristic(p)
-      or
-      sinkKind = "xpath" and
-      xPathInjectionHeuristic(p)
-      or
-      sinkKind = "%-url" and // need to look at package-name, etc. to determine if jdbc-url versus others - hopefully not needed after sink revamp
+      sinkKind = "request-forgery" and // AI-related
       ssrfHeuristic(p)
       or
-      sinkKind = "regex" and
-      regexInjectionHeuristic(p)
+      sinkKind = "path-injection" and // AI-related
+      pathInjectionHeuristic(p)
       or
-      sinkKind = "cryptoKey" and
-      cryptoKeyHeuristic(p)
+      sinkKind = "xpath-injection" and
+      xPathInjectionHeuristic(p)
       or
-      sinkKind = "password" and
+      sinkKind = "credentials-password" and
       passwordHeuristic(p)
       or
-      sinkKind = "username" and
+      sinkKind = "credentials-username" and
       usernameHeuristic(p)
+      or
+      sinkKind = "credentials-cryptoKey" and // should maybe be "encryption-key" instead to match Swift (or should Swift switch to match this?)
+      cryptoKeyHeuristic(p)
+      or
+      sinkKind = "regex" and // still a problem - should put on planning board at some point...
+      regexInjectionHeuristic(p)
     )
   )
 }
