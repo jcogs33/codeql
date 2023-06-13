@@ -4,7 +4,9 @@ extensions:
       extensible: sinkModel
     data:
       - ["org.springframework.jdbc.object", "BatchSqlUpdate", False, "BatchSqlUpdate", "", "", "Argument[1]", "sql-injection", "manual"]
+      # ! I think the below might have a typo and should be `MappingSqlQuery.MappingSqlQuery` instead of `MappingSqlQuery.BatchSqlUpdate` (ask in static channel)
       - ["org.springframework.jdbc.object", "MappingSqlQuery", False, "MappingSqlQuery", "", "", "Argument[1]", "sql-injection", "manual"]
+      # ! I think the below might have a typo and should be `MappingSqlQueryWithParameters.MappingSqlQueryWithParameters` instead of `MappingSqlQueryWithParameters.BatchSqlUpdate` (ask in static channel)
       - ["org.springframework.jdbc.object", "MappingSqlQueryWithParameters", False, "MappingSqlQueryWithParameters", "", "", "Argument[1]", "sql-injection", "manual"]
       - ["org.springframework.jdbc.object", "RdbmsOperation", True, "setSql", "", "", "Argument[0]", "sql-injection", "manual"]
       - ["org.springframework.jdbc.object", "SqlCall", False, "SqlCall", "", "", "Argument[1]", "sql-injection", "manual"]

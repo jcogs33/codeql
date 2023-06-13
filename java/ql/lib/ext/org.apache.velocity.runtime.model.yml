@@ -3,6 +3,8 @@ extensions:
       pack: codeql/java-all
       extensible: sinkModel
     data:
+      # ! should the "instring" one below be selected as well? or just the "reader" one? (e.g. should this have a signature included?)
       - ["org.apache.velocity.runtime", "RuntimeServices", True, "evaluate", "", "", "Argument[3]", "template-injection", "manual"]
+      # ! "template" at Argument[1] in `parse` is confusing and may mess up heuristic for sinks in other libs...
       - ["org.apache.velocity.runtime", "RuntimeServices", True, "parse", "", "", "Argument[0]", "template-injection", "manual"]
       - ["org.apache.velocity.runtime", "RuntimeSingleton", True, "parse", "", "", "Argument[0]", "template-injection", "manual"]

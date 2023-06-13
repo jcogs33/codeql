@@ -3,6 +3,7 @@ extensions:
       pack: codeql/java-all
       extensible: sinkModel
     data:
+      # ! should the below one be ExpressionImpl instead of Expression?
       - ["org.apache.commons.jexl2", "Expression", False, "callable", "", "", "Argument[this]", "jexl-injection", "manual"]
       - ["org.apache.commons.jexl2", "Expression", False, "evaluate", "", "", "Argument[this]", "jexl-injection", "manual"]
       - ["org.apache.commons.jexl2", "JexlEngine", False, "getProperty", "(JexlContext,Object,String)", "", "Argument[2]", "jexl-injection", "manual"]

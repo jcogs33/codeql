@@ -3,4 +3,5 @@ extensions:
       pack: codeql/java-all
       extensible: sinkModel
     data:
+    # ! seems potentially hard to find with the "parameter named 'sql'" heuristic...
       - ["org.jooq", "PlainSQL", False, "", "", "Annotated", "Argument[0]", "sql-injection", "manual"]

@@ -3,7 +3,11 @@ extensions:
       pack: codeql/java-all
       extensible: sinkModel
     data:
+      # ! should the "instring" one below be selected as well? or just the "reader" one? (e.g. should this have a signature included?)
       - ["org.apache.velocity.app", "Velocity", True, "evaluate", "", "", "Argument[3]", "template-injection", "manual"]
+      # ! Why isn't the below Argument[0] instead for 'templateName'?
       - ["org.apache.velocity.app", "Velocity", True, "mergeTemplate", "", "", "Argument[2]", "template-injection", "manual"]
+      # ! should the "instring" one below be selected as well? or just the "reader" one? (e.g. should this have a signature included?)
       - ["org.apache.velocity.app", "VelocityEngine", True, "evaluate", "", "", "Argument[3]", "template-injection", "manual"]
+      # ! Why isn't the below Argument[0] instead for 'templateName'?
       - ["org.apache.velocity.app", "VelocityEngine", True, "mergeTemplate", "", "", "Argument[2]", "template-injection", "manual"]

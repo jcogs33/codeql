@@ -1,0 +1,90 @@
+// Quick evaluation of SqlSink.ql:84 on openjdk-jdk-DCA - finished in 329 seconds (31 results) [11/10/2022, 1:41:26 PM]
+// Chris' original code (with DataFlowCallable added to remove compilation errors)
+1	;JDBCAdapter;false;executeQuery;;;Argument[0];sql
+2	;TableExample2;false;TableExample2;;;Argument[4];sql
+3	com.sun.rowset;CachedRowSetImpl;false;setTableName;;;Argument[0];sql
+4	com.sun.rowset;CachedRowSetImpl;false;setCommand;;;Argument[0];sql
+5	java.sql;Statement;false;executeQuery;;;Argument[0];sql
+6	java.sql;Statement;false;execute;(String);;Argument[0];sql
+7	java.sql;Statement;false;execute;(String,int);;Argument[0];sql
+8	java.sql;Statement;false;execute;(String,String[]);;Argument[0];sql
+9	java.sql;Statement;false;execute;(String,int[]);;Argument[0];sql
+10	java.sql;Statement;false;executeLargeUpdate;(String);;Argument[0];sql
+11	java.sql;Statement;false;executeLargeUpdate;(String,int);;Argument[0];sql
+12	java.sql;Statement;false;executeLargeUpdate;(String,String[]);;Argument[0];sql
+13	java.sql;Statement;false;executeLargeUpdate;(String,int[]);;Argument[0];sql
+14	java.sql;Connection;false;prepareStatement;(String);;Argument[0];sql
+15	java.sql;Connection;false;prepareStatement;(String,int);;Argument[0];sql
+16	java.sql;Connection;false;prepareStatement;(String,String[]);;Argument[0];sql
+17	java.sql;Connection;false;prepareStatement;(String,int[]);;Argument[0];sql
+18	java.sql;Connection;false;prepareStatement;(String,int,int);;Argument[0];sql
+19	java.sql;Connection;false;prepareStatement;(String,int,int,int);;Argument[0];sql
+20	java.sql;Connection;false;prepareCall;(String);;Argument[0];sql
+21	java.sql;Connection;false;prepareCall;(String,int,int);;Argument[0];sql
+22	java.sql;Connection;false;prepareCall;(String,int,int,int);;Argument[0];sql
+23	java.sql;Statement;false;addBatch;;;Argument[0];sql
+24	java.sql;Connection;false;nativeSQL;;;Argument[0];sql
+25	java.sql;Statement;false;executeUpdate;(String);;Argument[0];sql
+26	java.sql;Statement;false;executeUpdate;(String,int);;Argument[0];sql
+27	java.sql;Statement;false;executeUpdate;(String,String[]);;Argument[0];sql
+28	java.sql;Statement;false;executeUpdate;(String,int[]);;Argument[0];sql
+29	javax.sql.rowset;RowSetMetaDataImpl;false;setCatalogName;;;Argument[1];sql
+30	javax.sql.rowset;RowSetMetaDataImpl;false;setSchemaName;;;Argument[1];sql
+31	javax.sql.rowset;RowSetMetaDataImpl;false;setColumnName;;;Argument[1];sql
+
+// Quick evaluation of SqlSink.ql:151 on openjdk-jdk-DCA - finished in 3 seconds (24 results) [11/10/2022, 2:50:01 PM]
+// When dataflow is removed (missing 7 compared to above, nums 1-4 and 29-31, so this only found sinks where package is `java.sql` and not the others...)
+1	java.sql;Statement;false;executeQuery;;;Argument[0];sql
+2	java.sql;Statement;false;execute;(String);;Argument[0];sql
+3	java.sql;Statement;false;execute;(String,int);;Argument[0];sql
+4	java.sql;Statement;false;execute;(String,String[]);;Argument[0];sql
+5	java.sql;Statement;false;execute;(String,int[]);;Argument[0];sql
+6	java.sql;Statement;false;executeLargeUpdate;(String);;Argument[0];sql
+7	java.sql;Statement;false;executeLargeUpdate;(String,int);;Argument[0];sql
+8	java.sql;Statement;false;executeLargeUpdate;(String,String[]);;Argument[0];sql
+9	java.sql;Statement;false;executeLargeUpdate;(String,int[]);;Argument[0];sql
+10	java.sql;Connection;false;prepareStatement;(String);;Argument[0];sql
+11	java.sql;Connection;false;prepareStatement;(String,int);;Argument[0];sql
+12	java.sql;Connection;false;prepareStatement;(String,String[]);;Argument[0];sql
+13	java.sql;Connection;false;prepareStatement;(String,int[]);;Argument[0];sql
+14	java.sql;Connection;false;prepareStatement;(String,int,int);;Argument[0];sql
+15	java.sql;Connection;false;prepareStatement;(String,int,int,int);;Argument[0];sql
+16	java.sql;Connection;false;prepareCall;(String);;Argument[0];sql
+17	java.sql;Connection;false;prepareCall;(String,int,int);;Argument[0];sql
+18	java.sql;Connection;false;prepareCall;(String,int,int,int);;Argument[0];sql
+19	java.sql;Statement;false;addBatch;;;Argument[0];sql
+20	java.sql;Connection;false;nativeSQL;;;Argument[0];sql
+21	java.sql;Statement;false;executeUpdate;(String);;Argument[0];sql
+22	java.sql;Statement;false;executeUpdate;(String,int);;Argument[0];sql
+23	java.sql;Statement;false;executeUpdate;(String,String[]);;Argument[0];sql
+24	java.sql;Statement;false;executeUpdate;(String,int[]);;Argument[0];sql
+
+// Quick evaluation of SqlSink.ql:84 on zsoltherpai/fluent-jdbc - finished in 3 seconds (12 results) [11/10/2022, 12:49:37 PM]
+// Chris' original code (with DataFlowCallable added to remove compilation errors)
+1	org.codejargon.fluentjdbc.api.query;Query;false;select;;;Argument[0];sql
+2	org.codejargon.fluentjdbc.api.query;Query;false;batch;;;Argument[0];sql
+3	org.codejargon.fluentjdbc.api.query;Query;false;update;;;Argument[0];sql
+4	org.codejargon.fluentjdbc.api.query;SqlErrorHandler;false;handle;;;Argument[1];sql
+5	org.codejargon.fluentjdbc.internal.query;QueryInternal;false;select;;;Argument[0];sql
+6	org.codejargon.fluentjdbc.internal.query;QueryInternal;false;batch;;;Argument[0];sql
+7	org.codejargon.fluentjdbc.internal.query;QueryInternal;false;update;;;Argument[0];sql
+8	org.codejargon.fluentjdbc.internal.query;DefaultSqlHandler;false;handle;;;Argument[1];sql
+9	org.codejargon.fluentjdbc.internal.query;SqlAndParams;false;SqlAndParams;;;Argument[0];sql
+10	org.codejargon.fluentjdbc.internal.query.namedparameter;NamedTransformedSqlFactory;false;create;;;Argument[0];sql
+11	org.codejargon.fluentjdbc.internal.query.namedparameter;NamedParameterUtils;false;parseSqlStatement;;;Argument[0];sql
+12	org.codejargon.fluentjdbc.internal.query.namedparameter;NamedTransformedSql;false;forSqlAndParams;;;Argument[0];sql
+
+// Quick evaluation of SqlSink.ql:151 on zsoltherpai/fluent-jdbc - finished in 0 seconds (12 results) [11/10/2022, 2:54:18 PM]
+// When dataflow is removed (looks the same as above)
+1	org.codejargon.fluentjdbc.api.query;Query;false;select;;;Argument[0];sql
+2	org.codejargon.fluentjdbc.api.query;Query;false;batch;;;Argument[0];sql
+3	org.codejargon.fluentjdbc.api.query;Query;false;update;;;Argument[0];sql
+4	org.codejargon.fluentjdbc.api.query;SqlErrorHandler;false;handle;;;Argument[1];sql
+5	org.codejargon.fluentjdbc.internal.query;QueryInternal;false;select;;;Argument[0];sql
+6	org.codejargon.fluentjdbc.internal.query;QueryInternal;false;batch;;;Argument[0];sql
+7	org.codejargon.fluentjdbc.internal.query;QueryInternal;false;update;;;Argument[0];sql
+8	org.codejargon.fluentjdbc.internal.query;SqlAndParams;false;SqlAndParams;;;Argument[0];sql
+9	org.codejargon.fluentjdbc.internal.query;DefaultSqlHandler;false;handle;;;Argument[1];sql
+10	org.codejargon.fluentjdbc.internal.query.namedparameter;NamedTransformedSqlFactory;false;create;;;Argument[0];sql
+11	org.codejargon.fluentjdbc.internal.query.namedparameter;NamedParameterUtils;false;parseSqlStatement;;;Argument[0];sql
+12	org.codejargon.fluentjdbc.internal.query.namedparameter;NamedTransformedSql;false;forSqlAndParams;;;Argument[0];sql

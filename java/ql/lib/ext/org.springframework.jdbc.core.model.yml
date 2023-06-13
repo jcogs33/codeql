@@ -5,6 +5,7 @@ extensions:
     data:
       - ["org.springframework.jdbc.core", "JdbcTemplate", False, "batchUpdate", "", "", "Argument[0]", "sql-injection", "manual"]
       - ["org.springframework.jdbc.core", "JdbcTemplate", False, "batchUpdate", "(String[])", "", "Argument[0]", "sql-injection", "manual"]
+      # ! might be including too many `execute`, `query`, etc. methods here since didn't include the signature?
       - ["org.springframework.jdbc.core", "JdbcTemplate", False, "execute", "", "", "Argument[0]", "sql-injection", "manual"]
       - ["org.springframework.jdbc.core", "JdbcTemplate", False, "query", "", "", "Argument[0]", "sql-injection", "manual"]
       - ["org.springframework.jdbc.core", "JdbcTemplate", False, "queryForList", "", "", "Argument[0]", "sql-injection", "manual"]
