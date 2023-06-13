@@ -67,7 +67,7 @@ extensions:
       - ["java.io", "FileReader", True, "FileReader", "(FileDescriptor)", "", "Argument[0]", "create-file", "manual"]
       - ["java.io", "FileReader", True, "FileReader", "(String)", "", "Argument[0]", "create-file", "manual"]
       # Probably TPs (I think)
-      - ["java.io", "ByteArrayOutputStream", True, "writeTo", "", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?, "Writes the complete contents of this byte array output stream to the specified output stream argument"
+      #- ["java.io", "ByteArrayOutputStream", True, "writeTo", "", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?, "Writes the complete contents of this byte array output stream to the specified output stream argument"
       - ["java.lang", "ProcessBuilder", True, "redirectInput", "(File)", "", "Argument[0]", "create-file", "manual"] # seems like a TP, but would it cause overlapping sinks with Redirect.from(file)?
       - ["java.lang", "ProcessBuilder", True, "redirectOutput", "(File)", "", "Argument[0]", "create-file", "manual"] # seems like a TP, but would it cause overlapping sinks with Redirect.to(file)?
       - ["java.nio.channels", "Channels", True, "newChannel", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
