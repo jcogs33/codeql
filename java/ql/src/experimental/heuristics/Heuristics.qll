@@ -153,15 +153,15 @@ private predicate ssrfHeuristic(Parameter p) {
   // not p.getType() instanceof PrimitiveType and
   // not p.getName().regexpMatch("(?i)[a-z]*(pattern)+[a-z]*")
   //
-  p.getName().regexpMatch("(?i)[a-z]*(url|^uri|uri$)+[a-z]*") and // version 1.5: remove cache ones (might be erring on side of FNs with this exclusion)
-  not p.getType() instanceof PrimitiveType and
-  not p.getName().regexpMatch("(?i)[a-z]*(pattern)+[a-z]*") and
-  not p.getCallable().getDeclaringType().getPackage().getName().matches("%cache%")
-  //
-  // p.getName().regexpMatch("(?i)[a-z]*(host)+[a-z]*") and // version 1.6: add "%host|request%" as a possible param name
+  // p.getName().regexpMatch("(?i)[a-z]*(url|^uri|uri$)+[a-z]*") and // version 1.5: remove cache ones (might be erring on side of FNs with this exclusion)
   // not p.getType() instanceof PrimitiveType and
   // not p.getName().regexpMatch("(?i)[a-z]*(pattern)+[a-z]*") and
   // not p.getCallable().getDeclaringType().getPackage().getName().matches("%cache%")
+  //
+  p.getName().regexpMatch("(?i)[a-z]*(host)+[a-z]*") and // version 1.6: add "%host|request%" as a possible param name
+  not p.getType() instanceof PrimitiveType and
+  not p.getName().regexpMatch("(?i)[a-z]*(pattern)+[a-z]*") and
+  not p.getCallable().getDeclaringType().getPackage().getName().matches("%cache%")
   //
   // p.getName().regexpMatch("(?i)[a-z]*(host|request)+[a-z]*") // version 1.
   // or
