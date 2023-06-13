@@ -64,13 +64,12 @@ query string getAPathInjectionVulnerableParameterSpecification() {
     not isJdkInternal(c.getDeclaringType().getPackage())
   )
 }
-
 // ! Notes:
 // TODO:
-from Callable c
-where
-  c.getDeclaringType().getPackage().toString() = "java.nio.file" and
-  c.getDeclaringType().getName() = "Files" and
-  c.getName() = "createTempDirectory"
-select c.getDeclaringType().getPackage(), c.getDeclaringType().getName(), c.getName(),
-  c.getDeclaringType().getSourceDeclaration(), c.getDeclaringType()
+// from Callable c
+// where
+//   c.getDeclaringType().getPackage().toString() = "java.nio.file" and
+//   c.getDeclaringType().getName() = "Files" and
+//   c.getName() = "createTempDirectory"
+// select c.getDeclaringType().getPackage(), c.getDeclaringType().getName(), c.getName(),
+//   c.getDeclaringType().getSourceDeclaration(), c.getDeclaringType()
