@@ -128,11 +128,11 @@ private class CryptoKeyType extends Type {
 
 private class SecurityPackage extends Package {
   SecurityPackage() {
-    getName().matches("java.security%") or
-    getName().matches("javax.security%") or
-    getName().matches("javax.crypto%") or
-    getName().matches("sun.security%") or
-    getName().matches("com.sun.crypto%")
+    this.getName().matches("java.security%") or
+    this.getName().matches("javax.security%") or
+    this.getName().matches("javax.crypto%") or
+    this.getName().matches("sun.security%") or
+    this.getName().matches("com.sun.crypto%")
   }
 }
 
