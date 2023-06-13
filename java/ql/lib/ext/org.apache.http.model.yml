@@ -1,3 +1,4 @@
+# COMMENT OUTSIDE BLOCK?
 extensions:
   - addsTo:
       pack: codeql/java-all
@@ -5,6 +6,7 @@ extensions:
     data:
       - ["org.apache.http", "HttpEntity", False, "getContent", "()", "", "ReturnValue", "remote", "manual"]
       - ["org.apache.http", "HttpMessage", False, "getParams", "()", "", "ReturnValue", "remote", "manual"]
+
   - addsTo:
       pack: codeql/java-all
       extensible: sinkModel

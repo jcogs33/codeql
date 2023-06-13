@@ -77,6 +77,8 @@
 # * need: `pip3 install pyyaml` for `import yaml`
 import yaml
 import ruamel.yaml
+from ruamel.yaml.scalarstring import DoubleQuotedScalarString as dq_str
+
 import io
 import sys
 
@@ -118,7 +120,8 @@ yaml.preserve_quotes = True # to keep the double-quotes
 yaml.indent(mapping=2, sequence=4, offset=2) # indentation stays the same
 yaml.width = 4096 # yml rows stay on one line (hopefully 4096 is always long enough, can adjust if run into a case where not)
 yaml.boolean_representation = ['False', 'True'] # preserve uppercase for booleans
-
+yaml.default_flow_style = None # force added rows to be single-line format
+#yaml.default_style='"' # doesn't work with booleans... and seems to break default_flow_style..., and wraps too much in quotes
 # read in existing yml file
 with open("java/ql/lib/ext/org.apache.http.model.yml", "r") as f:
     data = yaml.load(f.read())
@@ -129,6 +132,28 @@ with open("java/ql/lib/ext/org.apache.http.model.yml", "r") as f:
 #     for row in ext['data']:
 #         print(row)
 
+# Insert new models into `data`:
+# * code['name']['given'] = 'Bob'
+# * data['abc'].append('b')
+# * data.insert(1, 'last name', 'Vandelay', comment="new key")
+# data.preserve_quotes = True
+# data.default_style='"'
+#data.fa.set_flow_style()
+print(data['extensions'][0]['data']) # this is a LIST that can `append`, `insert`, `extend`, etc.
+given_list = ["org.apache.http", "HttpHost", True, "HttpHost", "(HttpHost)", "", "Argument[0]", "%-url", "manual"]
+#given_list_csv = "[\"org.apache.http\", \"HttpHost\", True, \"HttpHost\", \"(HttpHost)\", \"\", \"Argument[0]\", \"%-url\", \"manual\"]"
+# test_list = []
+# for i in given_list:
+#     if i not in [True, False]:
+#         test_list.append(dq_str(i))
+#     else:
+#         test_list.append(i)
+# print(test_list)
+data['extensions'][0]['data'].insert(0, given_list) # insert row with and without comment
+data['extensions'][0]['data'].yaml_add_eol_comment('NEW COMMENT', 0) # add eol_comment to added row
+data['extensions'][0]['data'].sort() # seems to work for maintaining alphabetical ordering of models
+
+
 # write out same file with same formatting
 with open("java/ql/src/experimental/heuristics/sinks-to-add/test.yml", "w") as f2:
     yaml.dump(data, f2) # ! can't use sort_keys=True or default_flow_style=False with this it seems
@@ -137,4 +162,13 @@ with open("java/ql/src/experimental/heuristics/sinks-to-add/test.yml", "w") as f
 # DONE: indentation stays the same: https://yaml.readthedocs.io/en/latest/detail.html?highlight=indent#indentation-of-block-sequences
 # DONE: write back same looking file (achieved with `org.apache.http.model.yml` after fixing indentation and line wrap issue)
 # DONE: preserve uppercase for booleans: https://stackoverflow.com/questions/46001328/ruamel-yaml-dump-doesnt-preserve-boolean-value-case
-# TODO: insert row with and without comment: https://yaml.readthedocs.io/en/latest/detail.html?highlight=indent#adding-replacing-comments
+# DONE: confirm that comments outside blocks and empty lines in file sem to be preserved.
+# DONE: insert row with and without comment: https://yaml.readthedocs.io/en/latest/detail.html?highlight=indent#adding-replacing-comments
+#       https://stackoverflow.com/questions/70562866/python-how-to-add-nested-fields-to-yaml-file
+#       https://stackoverflow.com/questions/49352692/flexible-appending-new-data-to-yaml-files
+# DONE: maintain alphabetical ordering of models: https://stackoverflow.com/questions/39307956/insert-a-key-using-ruamel
+# DONE: force added rows to be single-line format: https://stackoverflow.com/questions/62058034/how-to-define-a-style-of-new-dictionary-in-ruamel-yaml, https://stackoverflow.com/questions/56937691/making-yaml-ruamel-yaml-always-dump-lists-inline
+# DONE: add eol_comment to added row: https://yaml.readthedocs.io/en/latest/detail.html?highlight=comment#adding-replacing-comments
+# TODO: maintain double-quotes on *inserted* rows: https://stackoverflow.com/questions/39262556/preserve-quotes-and-also-add-data-with-quotes-in-ruamel, https://stackoverflow.com/questions/38784766/adding-quotes-using-ruamel-yaml
+#       - weirdly hard to do this while maintaining the `yaml.default_flow_style = None`..., maybe worth abandoning double-quotes in all yml files due to this?
+#       - commentmap might work: https://stackoverflow.com/questions/70852345/force-string-quoting-while-saving-flow-style
