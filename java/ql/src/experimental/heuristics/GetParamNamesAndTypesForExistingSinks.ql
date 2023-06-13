@@ -39,10 +39,13 @@ where
   paramLoc = "Argument[" + paramIdx + "]" and
   paramType = callable.getParameterType(paramIdx.toInt()).getErasure().toString() and
   paramName = callable.getParameter(paramIdx.toInt()).getName() and
-  kind = "create-file" and // * update sink kind looking for here
+  //kind = "create-file" and // * update sink kind looking for here
+  (kind = "jdbc-url" or kind = "open-url") and
   sinkModel(callable.getDeclaringType().getPackage().toString(),
     callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
     [paramsString(callable), ""], _, paramLoc, kind, _) and
+  // sinkModel(_, callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
+  //   [paramsString(callable), ""], _, paramLoc, kind, _) and
   not isJdkInternal(callable.getDeclaringType().getPackage()) and
   apiName = getApiName(callable)
 select paramType, paramName, apiName, paramLoc, paramsString, callable order by
@@ -55,3 +58,6 @@ select paramType, paramName, apiName, paramLoc, paramsString, callable order by
 //   not isJdkInternal(callable.getDeclaringType().getPackage()) and
 //   apiName = getApiName(callable)
 // select apiName, callable order by apiName
+// from Callable callable
+// where callable.getDeclaringType().getPackage().toString().matches("org.apache.http%")
+// select callable, callable.getDeclaringType().getPackage().toString()

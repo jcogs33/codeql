@@ -137,6 +137,7 @@ extensions:
     - ["javax.activation", "MailcapCommandMap", True, "MailcapCommandMap", "(String)", "", "Argument[0]", "create-file", "manual"] # "@param fileName The name of the <i>mailcap</i> file to open"
 
 
+
     # Unsure about
     - ["java.applet", "AppletContext", True, "showDocument", "(URL,String)", "", "Argument[1]", "create-file", "manual"] # FP unless related to URL-traversing?
     - ["java.lang", "Runtime", True, "exec", "(String,String[],File)", "", "Argument[2]", "create-file", "manual"] # bad to control dir where executed? (Note that Arg[0] is sink for `java/command-line-injection`. See ExternalProcess.qll for model, can maybe convert to MaD?)

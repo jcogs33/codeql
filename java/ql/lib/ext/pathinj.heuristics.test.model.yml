@@ -1,0 +1,88 @@
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: sinkModel
+    data:
+      # Definite TPs (IMO)
+      - ["java.io", "FilePermission", True, "FilePermission", "", "", "Argument[0]", "create-file", "manual"] #  "Creates a new FilePermission object with the specified actions. path is the pathname of a file or directory, and actions contains a comma-separated list of the desired actions granted on the file or directory. Possible actions are "read", "write", "execute", "delete", and "readlink"." Also, see: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=24895
+      - ["java.lang", "Redirect", True, "appendTo", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.lang", "Redirect", True, "from", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.lang", "Redirect", True, "to", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.channels", "AsynchronousFileChannel", True, "open", "(Path,OpenOption[])", "", "Argument[0]", "create-file", "manual"] # "Opens or creates a file for reading and/or writing, returning an asynchronous file channel to access the file."
+      - ["java.nio.channels", "AsynchronousFileChannel", True, "open", "(Path,Set,ExecutorService,FileAttribute[])", "", "Argument[0]", "create-file", "manual"] # "Opens or creates a file for reading and/or writing, returning an asynchronous file channel to access the file."
+      - ["java.nio.channels", "FileChannel", True, "open", "(Path,OpenOption[])", "", "Argument[0]", "create-file", "manual"] # might subtype from `AsynchronousFileChannel`
+      - ["java.nio.channels", "FileChannel", True, "open", "(Path,Set,FileAttribute[])", "", "Argument[0]", "create-file", "manual"] # might subtype from `AsynchronousFileChannel`
+      - ["java.nio.file", "FileSystems", True, "newFileSystem", "(Path,ClassLoader)", "", "Argument[0]", "create-file", "manual"] # "Constructs a new FileSystem to access the contents of a file as a file system."
+      - ["java.nio.file", "Files", True, "createTempFile", "(Path,String,String,FileAttribute[])", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file", "Files", True, "delete", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file", "Files", True, "lines", "(Path)", "", "Argument[0]", "create-file", "manual"] # "Read all lines from a file as a Stream."
+      - ["java.nio.file", "Files", True, "lines", "(Path,Charset)", "", "Argument[0]", "create-file", "manual"] # "Read all lines from a file as a Stream."
+      - ["java.nio.file", "Files", True, "newBufferedReader", "(Path)", "", "Argument[0]", "create-file", "manual"] # "Opens a file for reading, returning a BufferedReader to read text from the file in an efficient manner."
+      - ["java.nio.file", "Files", True, "newBufferedReader", "(Path,Charset)", "", "Argument[0]", "create-file", "manual"] # "Opens a file for reading, returning a BufferedReader to read text from the file in an efficient manner."
+      - ["java.nio.file", "Files", True, "newByteChannel", "(Path,OpenOption[])", "", "Argument[0]", "create-file", "manual"] # "Opens or creates a file, returning a seekable byte channel to access the file."
+      - ["java.nio.file", "Files", True, "newByteChannel", "(Path,Set,FileAttribute[])", "", "Argument[0]", "create-file", "manual"] # "Opens or creates a file, returning a seekable byte channel to access the file."
+      - ["java.nio.file", "Files", True, "newDirectoryStream", "(Path)", "", "Argument[0]", "create-file", "manual"] # "Opens a directory,..."
+      - ["java.nio.file", "Files", True, "newDirectoryStream", "(Path,Filter)", "", "Argument[0]", "create-file", "manual"] # "Opens a directory,..."
+      - ["java.nio.file", "Files", True, "newDirectoryStream", "(Path,String)", "", "Argument[0]", "create-file", "manual"] # "Opens a directory,..."
+      - ["java.nio.file", "Files", True, "newInputStream", "", "", "Argument[0]", "create-file", "manual"] # Opens a file, returning an input stream to read from the file."
+      - ["java.nio.file", "Files", True, "readAllBytes", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file", "Files", True, "readAllLines", "(Path)", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file", "Files", True, "readAllLines", "(Path,Charset)", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file", "Files", True, "readSymbolicLink", "", "", "Argument[0]", "create-file", "manual"] # "Reads the target of a symbolic link"
+      - ["java.nio.file", "Files", True, "setPosixFilePermissions", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "copy", "", "", "Argument[1]", "create-file", "manual"]
+      # ! check if spi ones are already covered by Files methods since "The methods defined by the Files class will typically delegate to an instance of this class."; FSP.getPath(URI) seems to be used at least: https://github.com/FasterXML/jackson-databind/blob/4fca16247ebbc9b99d6742e53938dc528d91a164/src/main/java/com/fasterxml/jackson/databind/ext/NioPathDeserializer.java#L74
+      # ! prbly unecessary? Files ones wrap these ones?: https://github.com/hzio/HotSpotSourceCodeExploration/blob/a4397d64250ba5b7f21210a96c7f0e0a1ae88650/src/java.base/share/classes/java/nio/file/Files.java#L1413
+      # ! but people use directly anyways? so maybe keep?: https://github.com/leanovate/jbj/blob/3964e646a48498ffe30b4a2dda5a5b76dcd0425d/utils/layered-fs/src/main/java/de/leanovate/jbj/utils/layeredfs/LayeredMountPoint.java#L89
+      - ["java.nio.file.spi", "FileSystemProvider", True, "createDirectory", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "createLink", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "createSymbolicLink", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "createSymbolicLink", "", "", "Argument[1]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "delete", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "deleteIfExists", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "move", "", "", "Argument[1]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newAsynchronousFileChannel", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newByteChannel", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newDirectoryStream", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newFileChannel", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newFileSystem", "(Path,Map)", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newInputStream", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newOutputStream", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "readSymbolicLink", "", "", "Argument[0]", "create-file", "manual"]
+      # ! need OutputStream and PrintStream params for Formatter as well?
+      - ["java.util", "Formatter", True, "Formatter", "(File)", "", "Argument[0]", "create-file", "manual"] # "...otherwise, a new file will be created...."
+      - ["java.util", "Formatter", True, "Formatter", "(File,String)", "", "Argument[0]", "create-file", "manual"] # "...otherwise, a new file will be created...."
+      - ["java.util", "Formatter", True, "Formatter", "(File,String,Locale)", "", "Argument[0]", "create-file", "manual"] # "...otherwise, a new file will be created...."
+      - ["java.util", "Formatter", True, "Formatter", "(String)", "", "Argument[0]", "create-file", "manual"] # "...otherwise, a new file will be created...."
+      - ["java.util", "Formatter", True, "Formatter", "(String,String)", "", "Argument[0]", "create-file", "manual"] # "...otherwise, a new file will be created...."
+      - ["java.util", "Formatter", True, "Formatter", "(String,String,Locale)", "", "Argument[0]", "create-file", "manual"] # "...otherwise, a new file will be created...."
+      - ["javax.sound.midi", "MidiSystem", True, "write", "(Sequence,int,File)", "", "Argument[2]", "create-file", "manual"]
+      - ["javax.sound.midi", "MidiSystem", True, "write", "(Sequence,int,OutputStream)", "", "Argument[2]", "create-file", "manual"]
+      - ["javax.sound.midi.spi", "MidiFileWriter", True, "write", "(Sequence,int,File)", "", "Argument[2]", "create-file", "manual"]
+      - ["javax.sound.midi.spi", "MidiFileWriter", True, "write", "(Sequence,int,OutputStream)", "", "Argument[2]", "create-file", "manual"]
+      # Definite TPs, and already modeled (or partially modeled) in PathCreation.qll
+      - ["java.io", "FileInputStream", True, "FileInputStream", "(File)", "", "Argument[0]", "create-file", "manual"]
+      - ["java.io", "FileInputStream", True, "FileInputStream", "(FileDescriptor)", "", "Argument[0]", "create-file", "manual"]
+      - ["java.io", "FileReader", True, "FileReader", "(File)", "", "Argument[0]", "create-file", "manual"]
+      - ["java.io", "FileReader", True, "FileReader", "(FileDescriptor)", "", "Argument[0]", "create-file", "manual"]
+      - ["java.io", "FileReader", True, "FileReader", "(String)", "", "Argument[0]", "create-file", "manual"]
+      # Probably TPs (I think)
+      - ["java.io", "ByteArrayOutputStream", True, "writeTo", "", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?, "Writes the complete contents of this byte array output stream to the specified output stream argument"
+      - ["java.lang", "ProcessBuilder", True, "redirectInput", "(File)", "", "Argument[0]", "create-file", "manual"] # seems like a TP, but would it cause overlapping sinks with Redirect.from(file)?
+      - ["java.lang", "ProcessBuilder", True, "redirectOutput", "(File)", "", "Argument[0]", "create-file", "manual"] # seems like a TP, but would it cause overlapping sinks with Redirect.to(file)?
+      - ["java.nio.channels", "Channels", True, "newChannel", "(OutputStream)", "", "Argument[0]", "create-file", "manual"] # TP if OutputStream is a FileOutputStream?
+      - ["java.nio.file", "Files", True, "setAttribute", "", "", "Argument[0]", "create-file", "manual"] # TP if setting the file attributes is useful for attacker?
+      - ["java.nio.file", "Files", True, "setOwner", "", "", "Argument[0]", "create-file", "manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "setAttribute", "", "", "Argument[0]", "create-file", "manual"]
+      - ["javax.print", "StreamPrintServiceFactory", True, "getPrintService", "", "", "Argument[0]", "create-file", "manual"]
+      - ["javax.sound.sampled", "AudioSystem", True, "getAudioInputStream", "(File)", "", "Argument[0]", "create-file", "manual"] # "Obtains an audio input stream from the provided File."
+      - ["javax.sound.sampled", "AudioSystem", True, "write", "(AudioInputStream,Type,File)", "", "Argument[2]", "create-file", "manual"] # "Writes a stream of bytes representing an audio file of the specified file type to the external file provided."
+      - ["javax.sound.sampled", "AudioSystem", True, "write", "(AudioInputStream,Type,OutputStream)", "", "Argument[2]", "create-file", "manual"]
+      - ["javax.sound.sampled.spi", "AudioFileReader", True, "getAudioInputStream", "(File)", "", "Argument[0]", "create-file", "manual"]
+      - ["javax.sound.sampled.spi", "AudioFileWriter", True, "write", "(AudioInputStream,Type,File)", "", "Argument[2]", "create-file", "manual"]
+      - ["javax.sound.sampled.spi", "AudioFileWriter", True, "write", "(AudioInputStream,Type,OutputStream)", "", "Argument[2]", "create-file", "manual"]
+      - ["javax.tools", "StandardJavaFileManager", True, "getJavaFileObjects", "(File[])", "", "Argument[0]", "create-file", "manual"] # might be a step instead actually?
+      - ["javax.xml.soap", "SOAPMessage", True, "writeTo", "", "", "Argument[0]", "create-file", "manual"] # "Writes this SOAPMessage object to the given output stream."
+      - ["javax.xml.transform.stream", "StreamResult", True, "StreamResult", "(OutputStream)", "", "Argument[0]", "create-file", "manual"]
+      - ["javax.xml.transform.stream", "StreamResult", True, "setOutputStream", "", "", "Argument[0]", "create-file", "manual"]
+      - ["javax.sound.midi", "MidiSystem", True, "getSoundbank", "(File)", "", "Argument[0]", "create-file", "manual"] # "Constructs a Soundbank by reading it from the specified File."

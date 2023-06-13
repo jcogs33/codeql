@@ -99,7 +99,21 @@ private predicate regexInjectionHeuristic(Parameter p) {
 }
 
 private predicate ssrfHeuristic(Parameter p) {
-  p.getName().matches(["url"]) // ! add "uri", etc.?
+  // p.getName().matches(["url"]) // version 0.0, overly simplistic
+  p.getName().regexpMatch("(?i)[a-z]*(url|uri)+[a-z]*") // version 1.0
+  // * Notes for heuristic adjustment based on first round of triage of results
+  // *  from running version 1.0 against apache/httpcomponents-core and apache/httpcomponents-client (version 5)
+  // * 0) Add param name of "host" in some form to the heuristic (keep an eye on results since may be FP-prone and may need further restriction to method-name, etc.)
+  // * 1) Maybe also add param name of "request" in some form with same caveats as above.
+  // * 2) "methodology" discussed with Tony regarding when something should be sink versus step:
+  // *    (affects at least the following apis: Builder.setUri, HttpHost.create, RequestLine, URIBuilder)
+  // * 3) exclude "uriPattern" and "uriPatternType" as param name and/or "register" as a method name.
+  // * 4) Check for subtyping in all the similar classes/methods, and see if can make heuristic smart enough to avoid if so.
+  // * 5) exclude "test" ones; check if can exclude TestUtils like ExternalApi, etc. ("assert" as method name as well if doesn't fully exlude it).
+  // * 6) remove cache ones, prbly best to remove any method names with "cache" in them. (Is CacheKeyGenerator.resolve a step though? and HttpCacheSupport.normalize%?)
+  // * 7) require "uri" at beginning or end of param name to avoid when part of other words.
+  // ! look into the following ones more, either TPs or exclude from heuristic: URLEncodedUtils.parse, SSLContextBuilder.loadKey/TrustMaterial
+  // ! also look into PublicSuffixMatcherLoader.load a tiny bit more.
   // ! possibly add p.getType(), etc. to heuristic
 }
 

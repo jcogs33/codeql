@@ -440,6 +440,8 @@ private predicate elementSpec(
  * Returns an empty parenthesized string if the callable has no parameters.
  * Parameter types are represented by their type erasure.
  */
+// cached
+// string paramsString(Callable c) { result = concat(int i | | paramsStringPart(c, i) order by i) }
 cached
 string paramsString(Callable c) {
   result =

@@ -1,0 +1,65 @@
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: sinkModel
+    data:
+# ******** TRUE POSITIVES ****************
+    # Definite TPs (IMO)
+
+
+    # Definite TPs, and already modeled (or partially modeled) in CodeQL
+
+
+    # Probably TPs (I think)
+    - ["java.net", "Authenticator", True, "requestPasswordAuthentication", "(Authenticator,String,InetAddress,int,String,String,String,URL,RequestorType)", "", "Argument[7]", "%-url", "manual"]
+    - ["java.net", "Authenticator", True, "requestPasswordAuthentication", "(String,InetAddress,int,String,String,String,URL,RequestorType)", "", "Argument[6]", "%-url", "manual"]
+    - ["java.net", "Authenticator", True, "requestPasswordAuthenticationInstance", "", "", "Argument[6]", "%-url", "manual"]
+
+
+    # Unsure about
+    # java.applet ones...
+    - ["java.applet", "Applet", True, "getAudioClip", "(URL)", "", "Argument[0]", "%-url", "manual"]
+    - ["java.applet", "Applet", True, "getAudioClip", "(URL,String)", "", "Argument[0]", "%-url", "manual"]
+    - ["java.applet", "Applet", True, "getImage", "(URL)", "", "Argument[0]", "%-url", "manual"]
+    - ["java.applet", "Applet", True, "getImage", "(URL,String)", "", "Argument[0]", "%-url", "manual"]
+    - ["java.applet", "Applet", True, "newAudioClip", "", "", "Argument[0]", "%-url", "manual"]
+    - ["java.applet", "Applet", True, "play", "(URL)", "", "Argument[0]", "%-url", "manual"]
+    - ["java.applet", "Applet", True, "play", "(URL,String)", "", "Argument[0]", "%-url", "manual"]
+    - ["java.applet", "AppletContext", True, "getAudioClip", "", "", "Argument[0]", "%-url", "manual"]
+    - ["java.applet", "AppletContext", True, "getImage", "", "", "Argument[0]", "%-url", "manual"]
+    - ["java.applet", "AppletContext", True, "showDocument", "(URL)", "", "Argument[0]", "%-url", "manual"]
+    - ["java.applet", "AppletContext", True, "showDocument", "(URL,String)", "", "Argument[0]", "%-url", "manual"]
+    - ["java.io", "File", True, "File", "(URI)", "", "Argument[0]", "%-url", "manual"] # path-injection, etc. sink instead?
+    # URLConnection constructor would prbly be better sink than the below? (but constructor is protected?)
+    - ["java.net", "ContentHandler", True, "getContent", "(URLConnection)", "", "Argument[0]", "%-url", "manual"]
+    - ["java.net", "ContentHandler", True, "getContent", "(URLConnection,Class[])", "", "Argument[0]", "%-url", "manual"]
+
+
+# ******** FALSE POSITIVES ****************
+    # Definitely FPs
+    - ["java.lang.invoke", "SerializedLambda", True, "SerializedLambda", "", "", "Argument[0]", "%-url", "manual"] # param name is capturingClass
+
+    # Probably FPs
+
+
+    # Exceptions that are probably FPs (unless can get useful info from controlling the exception?)
+
+
+    # Definite FPs
+
+
+# ******** NEUTRALS & STEPS ****************
+    # Probably neutrals
+    - ["java.lang", "Package", True, "isSealed", "(URL)", "", "Argument[0]", "%-url", "manual"]
+
+    # Probably steps
+
+
+# ********* OTHER ****************
+    # Too complex for MaD? (lambda flow, etc.)
+
+
+    # ! Questions:
+
+
+    # TODO: make sure correct subtype False/True before fully add these.
