@@ -38,3 +38,5 @@ query string getASqlInjectionVulnerableParameterSpecification() {
         c.getName() + ";" + signatureIfNeeded(c) + ";;" + "Argument[" + paramIdx + "];" + "sql"
   )
 }
+// ! Notes:
+// TODO: look into `java.sql;Connection;false;nativeSQL;;;Argument[0];sql` more -- seems like this should at least be a summary if not a sink
