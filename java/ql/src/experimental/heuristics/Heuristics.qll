@@ -1,60 +1,11 @@
 import java
 private import semmle.code.java.dataflow.ExternalFlow
-private import utils.modelgenerator.internal.CaptureModelsSpecific as CMS
+private import semmle.code.java.dataflow.internal.ModelExclusions
 
-private class PublicCallable extends Callable {
-  PublicCallable() {
-    this.isPublic() and
-    this.getDeclaringType().isPublic() and
-    this.fromSource() // I added; Chris' code only had the above two
-  }
-}
-
-// pulled from CaptureModelsSpecific.qll
-// ! should PublicCallable handle these already?, are the "com.sun..." ones that I'm seeing actually of interest after all?
-private predicate isJdkInternal(Package p) {
-  p.getName().matches("org.graalvm%") or
-  p.getName().matches("com.sun%") or
-  p.getName().matches("javax.swing%") or // remove GUI packages from this list?
-  p.getName().matches("java.awt%") or
-  p.getName().matches("sun%") or
-  p.getName().matches("jdk%") or
-  p.getName().matches("java2d%") or
-  p.getName().matches("build.tools%") or
-  p.getName().matches("propertiesparser%") or
-  p.getName().matches("org.jcp%") or
-  p.getName().matches("org.w3c%") or
-  p.getName().matches("org.ietf.jgss%") or
-  p.getName().matches("org.xml.sax%") or
-  p.getName().matches("com.oracle%") or
-  p.getName().matches("org.omg%") or
-  p.getName().matches("org.relaxng%") or
-  p.getName() = "compileproperties" or
-  p.getName() = "transparentruler" or
-  p.getName() = "genstubs" or
-  p.getName() = "netscape.javascript" or
-  p.getName() = "" or
-  p.getName().matches("%internal%") // ! I think it would make sense to add this exclusion (e.g. org.hibernate.engine.jdbc.internal, etc.)
-}
-
-// ! idea taken from ExternalApi.qll
-/**
- * A test library.
- */
-private class TestLibrary extends RefType {
-  TestLibrary() {
-    this.getPackage()
-        .getName()
-        .matches([
-            "org.junit%", "junit.%", "org.mockito%", "org.assertj%",
-            "com.github.tomakehurst.wiremock%", "org.hamcrest%", "org.springframework.mock.%",
-            "org.xmlunit%", "org.mockserver%", "org.powermock%", "org.skyscreamer.jsonassert%",
-            "org.rnorth.visibleassertions", "org.openqa.selenium%",
-            "com.gargoylesoftware.htmlunit%", "%.test%"
-          ])
-  }
-}
-
+// TODO:
+// todo: p.getName().matches("%internal%") // ! I think it would make sense to add this exclusion as an "isInternal" exclusion similar to "isJdkInternal" (e.g. org.hibernate.engine.jdbc.internal, etc.)
+// todo: Note that some "com.sun..." ones might be of interest after all for SensitiveAPIs. -- collect Yorck's note on that...
+// todo: %.test%" and "assert" in `isTestPackage`
 private predicate sqlHeuristic(Parameter p) {
   //p.getName().matches(["sql%", "query%"]) and
   //p.getName().regexpMatch("(?i)(sql|query)?") and
@@ -229,8 +180,8 @@ private predicate usernameHeuristic(Parameter p) {
 private Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string sinkKind) {
   exists(Parameter p |
     p = result.getParameter(paramIdx) and
-    not isJdkInternal(result.getDeclaringType().getPackage()) and // exclude JDK internals for now
-    not p.getCallable().getDeclaringType() instanceof TestLibrary and // exclude testing packages
+    //not isJdkInternal(result.getDeclaringType().getPackage()) and // exclude JDK internals for now
+    //not p.getCallable().getDeclaringType() instanceof TestLibrary and // exclude testing packages
     not p.getCallable().getName().matches("assert%") and // exclude test assertion methods
     // select heuristic to use based on sinkKind
     (
@@ -291,17 +242,17 @@ private string hasExistingSink(Callable callable, int paramIdx) {
 // DONE - not affected: not sure why I had changed the below PublicCallable to a Callable... need to retest all heuristics to see how this affects them...
 // also should probably switch to DataFlowTargetApi or TargetApiSpecific anyways - wait until create new `Api` class for models that Michael suggested...
 string getAVulnerableParameterSpecification(
-  PublicCallable c, string existingSink, string sinkKind, string paramType, string paramName
+  ModelApi modelApi, string existingSink, string sinkKind, string paramType, string paramName
 ) {
   exists(int paramIdx |
-    c = getAVulnerableParameter(paramIdx, sinkKind, _) and
+    modelApi = getAVulnerableParameter(paramIdx, sinkKind, _) and
     result =
-      "[\"" + c.getDeclaringType().getCompilationUnit().getPackage().getName() + "\", \"" +
-        c.getDeclaringType().getSourceDeclaration().nestedName() + "\", " + "True, \"" + c.getName()
-        + "\", \"" + paramsString(c) + "\", \"\", \"" + "Argument[" + paramIdx + "]\", \"" +
-        sinkKind + "\", \"manual\"]" and
-    existingSink = hasExistingSink(c, paramIdx) and
-    paramType = c.getParameterType(paramIdx).getErasure().toString() and // debugging
-    paramName = c.getParameter(paramIdx).getName() // debugging
+      "[\"" + modelApi.getDeclaringType().getCompilationUnit().getPackage().getName() + "\", \"" +
+        modelApi.getDeclaringType().getSourceDeclaration().nestedName() + "\", " + "True, \"" +
+        modelApi.getName() + "\", \"" + paramsString(modelApi) + "\", \"\", \"" + "Argument[" +
+        paramIdx + "]\", \"" + sinkKind + "\", \"manual\"]" and
+    existingSink = hasExistingSink(modelApi, paramIdx) and
+    paramType = modelApi.getParameterType(paramIdx).getErasure().toString() and // debugging
+    paramName = modelApi.getParameter(paramIdx).getName() // debugging
   )
 }
