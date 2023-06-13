@@ -5,3 +5,4 @@ extensions:
     data:
       - ["javax.net.ssl", "HttpsURLConnection", True, "setDefaultHostnameVerifier", "", "", "Argument[0]", "hostname-verification", "manual"]
       - ["javax.net.ssl", "HttpsURLConnection", True, "setHostnameVerifier", "", "", "Argument[0]", "hostname-verification", "manual"]
+      - ["javax.net.ssl", "SNIHostName", False, "createSNIMatcher", "(String)", "", "Argument[0]", "regex-use[]", "manual"] # ! from heuristic-query
