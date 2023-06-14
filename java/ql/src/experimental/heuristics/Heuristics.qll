@@ -183,6 +183,7 @@ private Callable getAVulnerableParameterNameBasedGuess(int paramIdx, string sink
     //not isJdkInternal(result.getDeclaringType().getPackage()) and // exclude JDK internals for now
     //not p.getCallable().getDeclaringType() instanceof TestLibrary and // exclude testing packages
     not p.getCallable().getName().matches("assert%") and // exclude test assertion methods
+    not p.getCallable().getName().matches("is%") and // exclude "is..." pattern that seems to usually be neutral
     // select heuristic to use based on sinkKind
     (
       sinkKind = "sql-injection" and // AI-related
