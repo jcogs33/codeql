@@ -154,7 +154,7 @@ predicate sinkModel(
       .sinkModel(package, type, subtypes, name, signature, ext, input, kind, provenance)
 }
 
-// ! edit below
+// ! edit/remove below
 /** Holds if a sink model exists for the given parameters. */
 string sinkModelKindResult(
   string package, string type, boolean subtypes, string name, string signature, string ext,
@@ -167,6 +167,21 @@ string sinkModelKindResult(
         .sinkModel(package, type, subtypes, name, signature, ext, input, kind, provenance)
   ) and
   result = kind
+}
+
+// ! edit/remove below
+/** Holds if a sink model exists for the given parameters. */
+string sinkModelProvenanceResult(
+  string package, string type, boolean subtypes, string name, string signature, string ext,
+  string input, string kind, string provenance
+) {
+  (
+    Extensions::sinkModel(package, type, subtypes, name, signature, ext, input, kind, provenance)
+    or
+    any(ActiveExperimentalModels q)
+        .sinkModel(package, type, subtypes, name, signature, ext, input, kind, provenance)
+  ) and
+  result = provenance
 }
 
 /** Holds if a summary model exists for the given parameters. */

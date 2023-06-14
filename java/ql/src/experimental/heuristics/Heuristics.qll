@@ -219,31 +219,66 @@ private Callable getAVulnerableParameter(int paramIdx, string sinkKind, string r
   reason = "nameBasedGuess"
 }
 
-// refactor all of below to use `getSourceDeclaration`?
-// and to be able nestedTypes (e.g. `BenchmarkConfig$Builder`)?
+// DONE - refactor all of below to use `getSourceDeclaration`?
+// DONE - and to be able nestedTypes (e.g. `BenchmarkConfig$Builder`)?
 bindingset[paramIdx]
 private string hasExistingSink(Callable callable, int paramIdx) {
   if
-    sinkModel(callable.getDeclaringType().getPackage().toString(),
-      callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
+    sinkModel(callable.getDeclaringType().getCompilationUnit().getPackage().getName(),
+      callable.getDeclaringType().getSourceDeclaration().nestedName(), _, callable.getName(),
       [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, _) // may want to allow for finding "generated" as well; also "Name" may be affected for existing queries?.
   then
-    exists(string existingKind |
+    exists(string existingKind, string existingProv |
       existingKind =
         // `sinkModelKindResult` needs to be refactored; should be a simpler way to get this info, hopefully combined with the above
         // Also, should add check for ANY existing model for the API (e.g. summary, etc.), and make sure that subtyping is taken into account.
-        sinkModelKindResult(callable.getDeclaringType().getPackage().toString(),
-          callable.getDeclaringType().getSourceDeclaration().toString(), _, callable.getName(),
+        sinkModelKindResult(callable.getDeclaringType().getCompilationUnit().getPackage().getName(),
+          callable.getDeclaringType().getSourceDeclaration().nestedName(), _, callable.getName(),
           [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, _) and
-      result = "yes, for sink kind \"" + existingKind + "\""
+      existingProv =
+        sinkModelProvenanceResult(callable
+              .getDeclaringType()
+              .getCompilationUnit()
+              .getPackage()
+              .getName(), callable.getDeclaringType().getSourceDeclaration().nestedName(), _,
+          callable.getName(), [paramsString(callable), ""], _, "Argument[" + paramIdx + "]", _, _) and
+      result =
+        "yes, for sink kind \"" + existingKind + "\", with provenance=\"" + existingProv + "\""
     )
+  else result = "no"
+}
+
+private string hasExistingSummary(Callable callable) {
+  if
+    summaryModel(callable.getDeclaringType().getCompilationUnit().getPackage().getName(),
+      callable.getDeclaringType().getSourceDeclaration().nestedName(), _, callable.getName(), _, _,
+      _, _, _, _)
+  then result = "yes, existing summary model"
+  else result = "no"
+}
+
+private string hasExistingSource(Callable callable) {
+  if
+    sourceModel(callable.getDeclaringType().getCompilationUnit().getPackage().getName(),
+      callable.getDeclaringType().getSourceDeclaration().nestedName(), _, callable.getName(), _, _,
+      _, _, _)
+  then result = "yes, existing source model"
+  else result = "no"
+}
+
+private string hasExistingNeutral(Callable callable) {
+  if
+    neutralModel(callable.getDeclaringType().getCompilationUnit().getPackage().getName(),
+      callable.getDeclaringType().getSourceDeclaration().nestedName(), callable.getName(), _, _, _)
+  then result = "yes, existing neutral model"
   else result = "no"
 }
 
 // DONE - not affected: not sure why I had changed the below PublicCallable to a Callable... need to retest all heuristics to see how this affects them...
 // also should probably switch to DataFlowTargetApi or TargetApiSpecific anyways - wait until create new `Api` class for models that Michael suggested...
 string getAVulnerableParameterSpecification(
-  ModelApi modelApi, string existingSink, string sinkKind, string paramType, string paramName
+  ModelApi modelApi, string existingSink, string existingSummary, string existingSource,
+  string existingNeutral, string sinkKind, string paramType, string paramName
 ) {
   exists(int paramIdx |
     modelApi = getAVulnerableParameter(paramIdx, sinkKind, _) and
@@ -253,6 +288,9 @@ string getAVulnerableParameterSpecification(
         modelApi.getName() + "\", \"" + paramsString(modelApi) + "\", \"\", \"" + "Argument[" +
         paramIdx + "]\", \"" + sinkKind + "\", \"manual\"]" and
     existingSink = hasExistingSink(modelApi, paramIdx) and
+    existingSummary = hasExistingSummary(modelApi) and
+    existingSource = hasExistingSource(modelApi) and
+    existingNeutral = hasExistingNeutral(modelApi) and
     paramType = modelApi.getParameterType(paramIdx).getErasure().toString() and // debugging
     paramName = modelApi.getParameter(paramIdx).getName() // debugging
   )
