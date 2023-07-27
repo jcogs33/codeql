@@ -9,6 +9,8 @@ extensions:
       pack: codeql/java-all
       extensible: sinkModel
     data:
+      - ["java.nio.channels", "AsynchronousFileChannel", False, "open", "(Path,OpenOption[])", "", "Argument[0]", "path-injection", "hq-manual"]
+      - ["java.nio.channels", "AsynchronousFileChannel", False, "open", "(Path,Set,ExecutorService,FileAttribute[])", "", "Argument[0]", "path-injection", "hq-manual"]
       - ["java.nio.channels", "FileChannel", False, "open", "(Path,OpenOption[])", "", "Argument[0]", "path-injection", "ai-manual"]
       - ["java.nio.channels", "FileChannel", False, "open", "(Path,Set,FileAttribute[])", "", "Argument[0]", "path-injection", "ai-manual"]
       - ["java.nio.channels", "FileChannel", True, "write", "(ByteBuffer,long)", "", "Argument[0]", "file-content-store", "ai-manual"]

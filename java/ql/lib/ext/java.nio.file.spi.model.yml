@@ -1,6 +1,32 @@
 extensions:
   - addsTo:
       pack: codeql/java-all
+      extensible: sinkModel
+    data:
+      # ! double-check/test if spi ones are already covered by Files methods since "The methods defined by the Files class will typically delegate to an instance of this class."
+      - ["java.nio.file.spi", "FileSystemProvider", True, "copy", "(Path,Path,CopyOption[])", "", "Argument[0..1]", "path-injection", "hq-manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "createDirectory", "(Path,FileAttribute[])", "", "Argument[0]", "path-injection", "hq-manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "createLink", "(Path,Path)", "", "Argument[0]", "path-injection", "hq-manual"] # ! double-check why not Arg[1] as well in java.nio.file.Files version?
+      - ["java.nio.file.spi", "FileSystemProvider", True, "createSymbolicLink", "(Path,Path,FileAttribute[])", "", "Argument[0..1]", "path-injection", "hq-manual"] # ! double-check why not Arg[1] as well in java.nio.file.Files version?
+      - ["java.nio.file.spi", "FileSystemProvider", True, "delete", "(Path)", "", "Argument[0]", "path-injection", "hq-manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "deleteIfExists", "(Path)", "", "Argument[0]", "path-injection", "hq-manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "move", "(Path,Path,CopyOption[])", "", "Argument[0..1]", "path-injection, "hq-manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newFileSystem", "(Path,Map)", "", "Argument[0]", "path-injection", "hq-manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newInputStream", "(Path,OpenOption[])", "", "Argument[0]", "path-injection", "hq-manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newOutputStream", "(Path,OpenOption[])", "", "Argument[0]", "path-injection", "hq-manual"]
+
+  - addsTo:
+      pack: codeql/java-all
+      extensible: summaryModel
+    data:
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newAsynchronousFileChannel", (Path,Set,ExecutorService,FileAttribute[])", "", "Argument[0]", "ReturnValue", "taint", "hq-manual"] # note: not an option in java.nio.file.Files
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newByteChannel", "(Path,Set,FileAttribute[])", "", "Argument[0]", "ReturnValue", "taint", "hq-manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newDirectoryStream", "(Path,Filter)", "", "Argument[0]", "ReturnValue", "taint", "hq-manual"]
+      - ["java.nio.file.spi", "FileSystemProvider", True, "newFileChannel", "(Path,Set,FileAttribute[])", "", "Argument[0]", "ReturnValue", "taint", "hq-manual"] # note: not an option in java.nio.file.Files
+      - ["java.nio.file.spi", "FileSystemProvider", True, "readSymbolicLink", "(Path)", "", "Argument[0]", "ReturnValue", "taint", "hq-manual"]  # this can be used to enumerate a file system
+
+  - addsTo:
+      pack: codeql/java-all
       extensible: neutralModel
     data:
       # sink neutrals

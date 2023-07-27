@@ -14,6 +14,7 @@ extensions:
       - ["java.io", "FileInputStream", True, "FileInputStream", "(String)", "", "Argument[0]", "path-injection", "ai-manual"]
       - ["java.io", "FileOutputStream", False, "FileOutputStream", "", "", "Argument[0]", "path-injection", "manual"]
       - ["java.io", "FileOutputStream", False, "write", "", "", "Argument[0]", "file-content-store", "manual"]
+      - ["java.io", "FilePermission", False, "FilePermission", "(String,String)", "", "Argument[0]", "path-injection", "hq-manual"]
       - ["java.io", "FileReader", True, "FileReader", "(File)", "", "Argument[0]", "path-injection", "ai-manual"]
       - ["java.io", "FileReader", True, "FileReader", "(String)", "", "Argument[0]", "path-injection", "ai-manual"]
       - ["java.io", "FileReader", True, "FileReader", "(String,Charset)", "", "Argument[0]", "path-injection", "manual"]
