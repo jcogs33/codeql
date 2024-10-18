@@ -1,0 +1,41 @@
+<!DOCTYPE qhelp SYSTEM "qhelp.dtd">
+<qhelp>
+
+<overview>
+<p>When you set up a web server to receive a request from a client without any mechanism
+for verifying that it was intentionally sent, then it is vulnerable to attack. An attacker can
+trick a client into making an unintended request to the web server that will be treated as
+an authentic request. This can be done via a URL, image load, XMLHttpRequest, etc. and can
+result in exposure of data or unintended code execution.</p>
+</overview>
+
+<recommendation>
+<p>When you use Spring, Cross-Site Request Forgery (CSRF) protection is enabled by default. Spring's recommendation
+is to use CSRF protection for any request that could be processed by a browser client by normal
+users. If a request changes the state of the application, then it should use the default CSRF protection
+provided by Spring, which is available on POST, PUT, PATCH, and DELETE requests. Other HTTP request types should
+not be used for actions that change the state of the application, since these requests are not protected by
+Spring's default CSRF protection. </p>
+</recommendation>
+
+<example>
+<p>The following example shows the Spring Java configuration with a GET request used for a state-changing
+action. Since a GET request does not have default CSRF protection in Spring, this type of request should only
+be used if the request action does not modify state.</p>
+
+<sample src="CsrfUnprotectedRequestType.java" />
+</example>
+
+<references>
+<li>
+OWASP:
+<a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)">Cross-Site Request Forgery (CSRF)</a>.
+</li>
+<li>
+Spring Security Reference:
+<a href="https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html">
+  Cross Site Request Forgery (CSRF)
+</a>.
+</li>
+</references>
+</qhelp>
