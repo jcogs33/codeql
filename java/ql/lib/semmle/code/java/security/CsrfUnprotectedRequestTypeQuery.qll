@@ -70,17 +70,16 @@ private class StaplerHttpResponse extends Interface {
 
 // docs: https://docs.jenkins.io/dev-docs/security/form-validation.html#_protecting_from_csrf
 // TODO: may need to support `checkMethod="post"` for older versions on Jenkins?
-private class StaplerCsrfUnprotectedMethod extends CsrfUnprotectedMethod instanceof StaplerWebRequestMethod
-{
-  StaplerCsrfUnprotectedMethod() {
-    not (
-      // TODO: check if need to handle RequirePOST.ErrorCustomizer and RequirePOST.Processor nested classes explicitly?
-      this.hasAnnotation("org.kohsuke.stapler.interceptor", "RequirePOST") or
-      this.hasAnnotation("org.kohsuke.stapler.verb", "POST")
-    )
-  }
-}
-
+// private class StaplerCsrfUnprotectedMethod extends CsrfUnprotectedMethod instanceof StaplerWebRequestMethod
+// {
+//   StaplerCsrfUnprotectedMethod() {
+//     not (
+//       // TODO: check if need to handle RequirePOST.ErrorCustomizer and RequirePOST.Processor nested classes explicitly?
+//       this.hasAnnotation("org.kohsuke.stapler.interceptor", "RequirePOST") or
+//       this.hasAnnotation("org.kohsuke.stapler.verb", "POST")
+//     )
+//   }
+// }
 /**
  * A method whose name indicates that it may change the application's state.
  *
