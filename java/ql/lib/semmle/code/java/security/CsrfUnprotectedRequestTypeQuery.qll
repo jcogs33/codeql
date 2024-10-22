@@ -14,6 +14,7 @@ private class SpringCsrfUnprotectedMethod extends CsrfUnprotectedMethod instance
     (
       // TODO: confirm below works sufficiently and maybe add getMethod using below to SpringController.qll similarly to the existing getProduces?
       // TODO: example cases to test : @RequestMapping(value = "", method = RequestMethod.POST), method = { POST, PUT, PATCH }, method = POST, method = { RequestMethod.GET, RequestMethod.POST } etc.
+      // TODO: edge case?, need to handle io.swagger.v3.oas.annotations.Operation with Spring? See https://github.com/Tencent/spring-cloud-tencent/blob/c5f318d1d01ef8a3a4a857d8941dbcde6decf8b8/spring-cloud-tencent-examples/tsf-example/provider-demo/src/main/java/com/tencent/cloud/tsf/demo/provider/swagger/controller/SwaggerApiController.java#L126-L143.
       this.getAnAnnotation().getAnEnumConstantArrayValue("method").getName() =
         ["GET", "HEAD", "OPTIONS", "TRACE"]
       or
@@ -92,3 +93,23 @@ class StateChangingMethod extends Method {
   } // TODO: consider opposite of above?, i.e. look for anything except "show", "get", "view", "list", "query", "find", etc.?
   // TODO: note FP from `alibaba/nacos`: getPublishedClientList, should maybe always exclude methods starting with "get", etc.?
 }
+// MRVA FP Notes:
+// - xuxueli/xxl-job: toLogin (looks like probably not the actual login since there's a doLogin POST)
+// - alibaba/nacos: get[Publish]edClientList, get[Publish]edServiceList
+// - Tencent/spring-cloud-tencent: queryMessageBox[Add]ress
+// - shopizer-ecommerce/shopizer: exp[edit]ion
+// - gocd/gocd: redirectToThirdParty[Login]Page (or is redirect interesting?)
+// - gchq/Gaffer: getGraph[Create]dTime
+// - pig-mesh/pig: getSys[Post]Page and list[Post]s
+// - mitreid-connect/OpenID-Connect-Java-Spring-Server: confirm[Access], get[Access]TokensByClientId, get[Access]TokenById, getAll[Access]Tokens
+// - DSpace/DSpace: getFilter[edIt]ems
+// *****
+// MRVA Database, etc. notes:
+// - alibaba/Sentinel: saves in memory (ConcurrentHashMaps) instead of using database
+// - apache/incubator-seata:
+//    - saves in memory (HashMap), then saves string representation of that HashMap in file
+//    - OR saves in DB (String sql = "INSERT INTO with ps.setString->ps.executeUpdate() and String sql = "DELETE FROM  with ps.setString->ps.executeUpdate()): java(x).sql
+//    - or in NoSQL Redis (jedis.hset/jedis.hdel): redis.clients.jedis.Jedis, org.apache.seata.server.storage.redis.JedisPooledFactory
+// - apache/inlong:
+//    - logout: uses org.apache.shiro.SecurityUtils, org.apache.shiro.subject.Subject to handle the state change:  SecurityUtils.getSubject().logout();
+//    - delete: uses @Repository Spring annotation to map to mybatis DB: https://github.com/apache/inlong/blob/15ae01a6eb88777d2538e46245a626ce65c7626f/inlong-manager/manager-dao/src/main/resources/mappers/InlongTenantEntityMapper.xml#L151
