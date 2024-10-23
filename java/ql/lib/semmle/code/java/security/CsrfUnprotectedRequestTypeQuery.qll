@@ -1,6 +1,9 @@
 import java
-import semmle.code.java.frameworks.spring.SpringController
-import semmle.code.java.dataflow.DataFlow
+private import semmle.code.java.frameworks.spring.SpringController
+private import semmle.code.java.dataflow.DataFlow
+private import semmle.code.java.dataflow.TaintTracking
+private import semmle.code.java.dataflow.FlowSources
+private import semmle.code.java.security.QueryInjection
 
 abstract class CsrfUnprotectedMethod extends Method { }
 
@@ -92,6 +95,7 @@ class StateChangingMethod extends Method {
   } // TODO: consider opposite of above?, i.e. look for anything except "show", "get", "view", "list", "query", "find", etc.?
   // TODO: note FP from `alibaba/nacos`: getPublishedClientList, should maybe always exclude methods starting with "get", etc.?
 }
+
 // MRVA FP Notes:
 // - xuxueli/xxl-job: toLogin (looks like probably not the actual login since there's a doLogin POST)
 // - alibaba/nacos: get[Publish]edClientList, get[Publish]edServiceList
@@ -111,4 +115,19 @@ class StateChangingMethod extends Method {
 //    - or in NoSQL Redis (jedis.hset/jedis.hdel): redis.clients.jedis.Jedis, org.apache.seata.server.storage.redis.JedisPooledFactory
 // - apache/inlong:
 //    - logout: uses org.apache.shiro.SecurityUtils, org.apache.shiro.subject.Subject to handle the state change:  SecurityUtils.getSubject().logout();
-//    - delete: uses @Repository Spring annotation to map to mybatis DB: https://github.com/apache/inlong/blob/15ae01a6eb88777d2538e46245a626ce65c7626f/inlong-manager/manager-dao/src/main/resources/mappers/InlongTenantEntityMapper.xml#L151
+//    - delete: uses @Repository+@MapperScan Spring annotation to map to mybatis DB: https://github.com/apache/inlong/blob/15ae01a6eb88777d2538e46245a626ce65c7626f/inlong-manager/manager-dao/src/main/resources/mappers/InlongTenantEntityMapper.xml#L151
+// *** Complex Heuristic Experimentation ***
+/**
+ * A taint-tracking configuration for unvalidated user input that is used in SQL queries.
+ */
+module TestFlowConfig implements DataFlow::ConfigSig {
+  predicate isSource(DataFlow::Node src) {
+    src instanceof ActiveThreatModelSource and
+    src.getEnclosingCallable() instanceof CsrfUnprotectedMethod
+  }
+
+  predicate isSink(DataFlow::Node sink) { sink instanceof QueryInjectionSink }
+}
+
+/** Tracks flow of unvalidated user input that is used in SQL queries. */
+module TestFlow = TaintTracking::Global<TestFlowConfig>;

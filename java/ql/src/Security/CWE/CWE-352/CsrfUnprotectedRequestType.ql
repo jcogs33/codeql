@@ -14,14 +14,37 @@
 
 import java
 import semmle.code.java.security.CsrfUnprotectedRequestTypeQuery
+//import TestFlow::PathGraph
+// simple heuristic:
+// from CsrfUnprotectedMethod m //, Annotation a
+// where
+//   m instanceof StateChangingMethod and
+//   // TODO: remove below, temporary exclusion of test/samples dirs for sake of faster MRVA reviewing
+//   not m.getFile().getRelativePath().matches(["%/test/%", "%/samples/%"])
+// // TODO: make below more precise (i.e. select just the GET method in cases like: @RequestMapping(method = RequestMethod.GET)
+// // TODO: and adjust/remove for other frameworks?; Stapler won't have a request type to point to
+// // (a = m.getAnAnnotation() and a.toString().matches("%Mapping"))
+// select m,
+//   "Potential CSRF vulnerability due to using a (request type) which is not default-protected from CSRF for an apparent (state-changing action)."
+// *
+// complex heursitic - dataflow:
+// from TestFlow::PathNode source, TestFlow::PathNode sink
+// where TestFlow::flowPath(source, sink)
+// select sink.getNode(), source, sink, "This path depends on a $@.", source.getNode(),
+//   "user-provided value"
+// *
+// complex heursitic - no dataflow:
+import semmle.code.xml.MyBatisMapperXML
 
-from CsrfUnprotectedMethod m //, Annotation a
+from CsrfUnprotectedMethod m, MethodCall mc, MyBatisMapperSqlOperation mapperXml
 where
-  m instanceof StateChangingMethod and
-  // TODO: remove below, temporary exclusion of test/samples dirs for sake of faster MRVA reviewing
-  not m.getFile().getRelativePath().matches(["%/test/%", "%/samples/%"])
-// TODO: make below more precise (i.e. select just the GET method in cases like: @RequestMapping(method = RequestMethod.GET)
-// TODO: and adjust/remove for other frameworks?; Stapler won't have a request type to point to
-// (a = m.getAnAnnotation() and a.toString().matches("%Mapping"))
+  m = mc.getEnclosingCallable() and
+  (
+    mapperXml instanceof MyBatisMapperInsert or
+    mapperXml instanceof MyBatisMapperUpdate or
+    mapperXml instanceof MyBatisMapperDelete
+  ) and
+  mc.getMethod() = mapperXml.getMapperMethod()
 select m,
-  "Potential CSRF vulnerability due to using a (request type) which is not default-protected from CSRF for an apparent (state-changing action)."
+  "Potential CSRF vulnerability due to using a (request type) which is not default-protected from CSRF for an apparent $@.",
+  mc, "state-changing action"
