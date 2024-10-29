@@ -36,15 +36,30 @@ import semmle.code.java.security.CsrfUnprotectedRequestTypeQuery
 // complex heursitic - no dataflow:
 import semmle.code.xml.MyBatisMapperXML
 
-from CsrfUnprotectedMethod m, MethodCall mc, MyBatisMapperSqlOperation mapperXml
+// query predicate edges(ControlFlowNode a, ControlFlowNode b) {
+//   a.(Method).polyCalls*(b.(MethodCall).getEnclosingCallable()) // TODO: ask Chris about better way to do this?
+// }
+// query predicate edges(Method a, Method b) {
+//   a.polyCalls*(b) // doesn't work well if method is from jdk, since then tries to select .class file, e.g. java.sql.Statement.execute%
+// }
+from CsrfUnprotectedMethod m, DatabaseUpdateMethodCall mc //, Method calledMethod //, MyBatisMapperSqlOperation mapperXml
 where
-  m = mc.getEnclosingCallable() and
-  (
-    mapperXml instanceof MyBatisMapperInsert or
-    mapperXml instanceof MyBatisMapperUpdate or
-    mapperXml instanceof MyBatisMapperDelete
-  ) and
-  mc.getMethod() = mapperXml.getMapperMethod()
+  // * 1
+  //   (
+  //     mapperXml instanceof MyBatisMapperInsert or
+  //     mapperXml instanceof MyBatisMapperUpdate or
+  //     mapperXml instanceof MyBatisMapperDelete
+  //   ) and
+  //   databaseUpdateMethod = mapperXml.getMapperMethod() and
+  //   //m = mc.getEnclosingCallable() and
+  //   m.polyCalls*(databaseUpdateMethod) //and
+  // //mc.getMethod() = databaseUpdateMethod
+  // * 2
+  //edges+(m, mc)
+  // select m, m, mc,
+  //   "Potential CSRF vulnerability due to using a (request type) which is not default-protected from CSRF for an apparent $@.",
+  //   m, "state-changing action"
+  // * 3
+  m.polyCalls*(mc.getEnclosingCallable())
 select m,
-  "Potential CSRF vulnerability due to using a (request type) which is not default-protected from CSRF for an apparent $@.",
-  mc, "state-changing action"
+  "Potential CSRF vulnerability due to using a (request type) which is not default-protected from CSRF for an apparent state-changing action."

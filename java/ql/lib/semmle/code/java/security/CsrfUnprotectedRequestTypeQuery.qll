@@ -94,9 +94,12 @@ class StateChangingMethod extends Method {
         .regexpMatch(".*(?i)(post|put|patch|delete|remove|create|add|update|edit|publish|unpublish|fill|move|transfer|log(out|in)|access|connect|register|submit|den(y|ied)).*")
   } // TODO: consider opposite of above?, i.e. look for anything except "show", "get", "view", "list", "query", "find", etc.?
   // TODO: note FP from `alibaba/nacos`: getPublishedClientList, should maybe always exclude methods starting with "get", etc.?
+  // TODO: connect a FP usually? review https://github.com/WeBankFinTech/DataSphereStudio/blob/f8732934448379ba8be383fc1196d0648a6c6661/dss-apps/dss-data-api/dss-data-api-server/src/main/java/com/webank/wedatasphere/dss/data/api/server/restful/DSSDbApiDataSourceRestful.java#L34, etc.
+  // TODO: "pay" as well?
+  // TODO: maybe use login/out, etc. _with_ more complex heuristic?
 }
 
-// MRVA FP Notes:
+// MRVA FP Notes: (at least exclude any that start with get/query/list/)
 // - xuxueli/xxl-job: toLogin (looks like probably not the actual login since there's a doLogin POST)
 // - alibaba/nacos: get[Publish]edClientList, get[Publish]edServiceList
 // - Tencent/spring-cloud-tencent: queryMessageBox[Add]ress
@@ -106,9 +109,16 @@ class StateChangingMethod extends Method {
 // - pig-mesh/pig: getSys[Post]Page and list[Post]s
 // - mitreid-connect/OpenID-Connect-Java-Spring-Server: confirm[Access], get[Access]TokensByClientId, get[Access]TokenById, getAll[Access]Tokens
 // - DSpace/DSpace: getFilter[edIt]ems
+// - WeBankFinTech/DataSphereStudio: getHiveTbl[Create]--TP actually since does create table if not exist; get[Login]UserInfo
+// - ityouknow/spring-boot-examples: toEdit?, toAdd?
+// - erupts/erupt: code[Edit]Hints (//Gets the CodeEdit component hint data)
+// - dataease/dataease: proxyUser[Login]Info, user[Login]Info, callBackWithoutLogin?
+// - apolloconfig/apollo: findDeletedItems?, namespacePublishInfo?, getNamespacesPublishInfo, hasCreateApplicationPermission, getCreateApplicationRoleUsers
+// - PowerJob/PowerJob: ifLogin?, loginCallback?, getThirdPartyLoginUrl?, listSupportLoginTypes?, checkConnectivity?, getSystemOverview?
+// - jenkinsci/github-plugin (Stapler since Jenkins?!): doCheckHookRegistered?, ...
 // *****
 // MRVA Database, etc. notes:
-// - alibaba/Sentinel: saves in memory (ConcurrentHashMaps) instead of using database
+// - alibaba/Sentinel: saves in memory (ConcurrentHashMap, Iterator, etc.) instead of using database
 // - apache/incubator-seata:
 //    - saves in memory (HashMap), then saves string representation of that HashMap in file
 //    - OR saves in DB (String sql = "INSERT INTO with ps.setString->ps.executeUpdate() and String sql = "DELETE FROM  with ps.setString->ps.executeUpdate()): java(x).sql
@@ -116,18 +126,83 @@ class StateChangingMethod extends Method {
 // - apache/inlong:
 //    - logout: uses org.apache.shiro.SecurityUtils, org.apache.shiro.subject.Subject to handle the state change:  SecurityUtils.getSubject().logout();
 //    - delete: uses @Repository+@MapperScan Spring annotation to map to mybatis DB: https://github.com/apache/inlong/blob/15ae01a6eb88777d2538e46245a626ce65c7626f/inlong-manager/manager-dao/src/main/resources/mappers/InlongTenantEntityMapper.xml#L151
+// - WeBankFinTech/DataSphereStudio:
+//    - apiDelete: mybatis Mapper xml: https://github.com/WeBankFinTech/DataSphereStudio/blob/f8732934448379ba8be383fc1196d0648a6c6661/dss-apps/dss-apiservice-server/src/main/java/com/webank/wedatasphere/dss/apiservice/core/dao/mapper/ApiServiceMapper.xml#L18
+// macrozheng/mall:
+//    - delete: mybatis Mapper xml
+// apache/shenyu:
+//    - delete: HashMap it seems
 // *** Complex Heuristic Experimentation ***
-/**
- * A taint-tracking configuration for unvalidated user input that is used in SQL queries.
- */
-module TestFlowConfig implements DataFlow::ConfigSig {
-  predicate isSource(DataFlow::Node src) {
-    src instanceof ActiveThreatModelSource and
-    src.getEnclosingCallable() instanceof CsrfUnprotectedMethod
-  }
+// /**
+//  * A taint-tracking configuration for unvalidated user input that is used in SQL queries.
+//  */
+// module TestFlowConfig implements DataFlow::ConfigSig {
+//   predicate isSource(DataFlow::Node src) {
+//     src instanceof ActiveThreatModelSource and
+//     src.getEnclosingCallable() instanceof CsrfUnprotectedMethod
+//   }
+//   predicate isSink(DataFlow::Node sink) { sink instanceof QueryInjectionSink }
+// }
+// /** Tracks flow of unvalidated user input that is used in SQL queries. */
+// module TestFlow = TaintTracking::Global<TestFlowConfig>;
+private import semmle.code.java.frameworks.MyBatis
 
-  predicate isSink(DataFlow::Node sink) { sink instanceof QueryInjectionSink }
+abstract class DatabaseUpdateMethodCall extends MethodCall { }
+
+class MyBatisMapperMethodCall extends DatabaseUpdateMethodCall {
+  MyBatisMapperMethodCall() {
+    // MyBatis XML Mapper method that updates/inserts/deletes
+    exists(MyBatisMapperSqlOperation mapperXml |
+      (
+        mapperXml instanceof MyBatisMapperInsert or
+        mapperXml instanceof MyBatisMapperUpdate or
+        mapperXml instanceof MyBatisMapperDelete
+      ) and
+      this.getMethod() = mapperXml.getMapperMethod()
+    )
+  }
 }
 
-/** Tracks flow of unvalidated user input that is used in SQL queries. */
-module TestFlow = TaintTracking::Global<TestFlowConfig>;
+private import semmle.code.java.dataflow.ExternalFlow
+
+//private import semmle.code.java.dataflow.FlowSinks
+// ! seems potentially too slow after adding this, got stuck on the edges predicate briefly, query results stuck and not displaying... :(, oh 247 results.... Webview is disposed error
+// ! Gave method calls that not called from starting method.... might need help understanding virtual dispatch, edges, polyCalls, etc.
+// ! why not getting paths longer than two? Am I trying to force too much with path between different types? (Method to MethodCall versus Method to Method)
+class JavaSqlExecuteMethodCall extends DatabaseUpdateMethodCall {
+  JavaSqlExecuteMethodCall() {
+    // TODO: narrow down to only insert/update/delete; need to track the sql expression into the execute call...
+    exists(Method m | m = this.getMethod() |
+      m.getDeclaringType().hasQualifiedName("java.sql", "PreparedStatement") and
+      m.getName().matches("executeUpdate") // TODO: "execute%" when above TODO is handled...
+    )
+  }
+}
+
+// module MyFlowConfiguration implements DataFlow::ConfigSig {
+//   predicate isSource(DataFlow::Node source) {
+//     exists(StringLiteral sl | sl = source.asExpr() | sl.toString().matches("%DELETE%"))
+//   }
+//   predicate isSink(DataFlow::Node sink) { sinkNode(sink, "sql-injection") }
+// }
+// module MyFlow = TaintTracking::Global<MyFlowConfiguration>;
+class JavaSqlInjectionMethodCall extends DatabaseUpdateMethodCall {
+  JavaSqlInjectionMethodCall() {
+    // TODO: narrow down to only insert/update/delete; need to track the sql expression into the execute call...; barrier or exclusion?
+    // TODO:   exists a StringLiteral (and Variable? depending where SQL first gets set up...) such that taint from string literal flows to DatabaseUpdateMethodCall
+    // TODO    and StringLiteral contains/startsWith DELETE, UPDATE, INSERT, etc.
+    exists(DataFlow::Node n |
+      this = n.asExpr().(Argument).getCall() // Note: getCall _does_ include constructor calls, so works for SqlUpdate, etc.
+    |
+      sinkNode(n, "sql-injection") and
+      this.getMethod()
+          .getName()
+          .regexpMatch(".*(?i)(delete|insert|update|save|persist|merge|replicate|execute).*")
+    )
+  }
+}
+// TODO: make sure below are fully covered (i.e. modelled as sql-injection sinks and not just something I saw in their docs) (and maybe see Android cleartext local database storage?)
+// TODO: ibatis SqlRunner.delete/insert/update
+// TODO: hibernate %Session%.save/persist/delete/update/merge/saveOrUpdate/replicate
+// TODO: Spring JdbcTemplate/NamedParameterJdbcOperations/BatchSqlUpdate/SqlUpdate/SqlCall?/SqlQuery?, etc.
+// TODO: keycloak MapStorage.delete, etc.
