@@ -7,6 +7,7 @@ import semmle.code.java.frameworks.spring.SpringController
 import semmle.code.xml.MyBatisMapperXML
 import semmle.code.java.dataflow.DataFlow
 import semmle.code.java.dataflow.ExternalFlow
+private import semmle.code.java.dispatch.VirtualDispatch
 
 abstract class CsrfUnprotectedMethod extends Method { }
 
@@ -84,10 +85,22 @@ module CallGraph {
       result = this.asCall().toString()
     }
 
+    private PathNode getACallee() {
+      [viableCallable(this.asCall()), this.asCall().getCallee()] = result.asMethod()
+    }
+
     PathNode getASuccessor() {
       this.asMethod() = result.asCall().getEnclosingCallable()
       or
-      this.asCall().getCallee() = result.asMethod()
+      result = this.getACallee() and
+      (
+        exists(PathNode p |
+          p = this.getACallee() and
+          p.asMethod() instanceof DatabaseUpdateMethod
+        )
+        implies
+        result.asMethod() instanceof DatabaseUpdateMethod
+      )
     }
 
     Location getLocation() {
@@ -102,10 +115,16 @@ module CallGraph {
 
 import CallGraph
 
-from PathNode source, PathNode reachable
+// query predicate debugEdges(PathNode pred, PathNode succ) {
+//   edges(pred, succ) and
+//   pred.getLocation().getFile().getBaseName() = "OpenInlongTenantController.java"
+// }
+from PathNode source, PathNode reachable, PathNode callsReachable
 where
   source.asMethod() instanceof CsrfUnprotectedMethod and
   reachable.asMethod() instanceof DatabaseUpdateMethod and
-  source.asMethod().polyCalls+(reachable.asMethod())
-select source.asMethod(), source, reachable, "This method, $@, reaches $@.", source,
-  source.asMethod().getName(), reachable.asMethod(), reachable.toString()
+  callsReachable.getASuccessor() = reachable and
+  //source.asMethod().polyCalls+(reachable.asMethod())
+  source.getASuccessor+() = callsReachable
+select source.asMethod(), source, callsReachable, "This method, $@, reaches $@.", source,
+  source.asMethod().getName(), callsReachable, reachable.toString()
