@@ -86,4 +86,110 @@ public class TaintedPath {
             fileLine = fileReader.readLine();
         }
     }
+
+    // Tests for CodeQL Java FP: File constructor and path injection
+    /** Pattern requested to cover:
+       if (!tainted.contains("..")) {
+            File f2 = new File(f1, tainted); // f1 is another File object
+            //then do something with f2
+        }
+     */
+
+    // TODO: requested pattern
+    public void sendUserFileGood5(Socket sock, String user) throws IOException {
+        BufferedReader filenameReader =
+                new BufferedReader(new InputStreamReader(sock.getInputStream(), "UTF-8"));
+        String filename = filenameReader.readLine();
+        File f1 = new File("safe/file.txt");
+        // GOOD: ensure that the path does not contain ".." and is concatenated to a safe prefix
+        // (Need to confirm that the safe prefix `f1` is not tainted if not explicitly checking it?)
+        if (!filename.contains("..")) {
+            File f2 = new File(f1, filename);
+            f2.exists();
+        }
+    }
+
+    // TODO : is this the only case they need handled???
+    public void sendUserFileGood6(Socket sock, String user) throws IOException {
+        BufferedReader filenameReader =
+                new BufferedReader(new InputStreamReader(sock.getInputStream(), "UTF-8"));
+        String filename = filenameReader.readLine();
+        File f1 = new File("safe/file.txt");
+        // GOOD: ensure that the path does not contain ".." and is concatenated to a safe prefix
+        if (!filename.contains("..") && f1.getPath().startsWith("safe")) {
+            File f2 = new File(f1, filename);
+            f2.exists();
+        }
+    }
+
+    // ALREADY HANLDED AS GOOD
+    public void sendUserFileGood7(Socket sock, String user) throws IOException {
+        BufferedReader filenameReader =
+                new BufferedReader(new InputStreamReader(sock.getInputStream(), "UTF-8"));
+        String filename = filenameReader.readLine();
+        File f1 = new File("safe/file.txt");
+        File f2 = new File(f1, filename);
+        // GOOD: ensure that the path does not contain ".." and is concatenated to a safe prefix
+        if (!filename.contains("..") && f2.getPath().startsWith("safe")) {
+            f2.exists();
+        }
+    }
+
+    // TODO ?
+    public void sendUserFileGood8(Socket sock, String user) throws IOException {
+        BufferedReader filenameReader =
+                new BufferedReader(new InputStreamReader(sock.getInputStream(), "UTF-8"));
+        String filename = filenameReader.readLine();
+        File f1 = new File("safe/file.txt");
+        File f2 = new File(f1, filename);
+        // GOOD: ensure that the path does not contain ".." and is concatenated to a safe prefix
+        if (!filename.contains("..")) {
+            f2.exists();
+        }
+    }
+
+    // TODO second...
+    public void sendUserFileGood9(Socket sock, String user) throws IOException {
+        BufferedReader filenameReader =
+                new BufferedReader(new InputStreamReader(sock.getInputStream(), "UTF-8"));
+        String filename = filenameReader.readLine();
+        String path = "safe/" + filename;
+        // GOOD: ensure that the path does not contain ".." and is concatenated to a safe prefix
+        if (!path.contains("..")) {
+            BufferedReader fileReader = new BufferedReader(new FileReader(path));
+        }
+    }
+
+    // TODO first...
+    public void sendUserFileGood10(Socket sock, String user) throws IOException {
+        BufferedReader filenameReader =
+                new BufferedReader(new InputStreamReader(sock.getInputStream(), "UTF-8"));
+        String filename = filenameReader.readLine();
+        // GOOD: ensure that the path does not contain ".." and is concatenated to a safe prefix
+        if (!filename.contains("..")) {
+            String path = "safe/" + filename;
+            BufferedReader fileReader = new BufferedReader(new FileReader(path));
+        }
+    }
+
+    public void sendUserFileBad(Socket sock, String user) throws IOException {
+        BufferedReader filenameReader =
+                new BufferedReader(new InputStreamReader(sock.getInputStream(), "UTF-8"));
+        String filename = filenameReader.readLine();
+        // BAD: concatenated to a safe prefix, but does not ensure that the path does not contain ".."
+        String path = "safe/" + filename;
+        BufferedReader fileReader = new BufferedReader(new FileReader(path));  // $ hasTaintFlow
+    }
+
+    public void sendUserFileGood11(Socket sock, String user) throws IOException {
+        BufferedReader filenameReader =
+                new BufferedReader(new InputStreamReader(sock.getInputStream(), "UTF-8"));
+        String filename = filenameReader.readLine();
+        // GOOD: ensure that the path does not contain ".." and is concatenated to a safe prefix
+        //Path publicFolder = Paths.get("/home/" + user + "/public").normalize().toAbsolutePath();
+        Path normalizedFilename = Paths.get(filename).normalize().toAbsolutePath();
+        String normalizedFilenameStr = normalizedFilename.toString();
+        String finalPath = "safe/" + normalizedFilenameStr;
+        BufferedReader fileReader = new BufferedReader(new FileReader(finalPath));
+    }
 }

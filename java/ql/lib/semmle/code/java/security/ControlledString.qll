@@ -5,7 +5,7 @@
  */
 
 import semmle.code.java.Expr
-import semmle.code.java.security.Validation
+private import semmle.code.java.security.Validation
 
 /**
  * Holds if `method` is a `toString()` method on a boxed type, with or without parameters.

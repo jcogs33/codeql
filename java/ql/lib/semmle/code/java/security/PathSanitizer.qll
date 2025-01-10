@@ -92,6 +92,47 @@ private predicate localTaintFlowToPathGuard(Expr e, PathGuard g) {
   TaintTracking::LocalTaintFlow<anyNode/1, pathGuardNode/1>::hasExprFlow(e, g.getCheckedExpr())
 }
 
+// *****
+private predicate isPrependedPrefix(Guard g) { g.getLocation().toString() = "" }
+
+private class PrependedSafePrefixGuard extends PathGuard {
+  PrependedSafePrefixGuard() { isPrependedPrefix(this) }
+
+  override Expr getCheckedExpr() { result = getVisualQualifier(this).getUnderlyingExpr() }
+}
+
+/**
+ * Holds if `g` is a guard that considers a path safe because it is appended to a trusted prefix.
+ * This requires additional protection against path traversal, either another guard (`PathTraversalGuard`)
+ * or a sanitizer (`PathNormalizeSanitizer`), to ensure any internal `..` components are removed from the path.
+ */
+private predicate prependedSafePrefixGuard(Guard g, Expr e, boolean branch) {
+  branch = true and
+  // Local taint-flow is used here to handle cases where the validated expression comes from the
+  // expression reaching the sink, but it's not the same one, e.g.:
+  //  File file = source();
+  //  String strPath = file.getCanonicalPath();
+  //  if (strPath.startsWith("/safe/dir"))
+  //    sink(file);
+  g instanceof PrependedSafePrefixGuard and
+  localTaintFlowToPathGuard(e, g) and
+  exists(Expr previousGuard |
+    localTaintFlowToPathGuard(previousGuard.(PathNormalizeSanitizer), g)
+    or
+    previousGuard
+        .(PathTraversalGuard)
+        .controls(g.getBasicBlock(), previousGuard.(PathTraversalGuard).getBranch())
+  )
+}
+
+private class PrependedSafePrefixSanitizer extends PathInjectionSanitizer {
+  PrependedSafePrefixSanitizer() {
+    this = DataFlow::BarrierGuard<prependedSafePrefixGuard/3>::getABarrierNode() or
+    this = ValidationMethod<prependedSafePrefixGuard/3>::getAValidatedNode()
+  }
+}
+
+// *****
 private class AllowedPrefixGuard extends PathGuard instanceof MethodCall {
   AllowedPrefixGuard() {
     (isStringPrefixMatch(this) or isPathPrefixMatch(this)) and
@@ -349,6 +390,67 @@ private class FileGetNameSanitizer extends PathInjectionSanitizer {
     exists(MethodCall mc |
       mc.getMethod().hasQualifiedName("java.io", "File", "getName") and
       this.asExpr() = mc
+    )
+  }
+}
+
+import semmle.code.java.security.ControlledString
+
+// private predicate controlledFileConstructor(Expr e) {
+//   e.getType() instanceof TypeFile and
+//   controlledString(e.(ConstructorCall).getAnArgument())
+//   // exists(ConstructorCall cc, VariableAssign va |
+//   //   controlledString(cc.getAnArgument()) and
+//   //   va = cc and
+//   //   TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(va, v)
+//   // )
+// }
+private predicate controlledFileConstructor(VarAccess v) {
+  exists(ConstructorCall cc |
+    v.getType() instanceof TypeFile and
+    v.getVariable().getAnAssignedValue() = cc and
+    controlledString(cc.getAnArgument())
+  )
+  //controlledString(v.getVariable().(ConstructorCall).getAnArgument())
+  // exists(ConstructorCall cc, VariableAssign va |
+  //   controlledString(cc.getAnArgument()) and
+  //   va = cc and
+  //   TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(va, v)
+  // )
+}
+
+private class PrependedSafePrefixSanitizerTest extends PathInjectionSanitizer {
+  PrependedSafePrefixSanitizerTest() {
+    // appended to safe prefix
+    (
+      exists(Expr e, AddExpr a |
+        controlledString(e) and
+        e = a.getLeftOperand() and
+        this.asExpr() = a.getRightOperand()
+      )
+      or
+      exists(ConstructorCall c, /*Expr e,*/ VarAccess v |
+        c.getConstructedType() instanceof TypeFile and
+        //e.getDeclaringType() instanceof TypeFile and
+        controlledFileConstructor(v) and
+        //v.getControlFlowNode().asExpr() = e and
+        c.getArgument(0) = v and
+        c.getArgument(1) = this.asExpr()
+      )
+    ) and
+    // AND checked for path traversal sequences
+    (
+      exists(PathNormalizeSanitizer pathNormSan |
+        TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(pathNormSan, this.asExpr())
+      )
+      or
+      exists(PathTraversalGuard pathTravGuard |
+        // pathTravGuard.getCheckedExpr() = this.asExpr()
+        TaintTracking::LocalTaintFlow<pathGuardNode/1, anyNode/1>::hasExprFlow(pathTravGuard
+              .getCheckedExpr(), this.asExpr()) or
+        TaintTracking::LocalTaintFlow<anyNode/1, pathGuardNode/1>::hasExprFlow(this.asExpr(),
+          pathTravGuard.getCheckedExpr())
+      )
     )
   }
 }
