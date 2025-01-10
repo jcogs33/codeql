@@ -135,6 +135,21 @@ public class TaintedPath {
         }
     }
 
+    // ALREADY HANLDED AS GOOD
+    public void sendUserFileGood7_2(Socket sock, String user) throws IOException {
+        BufferedReader filenameReader =
+                new BufferedReader(new InputStreamReader(sock.getInputStream(), "UTF-8"));
+        String filename = filenameReader.readLine();
+        File f1 = new File("safe/file.txt");
+        // GOOD: ensure that the path does not contain ".." and is concatenated to a safe prefix
+        if (!filename.contains("..")) {
+            File f2 = new File(f1, filename);
+            if (f2.getPath().startsWith("safe")) {
+                f2.exists();
+            }
+        }
+    }
+
     // TODO ?
     public void sendUserFileGood8(Socket sock, String user) throws IOException {
         BufferedReader filenameReader =
