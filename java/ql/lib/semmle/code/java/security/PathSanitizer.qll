@@ -352,46 +352,44 @@ private class FileGetNameSanitizer extends PathInjectionSanitizer {
     )
   }
 }
-
-import semmle.code.java.security.ControlledString
-
-private predicate controlledFileConstructor(VarAccess v) {
-  exists(ConstructorCall cc |
-    v.getType() instanceof TypeFile and
-    v.getVariable().getAnAssignedValue() = cc and
-    controlledString(cc.getAnArgument())
-  )
-}
-
-private class PrependedSafePrefixSanitizerTest extends PathInjectionSanitizer {
-  PrependedSafePrefixSanitizerTest() {
-    // appended to safe prefix
-    (
-      exists(Expr e, AddExpr a |
-        controlledString(e) and
-        e = a.getLeftOperand() and
-        this.asExpr() = a.getRightOperand()
-      )
-      or
-      exists(ConstructorCall c, VarAccess v |
-        c.getConstructedType() instanceof TypeFile and
-        controlledFileConstructor(v) and
-        c.getArgument(0) = v and
-        c.getArgument(1) = this.asExpr()
-      )
-    ) and
-    // AND checked for path traversal sequences
-    (
-      exists(PathNormalizeSanitizer pathNormSan |
-        TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(pathNormSan, this.asExpr())
-      )
-      or
-      exists(PathTraversalGuard pathTravGuard |
-        TaintTracking::LocalTaintFlow<pathGuardNode/1, anyNode/1>::hasExprFlow(pathTravGuard
-              .getCheckedExpr(), this.asExpr()) or
-        TaintTracking::LocalTaintFlow<anyNode/1, pathGuardNode/1>::hasExprFlow(this.asExpr(),
-          pathTravGuard.getCheckedExpr())
-      )
-    )
-  }
-}
+// ***** INITIAL EXPERIMENTAL CODE BELOW *****
+// import semmle.code.java.security.ControlledString
+// private predicate controlledFileConstructor(VarAccess v) {
+//   exists(ConstructorCall cc |
+//     v.getType() instanceof TypeFile and
+//     v.getVariable().getAnAssignedValue() = cc and
+//     controlledString(cc.getAnArgument())
+//   )
+// }
+// private class PrependedSafePrefixSanitizerTest extends PathInjectionSanitizer {
+//   PrependedSafePrefixSanitizerTest() {
+//     // appended to safe prefix
+//     (
+//       exists(Expr e, AddExpr a |
+//         controlledString(e) and
+//         e = a.getLeftOperand() and
+//         this.asExpr() = a.getRightOperand()
+//       )
+//       or
+//       exists(ConstructorCall c, VarAccess v |
+//         c.getConstructedType() instanceof TypeFile and
+//         controlledFileConstructor(v) and
+//         c.getArgument(0) = v and
+//         c.getArgument(1) = this.asExpr()
+//       )
+//     ) and
+//     // AND checked for path traversal sequences
+//     (
+//       exists(PathNormalizeSanitizer pathNormSan |
+//         TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(pathNormSan, this.asExpr())
+//       )
+//       or
+//       exists(PathTraversalGuard pathTravGuard |
+//         TaintTracking::LocalTaintFlow<pathGuardNode/1, anyNode/1>::hasExprFlow(pathTravGuard
+//               .getCheckedExpr(), this.asExpr()) or
+//         TaintTracking::LocalTaintFlow<anyNode/1, pathGuardNode/1>::hasExprFlow(this.asExpr(),
+//           pathTravGuard.getCheckedExpr())
+//       )
+//     )
+//   }
+// }
