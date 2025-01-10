@@ -352,6 +352,77 @@ private class FileGetNameSanitizer extends PathInjectionSanitizer {
     )
   }
 }
+
+abstract private class PrependedExpr extends Expr { }
+
+private class FileConstructorParentArg extends PrependedExpr {
+  FileConstructorParentArg() {
+    exists(ConstructorCall constructorCall, Argument parentArg |
+      constructorCall.getConstructedType() instanceof TypeFile and
+      constructorCall.getNumArgument() = 2 and
+      parentArg = constructorCall.getArgument(0) and
+      not parentArg.getType() instanceof NullType and
+      this = parentArg
+    )
+  }
+}
+
+private import semmle.code.java.dataflow.StringPrefixes
+
+// ! use StringPrefixes.qll or something else prebuilt instead of the below?
+private class LeftAddExpr extends PrependedExpr {
+  LeftAddExpr() { exists(AddExpr addExpr | this = addExpr.getLeftOperand()) }
+}
+
+// ! anything prebuilt to use instead of below?
+/**
+ * A taint-tracking configuration for reasoning about tainted nodes.
+ */
+private module IsTaintedConfig implements DataFlow::ConfigSig {
+  predicate isSource(DataFlow::Node source) { source instanceof ActiveThreatModelSource }
+
+  predicate isSink(DataFlow::Node sink) { sink.asExpr() instanceof PrependedExpr }
+}
+
+/**
+ * Tracks flow from any `ActiveThreatModelSource` to any node.
+ */
+private module IsTaintedFlow = TaintTracking::Global<IsTaintedConfig>;
+
+private predicate isTainted(Expr expr) { IsTaintedFlow::flowToExpr(expr) }
+
+/**
+ * A sanitizer that considers a path safe because it is appended to a prefix which is fully controlled by
+ * the program source code. This requires additional protection against path traversal, either a guard
+ * (`PathTraversalGuard`) or a sanitizer (`PathNormalizeSanitizer`), to ensure any internal `..` components
+ * are removed from the path.
+ */
+private class ControlledPrefixSanitizer extends PathInjectionSanitizer {
+  ControlledPrefixSanitizer() {
+    exists(PrependedExpr expr |
+      not isTainted(expr) and
+      (
+        expr instanceof FileConstructorParentArg and
+        expr.(Argument).getCall().getArgument(1) = this.asExpr()
+        or
+        expr instanceof LeftAddExpr and
+        exists(AddExpr a | expr = a.getLeftOperand() and this.asExpr() = a.getRightOperand())
+      )
+    ) and
+    (
+      exists(PathNormalizeSanitizer pathNormSan |
+        TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(pathNormSan, this.asExpr())
+      )
+      or
+      exists(PathTraversalGuard pathTravGuard |
+        TaintTracking::LocalTaintFlow<pathGuardNode/1, anyNode/1>::hasExprFlow(pathTravGuard
+              .getCheckedExpr(), this.asExpr()) or
+        TaintTracking::LocalTaintFlow<anyNode/1, pathGuardNode/1>::hasExprFlow(this.asExpr(),
+          pathTravGuard.getCheckedExpr())
+      )
+    )
+  }
+}
 // ***** INITIAL EXPERIMENTAL CODE BELOW *****
 // import semmle.code.java.security.ControlledString
 // private predicate controlledFileConstructor(VarAccess v) {

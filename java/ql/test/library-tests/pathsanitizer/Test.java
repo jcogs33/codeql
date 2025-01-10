@@ -463,4 +463,85 @@ public class Test {
             }
         }
     }
+
+    // TODO: rewrite below for ControlledPrefixSanitizer
+    private void controlledPrefixValidation(String path) throws Exception {
+        if (!path.startsWith("/safe") || path.contains(".."))
+            throw new Exception();
+    }
+
+    public void controlledPrefixSanitizer() throws Exception {
+        // dot dot check by itself is not enough
+        {
+            String source = (String) source();
+            if (!source.contains("..")) {
+                sink(source); // $ hasTaintFlow
+            } else
+                sink(source); // $ hasTaintFlow
+        }
+        // allowListGuard + dotDotCheckGuard
+        {
+            String source = (String) source();
+            if (source.startsWith("/safe") && !source.contains(".."))
+                sink(source); // Safe
+            else
+                sink(source); // $ hasTaintFlow
+        }
+        {
+            String source = (String) source();
+            if (source.startsWith("/safe") && source.indexOf("..") == -1)
+                sink(source); // Safe
+            else
+                sink(source); // $ hasTaintFlow
+        }
+        {
+            String source = (String) source();
+            if (!source.startsWith("/safe") || source.indexOf("..") != -1)
+                sink(source); // $ hasTaintFlow
+            else
+                sink(source); // Safe
+        }
+        {
+            String source = (String) source();
+            if (source.startsWith("/safe") && source.lastIndexOf("..") == -1)
+                sink(source); // Safe
+            else
+                sink(source); // $ hasTaintFlow
+        }
+        // blockListGuard + dotDotCheckGuard
+        {
+            String source = (String) source();
+            if (!source.startsWith("/data") && !source.contains(".."))
+                sink(source); // Safe
+            else
+                sink(source); // $ hasTaintFlow
+        }
+        {
+            String source = (String) source();
+            if (!source.startsWith("/data") && source.indexOf("..") == -1)
+                sink(source); // Safe
+            else
+                sink(source); // $ hasTaintFlow
+        }
+        {
+            String source = (String) source();
+            if (source.startsWith("/data") || source.indexOf("..") != -1)
+                sink(source); // $ hasTaintFlow
+            else
+                sink(source); // Safe
+        }
+        {
+            String source = (String) source();
+            if (!source.startsWith("/data") && source.lastIndexOf("..") == -1)
+                sink(source); // Safe
+            else
+                sink(source); // $ hasTaintFlow
+        }
+        // validation method
+        {
+            String source = (String) source();
+            dotDotCheckGuardValidation(source);
+            sink(source); // Safe
+        }
+    }
 }
