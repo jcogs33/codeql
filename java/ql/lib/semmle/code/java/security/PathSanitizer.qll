@@ -355,27 +355,12 @@ private class FileGetNameSanitizer extends PathInjectionSanitizer {
 
 import semmle.code.java.security.ControlledString
 
-// private predicate controlledFileConstructor(Expr e) {
-//   e.getType() instanceof TypeFile and
-//   controlledString(e.(ConstructorCall).getAnArgument())
-//   // exists(ConstructorCall cc, VariableAssign va |
-//   //   controlledString(cc.getAnArgument()) and
-//   //   va = cc and
-//   //   TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(va, v)
-//   // )
-// }
 private predicate controlledFileConstructor(VarAccess v) {
   exists(ConstructorCall cc |
     v.getType() instanceof TypeFile and
     v.getVariable().getAnAssignedValue() = cc and
     controlledString(cc.getAnArgument())
   )
-  //controlledString(v.getVariable().(ConstructorCall).getAnArgument())
-  // exists(ConstructorCall cc, VariableAssign va |
-  //   controlledString(cc.getAnArgument()) and
-  //   va = cc and
-  //   TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(va, v)
-  // )
 }
 
 private class PrependedSafePrefixSanitizerTest extends PathInjectionSanitizer {
@@ -388,11 +373,9 @@ private class PrependedSafePrefixSanitizerTest extends PathInjectionSanitizer {
         this.asExpr() = a.getRightOperand()
       )
       or
-      exists(ConstructorCall c, /*Expr e,*/ VarAccess v |
+      exists(ConstructorCall c, VarAccess v |
         c.getConstructedType() instanceof TypeFile and
-        //e.getDeclaringType() instanceof TypeFile and
         controlledFileConstructor(v) and
-        //v.getControlFlowNode().asExpr() = e and
         c.getArgument(0) = v and
         c.getArgument(1) = this.asExpr()
       )
@@ -404,7 +387,6 @@ private class PrependedSafePrefixSanitizerTest extends PathInjectionSanitizer {
       )
       or
       exists(PathTraversalGuard pathTravGuard |
-        // pathTravGuard.getCheckedExpr() = this.asExpr()
         TaintTracking::LocalTaintFlow<pathGuardNode/1, anyNode/1>::hasExprFlow(pathTravGuard
               .getCheckedExpr(), this.asExpr()) or
         TaintTracking::LocalTaintFlow<anyNode/1, pathGuardNode/1>::hasExprFlow(this.asExpr(),
