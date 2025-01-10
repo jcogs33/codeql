@@ -92,47 +92,6 @@ private predicate localTaintFlowToPathGuard(Expr e, PathGuard g) {
   TaintTracking::LocalTaintFlow<anyNode/1, pathGuardNode/1>::hasExprFlow(e, g.getCheckedExpr())
 }
 
-// *****
-private predicate isPrependedPrefix(Guard g) { g.getLocation().toString() = "" }
-
-private class PrependedSafePrefixGuard extends PathGuard {
-  PrependedSafePrefixGuard() { isPrependedPrefix(this) }
-
-  override Expr getCheckedExpr() { result = getVisualQualifier(this).getUnderlyingExpr() }
-}
-
-/**
- * Holds if `g` is a guard that considers a path safe because it is appended to a trusted prefix.
- * This requires additional protection against path traversal, either another guard (`PathTraversalGuard`)
- * or a sanitizer (`PathNormalizeSanitizer`), to ensure any internal `..` components are removed from the path.
- */
-private predicate prependedSafePrefixGuard(Guard g, Expr e, boolean branch) {
-  branch = true and
-  // Local taint-flow is used here to handle cases where the validated expression comes from the
-  // expression reaching the sink, but it's not the same one, e.g.:
-  //  File file = source();
-  //  String strPath = file.getCanonicalPath();
-  //  if (strPath.startsWith("/safe/dir"))
-  //    sink(file);
-  g instanceof PrependedSafePrefixGuard and
-  localTaintFlowToPathGuard(e, g) and
-  exists(Expr previousGuard |
-    localTaintFlowToPathGuard(previousGuard.(PathNormalizeSanitizer), g)
-    or
-    previousGuard
-        .(PathTraversalGuard)
-        .controls(g.getBasicBlock(), previousGuard.(PathTraversalGuard).getBranch())
-  )
-}
-
-private class PrependedSafePrefixSanitizer extends PathInjectionSanitizer {
-  PrependedSafePrefixSanitizer() {
-    this = DataFlow::BarrierGuard<prependedSafePrefixGuard/3>::getABarrierNode() or
-    this = ValidationMethod<prependedSafePrefixGuard/3>::getAValidatedNode()
-  }
-}
-
-// *****
 private class AllowedPrefixGuard extends PathGuard instanceof MethodCall {
   AllowedPrefixGuard() {
     (isStringPrefixMatch(this) or isPathPrefixMatch(this)) and
