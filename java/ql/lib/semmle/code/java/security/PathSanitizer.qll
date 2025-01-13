@@ -403,10 +403,10 @@ private class ControlledPrefixSanitizer extends PathInjectionSanitizer {
       not isTainted(expr) and
       (
         expr instanceof FileConstructorParentArg and
-        expr.(Argument).getCall().getArgument(1) = this.asExpr()
+        expr.(Argument).getCall() = this.asExpr()
         or
         expr instanceof LeftAddExpr and
-        exists(AddExpr a | expr = a.getLeftOperand() and this.asExpr() = a.getRightOperand())
+        exists(AddExpr a | expr = a.getLeftOperand() and this.asExpr() = a)
       )
     ) and
     (

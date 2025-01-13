@@ -175,6 +175,19 @@ public class TaintedPath {
         }
     }
 
+     // TODO : Confirm sanitized correct node; sanitize the result of the appending, not the original node, which could still be used later
+    public void sendUserFileGood9_2(Socket sock, String user) throws IOException {
+        BufferedReader filenameReader =
+                new BufferedReader(new InputStreamReader(sock.getInputStream(), "UTF-8"));
+        String filename = filenameReader.readLine();
+        String path = "safe/" + filename;
+        // GOOD: ensure that the path does not contain ".." and is concatenated to a safe prefix
+        if (!path.contains("..")) {
+            BufferedReader fileReader = new BufferedReader(new FileReader(path)); // GOOD since safe prefix
+            BufferedReader fileReader2 = new BufferedReader(new FileReader(filename)); // $ hasTaintFlow
+        }
+    }
+
     // TODO first...
     public void sendUserFileGood10(Socket sock, String user) throws IOException {
         BufferedReader filenameReader =
