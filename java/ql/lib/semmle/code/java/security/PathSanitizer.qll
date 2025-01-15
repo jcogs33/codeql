@@ -92,10 +92,6 @@ private predicate localTaintFlowToPathGuard(Expr e, PathGuard g) {
   TaintTracking::LocalTaintFlow<anyNode/1, pathGuardNode/1>::hasExprFlow(e, g.getCheckedExpr())
 }
 
-private predicate localTaintFlow(Expr e1, Expr e2) {
-  TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(e1, e2)
-}
-
 private class AllowedPrefixGuard extends PathGuard instanceof MethodCall {
   AllowedPrefixGuard() {
     (isStringPrefixMatch(this) or isPathPrefixMatch(this)) and
@@ -235,8 +231,9 @@ class FileConstructorSanitizer extends PathInjectionSanitizer //extends DataFlow
       (
         guard
             .(PathTraversalGuard)
-            .controls(arg.getBasicBlock(), guard.(PathTraversalGuard).getBranch()) or
-        localTaintFlow(guard.(PathNormalizeSanitizer), arg)
+            .controls(arg.getBasicBlock(), guard.(PathTraversalGuard).getBranch())
+        or
+        TaintTracking::localExprTaint(guard.(PathNormalizeSanitizer), arg)
       ) and
       this.asExpr() = constrCall
     )
