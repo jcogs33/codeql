@@ -12,7 +12,10 @@ private import semmle.code.java.security.Sanitizers
 abstract class TaintedPathSink extends DataFlow::Node { }
 
 private class DefaultTaintedPathSink extends TaintedPathSink {
-  DefaultTaintedPathSink() { sinkNode(this, "path-injection") }
+  DefaultTaintedPathSink() {
+    sinkNode(this, "path-injection")
+    //exists(FileConstructorSanitizer fcs | this = fcs)
+  }
 }
 
 /**

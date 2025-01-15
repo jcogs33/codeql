@@ -226,7 +226,8 @@ private class FileConstructorSanitizerTest extends DataFlow::Node {
  * if it is checked for `..` components (`PathTraversalGuard`) or if any internal
  * `..` components are removed from it (`PathNormalizeSanitizer`).
  */
-private class FileConstructorSanitizer extends PathInjectionSanitizer {
+class FileConstructorSanitizer extends PathInjectionSanitizer //extends DataFlow::Node {
+{
   FileConstructorSanitizer() {
     exists(ConstructorCall constrCall, Argument arg, Expr guard |
       constrCall.getConstructedType() instanceof TypeFile and
