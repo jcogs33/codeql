@@ -92,6 +92,10 @@ private predicate localTaintFlowToPathGuard(Expr e, PathGuard g) {
   TaintTracking::LocalTaintFlow<anyNode/1, pathGuardNode/1>::hasExprFlow(e, g.getCheckedExpr())
 }
 
+private predicate localTaintFlow(Expr e1, Expr e2) {
+  TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(e1, e2)
+}
+
 private class AllowedPrefixGuard extends PathGuard instanceof MethodCall {
   AllowedPrefixGuard() {
     (isStringPrefixMatch(this) or isPathPrefixMatch(this)) and
@@ -150,20 +154,38 @@ private predicate dotDotCheckGuard(Guard g, Expr e, boolean branch) {
     or
     previousGuard.(BlockListGuard).controls(g.getBasicBlock(), false)
   )
+  // or
+  // exists(ConstructorCall cc, Argument a |
+  //   cc.getConstructedType() instanceof TypeFile and
+  //   a = cc.getArgument(1) and
+  //   TaintTracking::LocalTaintFlow<pathGuardNode/1, anyNode/1>::hasExprFlow(g.(PathTraversalGuard)
+  //         .getCheckedExpr(), a)
+  // )
 }
 
+// private string getCase(){
+// }
 private class DotDotCheckSanitizer extends PathInjectionSanitizer {
   DotDotCheckSanitizer() {
     this = DataFlow::BarrierGuard<dotDotCheckGuard/3>::getABarrierNode() or
     this = ValidationMethod<dotDotCheckGuard/3>::getAValidatedNode()
+    // exists(DataFlow::Node n |
+    //   n = DataFlow::BarrierGuard<dotDotCheckGuard/3>::getABarrierNode() or
+    //   n = ValidationMethod<dotDotCheckGuard/3>::getAValidatedNode()
+    //   if  exists(ConstructorCall cc, Argument a |
+    //     cc.getConstructedType() instanceof TypeFile and
+    //     a = cc.getArgument(1) )
+    //     then this =
+    //     else this = n
+    // )
   }
 }
 
 /**
- * Holds if `g` is a guard that considers a path safe because it is checked for `..` components, and is
- * then used as the second argument to a File constructor.
+ * Holds if `g` is a guard that considers the second argument to a File constructor safe
+ * because it is checked for `..` components.
  */
-private predicate dotDotCheckWithFileConstructorGuard(Guard g, Expr e, boolean branch) {
+private predicate fileConstructorGuard(Guard g, Expr e, boolean branch) {
   // Local taint-flow is used here to handle cases where the validated expression comes from the
   // expression reaching the sink, but it's not the same one, e.g.:
   //  Path path = source();
@@ -172,94 +194,150 @@ private predicate dotDotCheckWithFileConstructorGuard(Guard g, Expr e, boolean b
   //    File f2 = new File(f1, path);
   //    sink(f2);
   branch = g.(PathTraversalGuard).getBranch() and
-  localTaintFlowToPathGuard(e, g) //and
-  //// or
-  //// localTaintFlowToPathGuard(e, g.(PathNormalizeSanitizer)) and branch = false
-  //exists(ConstructorCall cc |
-  //cc.getConstructedType() instanceof TypeFile //and
-  //g.(PathTraversalGuard).getBasicBlock().asCall() = cc  // don't use this, doesn't work, just experimenting
-  // TaintTracking::LocalTaintFlow<pathGuardNode/1, anyNode/1>::hasExprFlow(g.(PathTraversalGuard)
-  //       .getCheckedExpr(), cc.getArgument(1))
-  //or
-  // TaintTracking::LocalTaintFlow<anyNode/1, pathGuardNode/1>::hasExprFlow(cc.getArgument(1),
-  //   g.(PathTraversalGuard).getCheckedExpr()) // ! reverse like this doesn't work due to how `getABarrierNode` gets the "use" of the sanitized node, not the result (I believe), so need to handle differently (or ignore this case for now since unlikely to be real use-case?)
-  //g.(PathTraversalGuard).controls(controlled, branch) = e and
-  //e = cc.getArgument(1)
-  //)
-  // *
-  // exists(Guard previousGuard |
-  //   previousGuard.(AllowedPrefixGuard).controls(g.getBasicBlock(), true)
-  //   or
-  //   previousGuard.(BlockListGuard).controls(g.getBasicBlock(), false)
-  // )
+  localTaintFlowToPathGuard(e, g)
 }
 
-import semmle.code.java.dataflow.StringPrefixes
-
-private class StringPrefix extends InterestingPrefix {
-  StringPrefix() { this instanceof StringLiteral }
-
-  override int getOffset() { result = 0 }
-}
-
-predicate mayFollowStringPrefix(Expr e) { e = any(StringPrefix sp).getAnAppendedExpression() }
-
-predicate mayBeAppendResultStringPrefix(Expr e) { e = any(StringPrefix sp).getAppendResult() }
-
-private class DotDotCheckWithFileConstructorSanitizer extends PathInjectionSanitizer {
-  DotDotCheckWithFileConstructorSanitizer() {
+private class FileConstructorSanitizerTest extends DataFlow::Node {
+  // ! removed for testing combination with existing dotDot guard/san
+  FileConstructorSanitizerTest() {
     // file constructor
-    exists(ConstructorCall cc |
+    exists(ConstructorCall cc, Argument a |
       cc.getConstructedType() instanceof TypeFile and
+      a = cc.getArgument(1) and
+      this.asExpr() = cc and
       // dot dot check case
       (
-        this.asExpr() = cc and
         (
-          cc.getArgument(1) =
-            DataFlow::BarrierGuard<dotDotCheckWithFileConstructorGuard/3>::getABarrierNode()
-                .asExpr() or
-          cc.getArgument(1) =
-            ValidationMethod<dotDotCheckWithFileConstructorGuard/3>::getAValidatedNode().asExpr()
-        )
-      )
-      or
-      // normalize case
-      this.asExpr() = cc and
-      exists(PathNormalizeSanitizer normalizeGuard |
-        TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(normalizeGuard,
-          cc.getArgument(1))
-      )
-    )
-    or
-    // string prefixes
-    exists(StringPrefix sp |
-      (
-        // dot dot check case
-        (
-          //mayFollowStringPrefix(this.asExpr()) and
-          //this.asExpr() = sp.getAnAppendedExpression() and
-          this.asExpr() = sp.getAppendResult() and
-          sp.getAnAppendedExpression() =
-            DataFlow::BarrierGuard<dotDotCheckWithFileConstructorGuard/3>::getABarrierNode()
-                .asExpr()
-          or
-          sp.getAnAppendedExpression() =
-            ValidationMethod<dotDotCheckWithFileConstructorGuard/3>::getAValidatedNode().asExpr()
+          a = DataFlow::BarrierGuard<fileConstructorGuard/3>::getABarrierNode().asExpr() or
+          a = ValidationMethod<fileConstructorGuard/3>::getAValidatedNode().asExpr()
         )
         or
         // normalize case
-        //mayBeAppendResultStringPrefix(this.asExpr()) and
-        this.asExpr() = sp.getAppendResult() and
-        // this.asExpr() = sp.getAnAppendedExpression() and
         exists(PathNormalizeSanitizer normalizeGuard |
-          TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(normalizeGuard,
-            sp.getAppendResult())
+          TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(normalizeGuard, a)
         )
       )
     )
   }
 }
 
+/**
+ * A sanitizer that considers the second argument to a `File` constructor safe
+ * if it is checked for `..` components (`PathTraversalGuard`) or if any internal
+ * `..` components are removed from it (`PathNormalizeSanitizer`).
+ */
+private class FileConstructorSanitizer extends PathInjectionSanitizer {
+  FileConstructorSanitizer() {
+    exists(ConstructorCall constrCall, Argument arg, Expr guard |
+      constrCall.getConstructedType() instanceof TypeFile and
+      arg = constrCall.getArgument(1) and
+      (
+        guard
+            .(PathTraversalGuard)
+            .controls(arg.getBasicBlock(), guard.(PathTraversalGuard).getBranch()) or
+        localTaintFlow(guard.(PathNormalizeSanitizer), arg)
+      ) and
+      this.asExpr() = constrCall
+    )
+  }
+}
+
+// /**
+//  * Holds if `g` is a guard that considers a path safe because it is checked for `..` components, and is
+//  * then used as the second argument to a File constructor.
+//  */
+// private predicate dotDotCheckWithFileConstructorGuard(Guard g, Expr e, boolean branch) {
+//   // Local taint-flow is used here to handle cases where the validated expression comes from the
+//   // expression reaching the sink, but it's not the same one, e.g.:
+//   //  Path path = source();
+//   //  String strPath = path.toString();
+//   //  if (!strPath.contains(".."))
+//   //    File f2 = new File(f1, path);
+//   //    sink(f2);
+//   branch = g.(PathTraversalGuard).getBranch() and
+//   localTaintFlowToPathGuard(e, g) //and
+//   //// or
+//   //// localTaintFlowToPathGuard(e, g.(PathNormalizeSanitizer)) and branch = false
+//   //exists(ConstructorCall cc |
+//   //cc.getConstructedType() instanceof TypeFile //and
+//   //g.(PathTraversalGuard).getBasicBlock().asCall() = cc  // don't use this, doesn't work, just experimenting
+//   // TaintTracking::LocalTaintFlow<pathGuardNode/1, anyNode/1>::hasExprFlow(g.(PathTraversalGuard)
+//   //       .getCheckedExpr(), cc.getArgument(1))
+//   //or
+//   // TaintTracking::LocalTaintFlow<anyNode/1, pathGuardNode/1>::hasExprFlow(cc.getArgument(1),
+//   //   g.(PathTraversalGuard).getCheckedExpr()) // ! reverse like this doesn't work due to how `getABarrierNode` gets the "use" of the sanitized node, not the result (I believe), so need to handle differently (or ignore this case for now since unlikely to be real use-case?)
+//   //g.(PathTraversalGuard).controls(controlled, branch) = e and
+//   //e = cc.getArgument(1)
+//   //)
+//   // *
+//   // exists(Guard previousGuard |
+//   //   previousGuard.(AllowedPrefixGuard).controls(g.getBasicBlock(), true)
+//   //   or
+//   //   previousGuard.(BlockListGuard).controls(g.getBasicBlock(), false)
+//   // )
+// }
+// import semmle.code.java.dataflow.StringPrefixes
+// private class StringPrefix extends InterestingPrefix {
+//   StringPrefix() { this instanceof StringLiteral }
+//   override int getOffset() { result = 0 }
+// }
+// predicate mayFollowStringPrefix(Expr e) { e = any(StringPrefix sp).getAnAppendedExpression() }
+// predicate mayBeAppendResultStringPrefix(Expr e) { e = any(StringPrefix sp).getAppendResult() }
+// private class DotDotCheckWithFileConstructorSanitizer extends DataFlow::Node {
+//   // ! turn off sanitizer for MRVA, etc....
+//   //extends PathInjectionSanitizer {
+//   DotDotCheckWithFileConstructorSanitizer() {
+//     // file constructor
+//     exists(ConstructorCall cc |
+//       cc.getConstructedType() instanceof TypeFile and
+//       // dot dot check case
+//       (
+//         this.asExpr() = cc and
+//         (
+//           cc.getArgument(1) =
+//             DataFlow::BarrierGuard<dotDotCheckWithFileConstructorGuard/3>::getABarrierNode()
+//                 .asExpr() or
+//           cc.getArgument(1) =
+//             ValidationMethod<dotDotCheckWithFileConstructorGuard/3>::getAValidatedNode().asExpr()
+//         )
+//       )
+//       or
+//       // normalize case
+//       this.asExpr() = cc and
+//       exists(PathNormalizeSanitizer normalizeGuard |
+//         TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(normalizeGuard,
+//           cc.getArgument(1))
+//       )
+//     )
+//     or
+//     // string prefixes
+//     exists(StringPrefix sp |
+//       (
+//         // dot dot check case
+//         (
+//           //mayFollowStringPrefix(this.asExpr()) and
+//           //this.asExpr() = sp.getAnAppendedExpression() and
+//           this.asExpr() = sp.getAppendResult() and
+//           sp.getAnAppendedExpression() =
+//             DataFlow::BarrierGuard<dotDotCheckWithFileConstructorGuard/3>::getABarrierNode()
+//                 .asExpr()
+//           or
+//           sp.getAnAppendedExpression() =
+//             ValidationMethod<dotDotCheckWithFileConstructorGuard/3>::getAValidatedNode().asExpr()
+//         )
+//         or
+//         // normalize case
+//         //mayBeAppendResultStringPrefix(this.asExpr()) and
+//         this.asExpr() = sp.getAppendResult() and
+//         // this.asExpr() = sp.getAnAppendedExpression() and
+//         exists(PathNormalizeSanitizer normalizeGuard |
+//           TaintTracking::LocalTaintFlow<anyNode/1, anyNode/1>::hasExprFlow(normalizeGuard,
+//             sp.getAppendResult())
+//         )
+//       )
+//     )
+//   }
+// }
 private class BlockListGuard extends PathGuard instanceof MethodCall {
   BlockListGuard() {
     (isStringPartialMatch(this) or isPathPrefixMatch(this)) and
