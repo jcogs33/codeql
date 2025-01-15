@@ -46,6 +46,11 @@ abstract class InterestingPrefix extends CompileTimeConstantExpr {
    * Gets an expression that may follow this prefix in a derived string.
    */
   Expr getAnAppendedExpression() { mayFollowInterestingPrefix(this, result) }
+
+  /**
+   * Gets the result of appending this prefix with this expression.
+   */
+  Expr getAppendResult() { mayBeAppendedResult(this, result) }
 }
 
 private Expr getAnInterestingPrefix(InterestingPrefix root) {
@@ -174,5 +179,46 @@ private predicate mayFollowInterestingPrefix(InterestingPrefix prefix, Expr foll
     laterOffset > prefixOffset and
     laterOffset = formatString.getAnArgUsageOffset(sanitizedArg) and
     follows = formatCall.getArgumentToBeFormatted(sanitizedArg)
+  )
+}
+
+/**
+ * Holds if `appendResult` may be the result of appending `follows` after `prefix`.
+ */
+private predicate mayBeAppendedResult(InterestingPrefix prefix, Expr appendResult) {
+  // Expressions that come after an interesting prefix in a tree of string additions:
+  exists(AddExpr add | add.getLeftOperand() = getAnInterestingPrefix(prefix) and appendResult = add)
+  or
+  // Sanitize expressions that come after an interesting prefix in a sequence of StringBuilder operations:
+  exists(
+    StringBuilderConstructorOrAppend appendSanitizingConstant, StringBuilderAppend subsequentAppend,
+    StringBuilderVarExt v
+  |
+    appendSanitizingConstant = v.getAConstructorOrAppend() and
+    appendSanitizingConstant.getArgument(0) = getAnInterestingPrefix(prefix) and
+    v.getSubsequentAppendIncludingAssignmentChains(appendSanitizingConstant) = subsequentAppend and
+    appendResult = appendSanitizingConstant
+  )
+  or
+  // Sanitize expressions that come after an interesting prefix in the args to a format call:
+  exists(
+    FormattingCall formatCall, FormatString formatString, int prefixOffset, int laterOffset,
+    int sanitizedArg
+  |
+    formatString = unique(FormatString fs | fs = formatCall.getAFormatString()) and
+    (
+      // An interesting prefix argument comes before this:
+      exists(int argIdx |
+        formatCall.getArgumentToBeFormatted(argIdx) = prefix and
+        prefixOffset = formatString.getAnArgUsageOffset(argIdx)
+      )
+      or
+      // The format string itself contains an interesting prefix that precedes subsequent arguments:
+      formatString = prefix.getStringValue() and
+      prefixOffset = prefix.getOffset()
+    ) and
+    laterOffset > prefixOffset and
+    laterOffset = formatString.getAnArgUsageOffset(sanitizedArg) and
+    appendResult = formatCall
   )
 }
